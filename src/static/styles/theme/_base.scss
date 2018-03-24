@@ -1,0 +1,131 @@
+html {
+  width: 100%;
+  height: 100%;
+  font-size: 100%;
+  font-family: $font-family-regular;
+}
+
+label {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.form-label {
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  padding: 22px 0px 4px;
+}
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.ReactModal__Body--open {
+  overflow-y: hidden;
+}
+
+/*
+.container {
+  padding: 20px 20px 40px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+*/
+body {
+  background-color: #f9f9f9;
+}
+
+th, td {
+  vertical-align: middle;
+}
+
+.emblem {
+  width: 50px;
+  height: 50px;
+}
+
+/* Attendance Styles */
+
+.attendancePresent {
+    background-color: rgba(75, 255, 74, 0.5);
+}
+
+.attendanceMIA {
+    background-color: rgba(255, 73, 42, 0.5);
+}
+
+.attendanceAway {
+    background-color: rgba(255, 178, 110, 0.5);
+}
+
+.attendanceEmpty {
+    background-color: rgba(221, 221, 221, 0.5);
+}
+
+.attendancePresent,
+.attendanceMIA,
+.attendanceAway,
+.attendanceEmpty {
+    color: #000;
+    line-height: 32px;
+    font-size: 16px;
+}
+
+.form-field {
+  margin-right: 10px;
+  height: 72px;
+  width: 350px;
+}
+
+/* Fields */
+.bdo-field-label {
+  width: 75px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+
+.table-row {
+  :hover {
+    background-color: rbga(0, 0, 0, 0.02);
+  }
+}
+
+/* ReactDataGrid Row colors */
+.react-grid-HeaderCell {
+  background-color: #e9e9e9 !important;
+}
+
+.react-grid-Row--odd > div {
+  background-color: #f9f9f9 !important;
+}
+
+.react-grid-Header {
+  box-shadow: none !important;
+  background: none !important;
+}
+
+.react-grid-HeaderRow {
+  overflow-y: hidden;
+}
+
+.react-grid-HeaderCell {
+  border-top: 1px solid #eee;
+}
+
+.react-grid-Grid {
+  border: none !important;
+}
+
+.react-grid-Cell {
+  border-left: 1px solid #eee
+}
+
+.react-grid-Main {
+  outline:  none !important;
+}

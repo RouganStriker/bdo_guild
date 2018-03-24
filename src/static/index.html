@@ -1,0 +1,19 @@
+{% load json_filters %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <title>BDO Guilds</title>
+  <meta charset="utf-8">
+  <script type="text/javascript">
+    {% if user.is_authenticated %}
+      window.user = {{ USER_DATA | jsonify }};
+    {% endif %}
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
