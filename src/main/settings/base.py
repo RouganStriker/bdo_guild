@@ -211,6 +211,4 @@ CSP_DICT = {
 # All Auth
 SOCIALACCOUNT_STORE_TOKENS = False
 
-DISCORD_BOT_TOKEN = '<TOKEN HERE>'
-
-from main.settings.local_settings import *  # NOQA (ignore all errors on this line)
+DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)
