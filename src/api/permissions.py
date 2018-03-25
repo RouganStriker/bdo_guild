@@ -30,7 +30,7 @@ class ProfilePermission(permissions.BasePermission):
         if request.method in ['PUT', 'PATCH']:
             # Let the object permission handle that
             return True
-        if request.method == 'POST' and not request.user.profile:
+        if request.method == 'POST' and getattr(request.user, 'profile', None) is None:
             # Only allow creation of profile if one does not exist already
             return True
 

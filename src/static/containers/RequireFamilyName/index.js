@@ -67,9 +67,7 @@ function submitForm(values, dispatch, props) {
     payload: { family_name },
     form: 'profile',
     onSuccess: (result) => {
-      dispatch(AuthService.setProfileID(result['id']));
-      dispatch(AuthService.setGuilds(result['membership']));
-      dispatch(push('/'))
+      window.location.reload();
     },
   }));
 }
