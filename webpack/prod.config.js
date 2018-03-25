@@ -9,6 +9,16 @@ module.exports = {
     module: {
         rules: [{
             test: /\.css$/,
+            include: /node_modules\/react-month-picker/,
+            use: ExtractTextPlugin.extract([
+                {
+                    loader: 'css-loader',
+                    options: { importLoaders: 1 },
+                },
+            ])
+        }, {
+            test: /\.css$/,
+            exclude: /node_modules\/react-month-picker/,
             use: ExtractTextPlugin.extract([
                 {
                     loader: 'css-loader',
