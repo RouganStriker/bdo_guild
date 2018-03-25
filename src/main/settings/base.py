@@ -7,7 +7,7 @@ ATOMIC_REQUESTS = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # remove /sswmain/settings to get base folder
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ajsdgas7&*kosdsa21[]jaksdhlka-;kmcv8l$#diepsm8&ah^'
+SECRET_KEY = os.environ.get("BDO_GUILD_SECRET_KEY")
 
 DEBUG = True
 
