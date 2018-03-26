@@ -127,7 +127,7 @@ class ProfileView extends React.Component {
     handleAvailabilityChange(availability) {
       const { dispatch, profile } = this.props;
 
-      dispatch(ProfileService.update({ id: profile.selected.id, payload: { availability } }));
+      dispatch(ProfileService.updateSelected({ id: profile.selected.id, payload: { availability } }));
     }
 
     handleToggleAutoSignUp(e, toggled) {
@@ -169,7 +169,7 @@ class ProfileView extends React.Component {
 
           <h4 style={{ paddingTop: 30 }}>Availability</h4>
           <Divider />
-          <div style={{ paddingTop: 20 }}>{"Specify your availability for node wars. Days are in NA time."}.</div>
+          <div style={{ paddingTop: 20 }}>{"Specify your availability for node wars. Days are in NA time."}</div>
 
           <AvailabilityTable initialValues={profile.selected.availability}
                              onChange={this.handleAvailabilityChange.bind(this)} />
