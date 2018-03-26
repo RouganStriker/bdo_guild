@@ -101,7 +101,8 @@ class Profile(models.Model, UserPermissionMixin):
         guilds = Guild.objects.filter(discord_members__has_key=self.discord_id)
 
         # Delete old guilds
-        GuildMember.objects.filter(user=self).exclude(guild__in=guilds).delete()
+        # Don't ever delete GMs
+        GuildMember.objects.exclude(role=GuildRole.guild_master()).filter(user=self).exclude(guild__in=guilds).delete()
 
         # Update and create new membership
         membership_role_mapping = {membership.guild: membership for membership in self.membership.all()}

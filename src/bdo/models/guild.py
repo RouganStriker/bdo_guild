@@ -109,6 +109,10 @@ class GuildRole(Group):
     class Meta:
         ordering = ('id',)
 
+    @staticmethod
+    def guild_master():
+        return GuildRole.objects.get(id=1)
+
 
 class GuildMember(models.Model):
     guild = models.ForeignKey(Guild, related_name="membership")
