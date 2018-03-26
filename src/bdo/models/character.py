@@ -112,7 +112,7 @@ class Profile(models.Model, UserPermissionMixin):
             guild_role = guild_role_mapping[guild.discord_members[self.discord_id]]
 
             if guild not in membership_role_mapping:
-                new_membership.append(GuildMember(guild=guild, profile=self, role=guild_role))
+                new_membership.append(GuildMember(guild=guild, user=self, role=guild_role))
             elif guild_role != membership_role_mapping[guild].role.id:
                 membership_role_mapping[guild].role = guild_role
                 membership_role_mapping[guild].save()

@@ -49,18 +49,16 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
     def get_guild(self, request, instance=None):
         raise NotImplementedError()
 
-    def get_membership(self, request):
+    def get_membership(self, request, instance=None):
         # Get guild membership
         try:
-            return GuildMember.objects.get(user=request.user.profile, guild=self.get_guild(request))
+            return GuildMember.objects.get(user=request.user.profile, guild=self.get_guild(request, instance))
         except GuildMember.DoesNotExist:
             return None
 
     def has_permission(self, request, view):
         if request.method not in self.perms_map:
             raise exceptions.MethodNotAllowed(request.method)
-
-        membership = self.get_membership(request)
 
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -71,7 +69,9 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
             return True
 
         if request.method == 'POST':
-            return set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
+            membership = self.get_membership(request)
+
+            return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
 
         return request.method in ['DELETE', 'PUT', 'PATCH']
 
@@ -79,13 +79,13 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
         if request.method not in self.perms_map:
             raise exceptions.MethodNotAllowed(request.method)
 
-        membership = self.get_membership(request)
+        membership = self.get_membership(request, obj)
         required_permissions = self.perms_map[request.method]
 
         if not required_permissions:
             return True
 
-        return set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
+        return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
 
 
 class GuildPermission(BaseGuildObjectPermission):
@@ -101,6 +101,7 @@ class GuildPermission(BaseGuildObjectPermission):
         if instance is not None:
             return instance
 
+        # Can't create guilds
         return None
 
 
