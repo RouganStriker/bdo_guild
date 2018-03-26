@@ -1,16 +1,17 @@
 from expander import ExpanderSerializerMixin
 from rest_framework import serializers
 
+from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.content import CharacterClass, WarArea, WarNode
 
 
-class CharacterClassSerializer(serializers.ModelSerializer):
+class CharacterClassSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = CharacterClass
         fields = '__all__'
 
 
-class WarAreaSerializer(serializers.ModelSerializer):
+class WarAreaSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     region = serializers.SerializerMethodField()
 
     class Meta:
@@ -21,7 +22,7 @@ class WarAreaSerializer(serializers.ModelSerializer):
         return area.get_region_display()
 
 
-class WarNodeSerializer(ExpanderSerializerMixin, serializers.ModelSerializer):
+class WarNodeSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = WarNode
         fields = '__all__'

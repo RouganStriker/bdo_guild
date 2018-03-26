@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
 from api.serializers.character import NestedCharacterSerializer
+from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.character import Profile
 
 
-class SimpleProfileSerializer(serializers.ModelSerializer):
+class SimpleProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('id', 'family_name')

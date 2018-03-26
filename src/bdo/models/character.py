@@ -21,7 +21,7 @@ class Profile(models.Model, UserPermissionMixin):
         "Saturday": DEFAULT_AVAILABILITY_STATUS
     }
 
-    family_name = models.CharField(max_length=255, blank=True, null=True)
+    family_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     preferences = JSONField(default={}, null=True, blank=True)
     user = models.OneToOneField(get_user_model(), null=True, blank=True)
     discord_id = models.CharField(max_length=255, null=True, blank=True)
@@ -70,7 +70,7 @@ class Profile(models.Model, UserPermissionMixin):
         super(Profile, self).clean()
 
         if Profile.objects.filter(family_name__iexact=self.family_name).exclude(id=self.id).exists():
-            raise ValidationError("Family name '{0}' already exists.".format(self.family_name))
+            raise ValidationError({"family_name": "Family name '{0}' already exists.".format(self.family_name)})
 
         if self.discord_id and not self.user:
             self.discord_id = None

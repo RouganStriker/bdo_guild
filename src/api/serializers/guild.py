@@ -4,11 +4,12 @@ from rest_framework import serializers
 from api.serializers import war as war_serializers
 from api.serializers.profile import ExtendedProfileSerializer, SimpleProfileSerializer
 from api.serializers.guild_content import SimpleGuildRoleSerializer
+from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember
 from bdo.models.war import War
 
 
-class GuildMemberSerializer(ExpanderSerializerMixin, serializers.ModelSerializer):
+class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     attendance = war_serializers.NestedWarAttendanceSerializer(many=True)
     name = serializers.StringRelatedField(source='user', read_only=True)
     main_character = serializers.DictField(read_only=True)
@@ -48,7 +49,7 @@ class GuildMemberSerializer(ExpanderSerializerMixin, serializers.ModelSerializer
         return 'include' in query and 'main_character' in query['include'].split(',')
 
 
-class GuildSerializer(serializers.ModelSerializer):
+class GuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     pending_war = serializers.SerializerMethodField()
 
     # Extra stats fields

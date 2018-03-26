@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueValidator
 
 from api.serializers.guild_content import GuildMembershipSerializer
+from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.character import Character, Profile
 from bdo.models.content import CharacterClass
 
@@ -15,7 +15,7 @@ class ProfileDefault(object):
         return self.profile
 
 
-class CharacterSerializer(serializers.ModelSerializer):
+class CharacterSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     character_class = serializers.PrimaryKeyRelatedField(queryset=CharacterClass.objects.all())
     profile = serializers.PrimaryKeyRelatedField(read_only=True, default=ProfileDefault())
 
@@ -54,12 +54,10 @@ class NestedCharacterSerializer(CharacterSerializer):
         fields = ('id', 'name', 'character_class', 'level', 'ap', 'aap', 'dp', 'is_main')
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     character_set = NestedCharacterSerializer(many=True, read_only=True)
     stats = serializers.DictField(read_only=True)
-    family_name = serializers.CharField(max_length=255, validators=[UniqueValidator(queryset=Profile.objects.all(),
-                                                                                    message='This family name already exists',
-                                                                                    lookup='iexact')])
+    family_name = serializers.CharField(max_length=255)
     membership = GuildMembershipSerializer(many=True, read_only=True)
 
     class Meta:
@@ -86,11 +84,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         discord_account = user.socialaccount_set.filter(provider='discord_auth')
         validated_data['user'] = user
+        family_name = validated_data.get('family_name')
 
         if discord_account:
             validated_data['discord_id'] = discord_account[0].extra_data['id']
 
-        profile = super(ProfileSerializer, self).create(validated_data)
+        # Create new profile or update family name casing of existing
+        profile, _ = Profile.objects.update_or_create(family_name__iexact=family_name,
+                                                      user__isnull=True,
+                                                      defaults=validated_data)
         profile.refresh_guilds()
 
         return profile

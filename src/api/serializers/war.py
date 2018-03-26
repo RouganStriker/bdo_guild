@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.compat import unicode_to_repr
 
 from api.serializers.content import WarNodeSerializer
+from api.serializers.mixin import BaseSerializerMixin
 from api.serializers.profile import ExtendedProfileSerializer
 from bdo.models.character import Profile
 from bdo.models.guild import Guild
@@ -42,7 +43,7 @@ class CurrentUserProfileDefault(object):
         return unicode_to_repr('%s()' % self.__class__.__name__)
 
 
-class WarAttendanceSerializer(ExpanderSerializerMixin, serializers.ModelSerializer):
+class WarAttendanceSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     war = serializers.PrimaryKeyRelatedField(read_only=True, default=CurrentWarDefault())
     user_profile = serializers.PrimaryKeyRelatedField(read_only=True, default=CurrentUserProfileDefault())
     name = serializers.CharField(read_only=True)
@@ -84,13 +85,13 @@ class NestedWarAttendanceSerializer(WarAttendanceSerializer):
         fields = ('is_attending', 'date')
 
 
-class WarTemplateSerializer(serializers.ModelSerializer):
+class WarTemplateSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = WarTemplate
         fields = '__all__'
 
 
-class WarCallSignSerializer(serializers.ModelSerializer):
+class WarCallSignSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     war = serializers.PrimaryKeyRelatedField(read_only=True, default=CurrentWarDefault())
 
     class Meta:
@@ -104,7 +105,7 @@ class NestedWarCallSignSerializer(WarCallSignSerializer):
         fields = ('id', 'name')
 
 
-class WarTeamSerializer(serializers.ModelSerializer):
+class WarTeamSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     war = serializers.PrimaryKeyRelatedField(read_only=True, default=CurrentWarDefault())
     slots = serializers.SerializerMethodField()
 
@@ -137,7 +138,7 @@ class NestedWarTeamSerializer(WarTeamSerializer):
         fields = ('id', 'name', 'type', 'slot_setup', 'default_role', 'display_slots')
 
 
-class WarSerializer(ExpanderSerializerMixin, serializers.ModelSerializer):
+class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     guild = serializers.HiddenField(default=CurrentGuildDefault())
     stats = serializers.DictField(read_only=True)
 
@@ -174,7 +175,7 @@ class WarSerializer(ExpanderSerializerMixin, serializers.ModelSerializer):
         return war
 
 
-class WarStatSerializer(serializers.ModelSerializer):
+class WarStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     name = serializers.CharField(source='attendance.name', read_only=True)
     total_kills = serializers.IntegerField(read_only=True)
     kdr = serializers.FloatField(read_only=True)
@@ -210,7 +211,7 @@ class NestedWarStatSerializer(WarStatSerializer):
         )
 
 
-class WarSubmitSerializer(serializers.Serializer):
+class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
     outcome = serializers.ChoiceField(choices=list(War.Outcome.choices()))
     stats = NestedWarStatSerializer(many=True)
 
@@ -259,7 +260,7 @@ class WarSubmitSerializer(serializers.Serializer):
         return war
 
 
-class SimpleWarSerializer(serializers.ModelSerializer):
+class SimpleWarSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     date = serializers.DateTimeField()
     guild = serializers.CharField(source='guild.name')
 
@@ -268,7 +269,7 @@ class SimpleWarSerializer(serializers.ModelSerializer):
         fields = ('date', 'guild')
 
 
-class PlayerStatSerializer(serializers.ModelSerializer):
+class PlayerStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     war = SimpleWarSerializer(source='attendance.war')
 
     class Meta:

@@ -1,21 +1,22 @@
 from rest_framework import serializers
 
+from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
 
 
-class SimpleGuildRoleSerializer(serializers.ModelSerializer):
+class SimpleGuildRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = GuildRole
         fields = ('name', 'id')
 
 
-class WarRoleSerializer(serializers.ModelSerializer):
+class WarRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = WarRole
         fields = ('id', 'name')
 
 
-class SimpleGuildSerializer(serializers.ModelSerializer):
+class SimpleGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Guild
         fields = ('id', 'name')
