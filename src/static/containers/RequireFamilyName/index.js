@@ -67,7 +67,7 @@ function submitForm(values, dispatch, props) {
     payload: { family_name },
     form: 'profile',
     onSuccess: (result) => {
-      window.location.reload();
+      window.location.assign('/settings');
     },
   }));
 }
