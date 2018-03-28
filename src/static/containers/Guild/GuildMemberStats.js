@@ -5,6 +5,7 @@ import Paper from 'material-ui/Paper';
 import DataTables from 'material-ui-datatables';
 
 import LoadingWidget from '../../components/LoadingWidget';
+import Tooltip from '../../components/Tooltip';
 import {
   MemberService,
 } from '../../services';
@@ -109,12 +110,17 @@ class GuildMemberStats extends React.Component {
         }
       },
       {
-        key: 'wars',
-        label: 'Wars',
+        key: 'attended',
+        label: 'Attendance',
         sortable: false,
         style: {width: 100},
         render: (_, all) => {
-          return all.stats.total_wars;
+          const { total_attended, total_unavailable, total_missed } = all.stats;
+          return (
+            <Tooltip label='Attended / Unavailable / Missed'>
+              {[total_attended, total_unavailable, total_missed].join(" / ")}
+            </Tooltip>
+          );
         }
       },
       {

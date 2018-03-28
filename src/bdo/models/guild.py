@@ -163,8 +163,10 @@ class GuildMember(models.Model):
             'siege_weapons',
         ]
 
-        return self.user.attendance_set.filter(war__guild=self.guild).values('user_profile').aggregate(
-            total_wars=Count('id'),
+        return self.user.attendance_set.filter(war__guild=self.guild, war__outcome__isnull=False).values('user_profile').aggregate(
+            total_attended=Count(Case(When(is_attending__in=[0, 4], then=1))),
+            total_unavailable=Count(Case(When(is_attending=1, then=1))),
+            total_missed=Count(Case(When(is_attending__in=[2, 3], then=1))),
             **{'total_{0}'.format(field): Sum('stats__{0}'.format(field)) for field in fields}
         )
 
