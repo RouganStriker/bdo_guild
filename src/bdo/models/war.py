@@ -31,7 +31,7 @@ class War(models.Model):
     guild = models.ForeignKey(Guild)
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('-date', 'id')
 
     def __str__(self):
         return u"[{0}] - {1}".format(self.guild.name, self.date)

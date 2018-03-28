@@ -131,7 +131,7 @@ class GuildMember(models.Model):
         return self.get_attendance()
 
     def get_attendance(self, limit=6):
-        return self.user.attendance_set.filter(war__guild=self.guild).order_by('-war__date')[:limit]
+        return self.user.attendance_set.filter(war__guild=self.guild, war__outcome__isnull=False).order_by('-war__date')[:limit]
 
     @property
     def main_character(self):

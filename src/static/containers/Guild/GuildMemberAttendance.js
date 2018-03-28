@@ -43,9 +43,15 @@ class GuildMemberAttendance extends React.Component {
   componentWillMount() {
     const { dispatch, guild_id, members, war } = this.props;
 
-    dispatch(WarService.list({ context: { guild_id }, params: { page_size: 6 }}))
+    dispatch(WarService.list({ context: { guild_id }, params: { page_size: 6, outcome__isnull: "False" }}))
     dispatch(MemberService.clearLoaded());
-    dispatch(MemberService.list({ context: { guild_id }, params: { include: "attendance", page_size: 100 }}))
+    dispatch(MemberService.list({
+      context: { guild_id },
+      params: {
+        include: "attendance",
+        page_size: 100,
+      }
+    }))
   }
 
   render() {

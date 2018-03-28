@@ -31,7 +31,8 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
     queryset = War.objects.all()
     filter_backends = (OrderingFilter, filters.DjangoFilterBackend)
     filter_fields = {
-        'date': ['year', 'month']
+        'date': ['year', 'month'],
+        'outcome': ['isnull']
     }
     serializer_class = WarSerializer
     permission_classes = (IsAuthenticated, WarPermission)

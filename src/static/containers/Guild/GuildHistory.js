@@ -96,6 +96,7 @@ class GuildHistory extends React.Component {
         include: 'stats',
         date__year: date.year,
         date__month: date.month,
+        outcome__isnull: false,
       },
     }))
   }
