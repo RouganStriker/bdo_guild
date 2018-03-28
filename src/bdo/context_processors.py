@@ -10,7 +10,7 @@ def get_user_data(request):
         "is_superuser": request.user.is_superuser,
         "guilds": [],
         "profile_id": None,
-        "discord_id": get_discord_id(request.user),
+        "discord_id": request.user.username,
         "discord_servers": get_discord_servers(request.user),
         "role_permissions": serialize_roles()
     }
@@ -30,16 +30,6 @@ def get_user_data(request):
 
 
 # Helper
-def get_discord_id(user):
-    discord_account = user.socialaccount_set.filter(provider='discord_auth').first()
-
-    if not discord_account:
-        return None
-
-    return u"{0}#{1}".format(discord_account.extra_data['username'],
-                             discord_account.extra_data['discriminator'])
-
-
 def get_discord_servers(user):
     # Get list of discord servers the user has manage server perms for
     discord_account = user.socialaccount_set.filter(provider='discord_auth').first()

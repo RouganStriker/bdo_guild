@@ -242,7 +242,7 @@ class ProfileView extends React.Component {
         return (
           <BaseView title={"Settings"}>
             <Grid componentClass={Paper}
-                  style={{ padding: 0, maxHeight: 500, overflowY: "auto", overflowX: "hidden" }}>
+                  style={{ padding: 0, overflowY: "hidden", overflowX: "hidden" }}>
               <Row>
                 <Col xs={6}
                      md={4}
