@@ -7,10 +7,11 @@ import t from 'tcomb-form';
 import PropTypes from 'prop-types';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
-
 import TextField from 'material-ui/TextField';
 import DiscordIcon from './images/Discord-Logo-White.png';
 import Divider from 'material-ui/Divider';
+import { ToastContainer, toast } from 'react-toastify';
+
 import * as actionCreators from '../../actions/auth';
 
 const Form = t.form.Form;
@@ -57,9 +58,21 @@ class LoginView extends React.Component {
     }
 
     componentWillMount() {
-        if (this.props.user) {
-            this.props.dispatch(push('/'));
-        }
+      if (this.props.user) {
+        this.props.dispatch(push('/'));
+      }
+    }
+
+    componentDidMount() {
+      window.messages.forEach((message_tuple) => {
+        const level = message_tuple[0];
+        const message = message_tuple[1];
+
+        level == "info" && toast.info(message);
+        level == "warn" && toast.warn(message);
+        level == "error" && toast.error(message);
+        level == "success" && toast.success(message);
+      });
     }
 
     onFormChange = (value) => {
@@ -116,6 +129,8 @@ class LoginView extends React.Component {
                                href="/accounts/discord_auth/login/?process=login" />
               </div>
             </Paper>
+            <ToastContainer hideProgressBar={true}
+                            position="bottom-right" />
           </div>
         </div>
       );

@@ -10,6 +10,7 @@ import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import {ListItem} from 'material-ui/List';
 import {Tabs, Tab} from 'material-ui/Tabs';
+import { ToastContainer } from 'react-toastify';
 
 // Icons
 import HomeIcon from 'material-ui/svg-icons/action/home'
@@ -129,6 +130,8 @@ class BaseView extends React.Component {
           <div className="app">
             { this.renderBody() }
             { this.renderFooter() }
+            <ToastContainer hideProgressBar={true}
+                            position="bottom-right" />
           </div>
         );
     }

@@ -1,4 +1,4 @@
-{% load json_filters %}
+{% load custom_filters %}
 
 <!doctype html>
 <html lang="en">
@@ -9,6 +9,7 @@
     {% if user.is_authenticated %}
       window.user = {{ USER_DATA | jsonify }};
     {% endif %}
+    window.messages = {{ messages | serialize_messages }};
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">

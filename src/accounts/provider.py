@@ -1,18 +1,20 @@
 from allauth.socialaccount.providers.discord.provider import DiscordProvider
+from allauth.socialaccount.providers.base import ProviderException
 
 
 class DiscordRPCScopeProvider(DiscordProvider):
     id = 'discord_auth'
 
     def extract_common_fields(self, data):
-        return dict(
-            email=data.get('email'),
-            username=data.get('username'),
-            name=data.get('username'),
-        )
+        if not data.get('verified', False):
+            raise ProviderException("Login failed. Discord account is unverified.")
+
+        username = '{0}#{1}'.format(data.get('username'), data.get('discriminator'))
+
+        return dict(username=username)
 
     def get_default_scope(self):
-        return ['identify', 'guilds']
+        return ['identify', 'email', 'guilds']
 
 
 provider_classes = [DiscordRPCScopeProvider]

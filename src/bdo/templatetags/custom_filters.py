@@ -24,4 +24,11 @@ def jsonify(object):
     return mark_safe(object.to_JSON())
 
 
+@register.filter
+def serialize_messages(messages):
+    """Serialize the django.messages queue."""
+    return mark_safe([[message.level_tag, str(message)] for message in messages])
+
+
 register.filter('jsonify', jsonify)
+register.filter('serialize_messages', serialize_messages)
