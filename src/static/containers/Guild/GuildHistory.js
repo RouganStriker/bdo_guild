@@ -133,7 +133,7 @@ class GuildHistory extends React.Component {
       <Dialog modal={false}
               open={true}
               autoScrollBodyContent={true}
-              contentStyle={{width: '100%', maxWidth: 1450}}
+              contentStyle={{width: '100%', maxWidth: 1450, maxHeight: "100%"}}
               onRequestClose={() => this.setState({showStats: false, selectedWar: null})}>
         <WarStatTable items={warStats.items} />
       </Dialog>

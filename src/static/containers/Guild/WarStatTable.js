@@ -56,6 +56,8 @@ class WarStatTable extends React.Component {
       totalItemCount: unfiltered_items.length,
     }
 
+    window.dispatchEvent(new Event('resize'))
+
     this.setState(newState);
   }
 
