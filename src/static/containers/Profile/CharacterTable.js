@@ -24,7 +24,7 @@ class CharacterTable extends React.Component {
           label: 'Main',
           sortable: false,
           style: {
-            width: 50,
+            minWidth: 50,
           },
           render: (is_main, all) => {
             return (
@@ -41,10 +41,16 @@ class CharacterTable extends React.Component {
         {
           key: 'name',
           label: 'Name',
+          style: {
+            minWidth: 100,
+          },
         },
         {
           key: 'character_class',
           label: 'Class',
+          style: {
+            minWidth: 50,
+          },
           render: (character_class, all) => {
             return this.props.characterClasses.items.find((_class) => _class.id === character_class).name;
           }
@@ -52,10 +58,16 @@ class CharacterTable extends React.Component {
         {
           key: 'level',
           label: 'Level',
+          style: {
+            minWidth: 50,
+          },
         },
         {
           key: 'gearscore',
           label: 'Gearscore',
+          style: {
+            width: 100,
+          },
           render: (gearscore, all) => {
             return Math.max(all.aap, all.ap) + all.dp;
           },
@@ -65,7 +77,7 @@ class CharacterTable extends React.Component {
           label: '',
           sortable: false,
           style: {
-            width: 100
+            width: 120
           },
           render: (actions, all) => {
             const btnStyle = {
@@ -76,10 +88,16 @@ class CharacterTable extends React.Component {
 
             return (
               <div>
-                <IconButton style={btnStyle} onClick={() => this.props.onRowEdit(all.id)}>
+                <IconButton tooltip="Edit"
+                            tooltipPosition="top-center"
+                            style={btnStyle}
+                            onClick={() => this.props.onRowEdit(all.id)}>
                   <Edit />
                 </IconButton>
-                <IconButton style={btnStyle} onClick={() => this.props.onRowDelete(all.id)}>
+                <IconButton tooltip="Delete"
+                            tooltipPosition="top-center"
+                            style={btnStyle}
+                            onClick={() => this.props.onRowDelete(all.id)}>
                   <Delete />
                 </IconButton>
               </div>

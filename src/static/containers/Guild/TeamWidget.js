@@ -22,6 +22,7 @@ import { Grid, Row, Col } from 'react-bootstrap';
 import { MuiThemeProvider } from 'material-ui/styles';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
+import defaultTheme from '../../muitheme';
 import LoadingWidget from '../../components/LoadingWidget';
 import MemberSelectField from './MemberSelectField';
 
@@ -65,6 +66,7 @@ class TeamWidget extends React.Component {
 
     const available_members = members.filter((member) => (type === 'call_sign' && !member.call_sign) || (type === 'team' && !member.team));
     const muiTheme = getMuiTheme({
+      ...defaultTheme,
       tableRow: {
         hoverColor: "inherit",
       }

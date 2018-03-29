@@ -30,6 +30,8 @@ class Tooltip extends Component {
       tooltipPosition,
     } = this.props;
 
+    const _tooltipPosition = tooltipPosition.split("-");
+
     return (
       <div style={{display: "inline-block", position: "relative"}}
            onMouseLeave={this.handleMouseLeave}
@@ -39,11 +41,10 @@ class Tooltip extends Component {
                     show={this.state.tooltipShown}
                     style={{
                       boxSizing: 'border-box',
-                      marginTop: 10,
                       textTransform: 'none',
                     }}
-                    verticalPosition={tooltipPosition[0]}
-                    horizontalPosition={tooltipPosition[1]} />
+                    verticalPosition={_tooltipPosition[0]}
+                    horizontalPosition={_tooltipPosition[1]} />
       </div>
     );
   }

@@ -113,7 +113,7 @@ class GuildMemberStats extends React.Component {
         key: 'attended',
         label: 'Attendance',
         sortable: false,
-        style: {width: 100},
+        style: {width: 120},
         render: (_, all) => {
           const { total_attended, total_unavailable, total_missed } = all.stats;
           return (

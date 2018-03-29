@@ -4,6 +4,7 @@ import DataTables from 'material-ui-datatables';
 import { MuiThemeProvider } from 'material-ui/styles';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
+import defaultTheme from '../../muitheme';
 const naturalSort = require("javascript-natural-sort");
 naturalSort.insensitive = true;
 
@@ -178,6 +179,7 @@ class AttendanceTable extends React.Component {
       query: { page, pageSize }
     } = this.state;
     const muiTheme = getMuiTheme({
+      ...defaultTheme,
       tableRow: {
         hoverColor: "rgb(224, 224, 224)",
       }

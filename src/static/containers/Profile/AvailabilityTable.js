@@ -83,12 +83,12 @@ class AvailabilityTable extends React.Component {
 
   render() {
     return (
-      <Table selectable={false}>
+      <Table selectable={false} bodyStyle={{overflow: "initial"}}>
         <TableHeader adjustForCheckbox={false}
                      displaySelectAll={false}>
           <TableRow>
             {
-              this.days.map((day, index) => <TableHeaderColumn key={index}>{day}</TableHeaderColumn>)
+              this.days.map((day, index) => <TableHeaderColumn key={index} style={{width: 100}}>{day}</TableHeaderColumn>)
             }
           </TableRow>
         </TableHeader>
@@ -97,7 +97,7 @@ class AvailabilityTable extends React.Component {
             {
               this.days.map((day, index) => {
                 return (
-                  <TableRowColumn key={index}>
+                  <TableRowColumn key={index} style={{width: 100}}>
                     { this.renderAvailabilityToggle(day) }
                   </TableRowColumn>
                 )

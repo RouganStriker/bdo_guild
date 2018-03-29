@@ -5,6 +5,7 @@ import { MuiThemeProvider } from 'material-ui/styles';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import './styles/main.scss';
+import defaultTheme from './muitheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
@@ -22,7 +23,7 @@ class App extends React.Component {
     };
 
     render() {
-        const muiTheme = getMuiTheme({});
+        const muiTheme = getMuiTheme(defaultTheme);
 
         return (
             <MuiThemeProvider muiTheme={muiTheme}>
