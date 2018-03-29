@@ -54,7 +54,7 @@ class MemberOrderingFilter(OrderingFilter):
 
         if params:
             fields = [param.strip() for param in params.split(',')]
-            char_qs = Character.objects.filter(is_main=True, id=OuterRef('pk'))
+            char_qs = Character.objects.filter(is_main=True, profile=OuterRef('user_id'))
             gearscore_expression = Case(
                 When(ap__lt=F('aap'), then=ExpressionWrapper(F('aap') + F('dp'), output_field=IntegerField())),
                 default=ExpressionWrapper(F('ap') + F('dp'), output_field=IntegerField()),
