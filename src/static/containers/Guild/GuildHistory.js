@@ -187,7 +187,7 @@ class GuildHistory extends React.Component {
                         data['note'] && <div>{data['note']}</div>
                       }
                       <Tooltip label="Attendance Count">
-                        <GroupIcon />
+                        <GroupIcon color="rgb(66,66,66)"/>
                         <label style={labelStyle}>{data.stats.attendance_count}</label>
                       </Tooltip>
 
