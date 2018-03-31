@@ -154,7 +154,7 @@ class GuildWar extends React.Component {
     this.handleCloseDialog();
 
     if (!guild.selected.pending_war) {
-      dispatch(GuildService.get({ id: guild_id, params: { include: 'stats' }, onSuccess: (updated_guild) => {
+      dispatch(GuildService.get({ id: guild_id, params: { include: 'stats,integrations' }, onSuccess: (updated_guild) => {
         dispatch(WarService.get({ id: updated_guild.pending_war, context: { guild_id }, params: { expand: 'node' } }));
         dispatch(WarRoleService.list({ context: { guild_id, war_id: updated_guild.pending_war }}));
         dispatch(WarAttendanceService.getMyAttendance({ context: { guild_id, war_id: updated_guild.pending_war } }));

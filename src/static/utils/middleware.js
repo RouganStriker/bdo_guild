@@ -136,7 +136,7 @@ export function guildMiddleware(Component) {
             this.setState({loading: true});
             dispatch(GuildService.get({
               id: guild_id,
-              params: { include: 'stats' },
+              params: { include: 'stats,integrations' },
               onSuccess: () => this.setState({loading: false, loaded: true}),
               onError: () => this.setState({loading: false}),
             }));

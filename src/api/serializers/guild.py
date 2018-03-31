@@ -49,14 +49,11 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
         return 'include' in query and 'main_character' in query['include'].split(',')
 
 
-class GuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+class SimpleGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+    """
+    Used to supply limited guild information like in a LIST call.
+    """
     pending_war = serializers.SerializerMethodField()
-
-    # Extra stats fields
-    average_level = serializers.IntegerField(read_only=True)
-    average_gearscore = serializers.IntegerField(read_only=True)
-    class_distribution = serializers.DictField(read_only=True)
-    stat_totals = serializers.DictField(read_only=True)
     guild_master = SimpleProfileSerializer(read_only=True)
     member_count = serializers.IntegerField(read_only=True)
 
@@ -65,36 +62,62 @@ class GuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
         fields = (
             'id',
             'pending_war',
-            'stat_totals',
             'guild_master',
             'name',
             'logo_url',
             'description',
-            'discord_id',
-            'discord_roles',
             'member_count',
-            'class_distribution',
-            'average_level',
-            'average_gearscore',
         )
 
-    def __init__(self, *args, **kwargs):
-        super(GuildSerializer, self).__init__(*args, **kwargs)
-
-        if not self.query_include_stats():
-            self.fields.pop('average_level')
-            self.fields.pop('average_gearscore')
-            self.fields.pop('class_distribution')
-
-    def query_include_stats(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'stats' in query['include'].split(',')
-
     def get_pending_war(self, instance):
+        membership = instance.get_membership(self.context['request'].user.profile)
+
+        if membership is None or not membership.has_permission('view_war'):
+            return None
+
         war = War.objects.filter(guild=instance).order_by('-date', '-id').first()
 
         if war and war.outcome is None:
             return war.id
         else:
             return None
+
+
+class ExtendedGuildSerializer(SimpleGuildSerializer):
+    # Extra stats fields
+    average_level = serializers.IntegerField(read_only=True)
+    average_gearscore = serializers.IntegerField(read_only=True)
+    class_distribution = serializers.DictField(read_only=True)
+    stat_totals = serializers.DictField(read_only=True)
+
+    class Meta(SimpleGuildSerializer.Meta):
+        fields = SimpleGuildSerializer.Meta.fields + (
+            'stat_totals',
+            'class_distribution',
+            'average_level',
+            'average_gearscore',
+            'discord_id',
+            'discord_roles',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(ExtendedGuildSerializer, self).__init__(*args, **kwargs)
+
+        if 'stats' not in self.context['include']:
+            self.fields.pop('average_level')
+            self.fields.pop('average_gearscore')
+            self.fields.pop('class_distribution')
+            self.fields.pop('stat_totals')
+        if 'integrations' not in self.context['include']:
+            self.fields.pop('discord_id')
+            self.fields.pop('discord_roles')
+
+    def query_include_stats(self):
+        query = self.context['request'].query_params
+
+        return 'include' in query and 'stats' in query['include'].split(',')
+
+    def query_include_integrations(self):
+        query = self.context['request'].query_params
+
+        return 'include' in query and 'integrations' in query['include'].split(',')

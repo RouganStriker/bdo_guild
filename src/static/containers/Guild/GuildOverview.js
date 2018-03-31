@@ -17,14 +17,6 @@ class GuildOverview extends React.Component {
     super(props);
   }
 
-  componentWillMount() {
-    const { dispatch, guild } = this.props;
-
-    if (guild.selected && !guild.selected.stat_totals) {
-      dispatch(GuildService.get({ id: guild.selected.id, params: { include: 'stats' } }))
-    }
-  }
-
   _construct_distribution_dataset() {
     const {
       mystic = 0,

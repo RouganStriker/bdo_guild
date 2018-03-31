@@ -33,7 +33,7 @@ class GuildView extends React.Component {
     const { dispatch, guild, match } = this.props;
 
     if (!guild.isLoading && !guild.selected) {
-      dispatch(GuildService.get({ id: match.params.guild_id, params: { include: 'stats' } }));
+      dispatch(GuildService.get({ id: match.params.guild_id, params: { include: 'stats,integrations' } }));
     }
   }
 
@@ -46,7 +46,7 @@ class GuildView extends React.Component {
 
     this.setState({showEditDialog: false});
 
-    dispatch(GuildService.get({ id: match.params.guild_id, params: { include: 'stats' } }));
+    dispatch(GuildService.get({ id: match.params.guild_id, params: { include: 'stats,integrations' } }));
   }
 
   memberHasPermission(permission) {

@@ -101,6 +101,12 @@ class Guild(models.Model):
     def member_count(self):
         return self.members.count()
 
+    def get_membership(self, profile):
+        try:
+            return self.membership.get(user=profile)
+        except GuildMember.DoesNotExst:
+            return None
+
 
 class GuildRole(Group):
     icon = models.ImageField(null=True, blank=True)
@@ -146,6 +152,9 @@ class GuildMember(models.Model):
             "class": main.character_class.name,
             "name": main.name
         }
+
+    def has_permission(self, permission):
+        return permission in self.role.permissions.all()
 
     @property
     def stats(self):

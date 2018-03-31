@@ -1,13 +1,18 @@
 from django.db.models import Case, ExpressionWrapper, F, IntegerField, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from rest_framework.filters import OrderingFilter
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 import re
 
 from api.permissions import GuildPermission
-from api.serializers.guild import GuildSerializer, GuildMemberSerializer, SimpleGuildRoleSerializer
+from api.serializers.guild import (ExtendedGuildSerializer,
+                                   SimpleGuildSerializer,
+                                   GuildMemberSerializer,
+                                   SimpleGuildRoleSerializer)
 from api.serializers.guild_content import WarRoleSerializer
+from api.views.mixin import FilterMixin
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
 from bdo.models.character import Character
 
@@ -90,10 +95,23 @@ class MemberOrderingFilter(OrderingFilter):
         return queryset
 
 
-class GuildViewSet(ModelViewSet):
+class GuildViewSet(FilterMixin, ModelViewSet):
     queryset = Guild.objects.all()
-    serializer_class = GuildSerializer
+    serializer_class = ExtendedGuildSerializer
     permission_classes = (IsAuthenticated, GuildPermission)
+    include_params = ['stats', 'integrations']
+
+    def list(self, request, *args, **kwargs):
+        # Use simple serializer to limit information returned
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SimpleGuildSerializer(page, many=True, context=self.get_serializer_context())
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class GuildViewMixin(object):
