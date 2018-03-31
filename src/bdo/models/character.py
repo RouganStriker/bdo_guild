@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.db.models import Case, Count, When
 from bdo.models.content import CharacterClass
 from bdo.models.mixins import UserPermissionMixin
 
@@ -58,7 +58,9 @@ class Profile(models.Model, UserPermissionMixin):
         ]
 
         return self.attendance_set.aggregate(
-            total_wars=models.Count('id'),
+            total_attended=Count(Case(When(is_attending__in=[0, 4], then=1))),
+            total_unavailable=Count(Case(When(is_attending=1, then=1))),
+            total_missed=Count(Case(When(is_attending__in=[2, 3], then=1))),
             **{'total_{0}'.format(field): models.Sum('stats__{0}'.format(field)) for field in fields}
         )
 

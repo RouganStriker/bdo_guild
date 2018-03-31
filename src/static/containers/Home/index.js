@@ -13,6 +13,7 @@ import LoadingWidget from '../../components/LoadingWidget';
 import BaseView from '../../components/BaseView';
 import EmptyState from '../../components/EmptyState';
 import Time from '../../components/Time';
+import Tooltip from '../../components/Tooltip';
 import WarStatTable from '../Guild/WarStatTable';
 import {
   UserStatsService,
@@ -51,11 +52,6 @@ class HomeView extends React.Component {
     }
 
     let columns = [
-      {
-        key: 'total_wars',
-        label: 'War Count',
-        ...columnOptions,
-      },
       {
         key: 'total_command_post',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '0 0'}} />,
@@ -121,6 +117,20 @@ class HomeView extends React.Component {
         label: <img src={ConquestIcons} style={{...iconStyle, width: 40, objectPosition: '-635px 0'}} />,
         tooltip: 'Siege Weapons',
         ...columnOptions,
+      },
+      {
+        key: 'attended',
+        label: 'Attendance',
+        sortable: false,
+        style: {width: 120},
+        render: (_, all) => {
+          const { total_attended, total_unavailable, total_missed } = all;
+          return (
+            <Tooltip label='Attended / Unavailable / Missed'>
+                {[total_attended, total_unavailable, total_missed].join(" / ")}
+            </Tooltip>
+          );
+        }
       },
       {
         key: 'total_kills',
@@ -191,9 +201,10 @@ class HomeView extends React.Component {
   renderPendingWars() {
     const { wars } = this.props;
 
-    if (!wars.items) {
-      return <span>Nothing new</span>
+    if (wars.items.length == 0) {
+      return <span>No new notifications</span>
     }
+
     return (
       <ul>
         { wars.items.map(war => {
