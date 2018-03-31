@@ -1,16 +1,16 @@
 from django.contrib.auth import get_user_model
 from django_filters import rest_framework as filters
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from api.permissions import CharacterPermission, ProfilePermission, UserPermission
 from api.serializers.character import CharacterSerializer, ProfileSerializer
 from api.serializers.user import UserSerializer
+from api.views.mixin import ModelViewSet, UserContextMixin
 from bdo.models.character import Character, Profile
 
 
-class CurrentUserViewSet(RetrieveAPIView):
+class CurrentUserViewSet(UserContextMixin, RetrieveAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated, UserPermission)

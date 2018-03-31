@@ -1,9 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from api.serializers.content import CharacterClassSerializer, WarNodeSerializer
+from api.views.mixin import ReadOnlyModelViewSet
 from bdo.models.content import CharacterClass, WarNode
 
 

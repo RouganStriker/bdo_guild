@@ -1,3 +1,4 @@
+from dirtyfields import DirtyFieldsMixin
 from django.db import models
 from django.db.models import Q, Avg, F, Case, Count, When, Sum
 from django.contrib.auth.models import Group
@@ -6,7 +7,7 @@ from django.contrib.postgres.fields import JSONField
 from bdo.models.character import Character, Profile
 
 
-class Guild(models.Model):
+class Guild(DirtyFieldsMixin, models.Model):
     name = models.CharField(max_length=255)
     logo_url = models.URLField()
     members = models.ManyToManyField(Profile, through='GuildMember', related_name='guilds')
@@ -107,6 +108,11 @@ class Guild(models.Model):
         except GuildMember.DoesNotExst:
             return None
 
+    def save(self, *args, **kwargs):
+        dirty_fields = self.get_dirty_fields()
+
+        return super(Guild, self).save(update_fields=dirty_fields, *args, **kwargs)
+
 
 class GuildRole(Group):
     icon = models.ImageField(null=True, blank=True)
@@ -154,7 +160,7 @@ class GuildMember(models.Model):
         }
 
     def has_permission(self, permission):
-        return permission in self.role.permissions.all()
+        return self.role.permissions.filter(codename=permission).exists()
 
     @property
     def stats(self):

@@ -7,7 +7,13 @@ from api.serializers.mixin import BaseSerializerMixin
 from api.serializers.profile import ExtendedProfileSerializer
 from bdo.models.character import Profile
 from bdo.models.guild import Guild
-from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam, WarTemplate
+from bdo.models.war import (war_finish,
+                            War,
+                            WarAttendance,
+                            WarCallSign,
+                            WarStat,
+                            WarTeam,
+                            WarTemplate)
 
 
 class CurrentGuildDefault(object):
@@ -160,13 +166,8 @@ class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.Mo
     def __init__(self, *args, **kwargs):
         super(WarSerializer, self).__init__(*args, **kwargs)
 
-        if not self.query_include_stats():
+        if 'stats' not in self.context['include']:
             self.fields.pop('stats')
-
-    def query_include_stats(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'stats' in query['include'].split(',')
 
     def create(self, validated_data):
         war = super(WarSerializer, self).create(validated_data)
@@ -256,6 +257,8 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
 
         war.outcome = validated_data['outcome']
         war.save()
+
+        war_finish.send(War, instance=war)
 
         return war
 

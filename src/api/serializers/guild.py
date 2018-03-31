@@ -111,13 +111,3 @@ class ExtendedGuildSerializer(SimpleGuildSerializer):
         if 'integrations' not in self.context['include']:
             self.fields.pop('discord_id')
             self.fields.pop('discord_roles')
-
-    def query_include_stats(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'stats' in query['include'].split(',')
-
-    def query_include_integrations(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'integrations' in query['include'].split(',')

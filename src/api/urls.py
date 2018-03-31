@@ -6,6 +6,7 @@ from rest_framework_nested import routers
 from api.views import (CurrentUserViewSet,
                        CharacterViewSet,
                        CharacterClassViewSet,
+                       GuildActivityViewSet,
                        GuildViewSet,
                        GuildMemberViewSet,
                        GuildRoleViewSet,
@@ -24,10 +25,6 @@ from api.views import (CurrentUserViewSet,
 
 
 router = DefaultRouter()
-
-#router.register(r'accounts/authenticate', UserLoginViewSet, base_name='authenticate')
-#router.register(r'accounts/logout', UserLogoutViewSet, base_name='logout')
-
 
 router.register(r'users/characters', CharacterViewSet, base_name='character')
 router.register(r'users/profile', ProfileViewSet, base_name='profile')
@@ -49,6 +46,7 @@ guild_router.register(r'wars', WarViewSet, base_name='wars')
 guild_router.register(r'guild-roles', GuildRoleViewSet, base_name='guild-roles')
 guild_router.register(r'war-roles', WarRoleViewSet, base_name='war-roles')
 guild_router.register(r'members', GuildMemberViewSet, base_name='members')
+guild_router.register(r'activity', GuildActivityViewSet, base_name='guild-activity')
 
 war_router = routers.NestedSimpleRouter(guild_router, r'wars', lookup='war')
 war_router.register(r'attendance', WarAttendanceViewSet, base_name='war-attendance')

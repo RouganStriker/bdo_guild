@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.permissions import (UserPermission,
                              WarAttendancePermission,
@@ -24,6 +23,7 @@ from api.serializers.war import (PlayerStatSerializer,
                                  WarTeamSerializer,
                                  WarTemplateSerializer)
 from api.views.guild import GuildViewMixin
+from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam, WarTeamSlot, WarTemplate
 
 
@@ -37,6 +37,7 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
     serializer_class = WarSerializer
     permission_classes = (IsAuthenticated, WarPermission)
     ordering = ('-date',)
+    include_params = ['stats']
 
     def get_serializer_context(self):
         context = super(WarViewSet, self).get_serializer_context()

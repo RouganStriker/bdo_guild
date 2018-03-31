@@ -8,12 +8,12 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from api.serializers.user import UserSerializer
+from api.views.mixin import UserContextMixin
 
 
-class UserLoginViewSet(GenericViewSet, ListModelMixin):
+class UserLoginViewSet(UserContextMixin, GenericViewSet, ListModelMixin):
     serializer_class = UserSerializer
     authentication_classes = (BasicAuthentication,)
-    #permission_classes = (IsAuthenticated,)
     queryset = get_user_model().objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -23,7 +23,7 @@ class UserLoginViewSet(GenericViewSet, ListModelMixin):
         return Response(serializer.data)
 
 
-class UserLogoutViewSet(GenericViewSet, CreateModelMixin):
+class UserLogoutViewSet(UserContextMixin, GenericViewSet, CreateModelMixin):
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
     queryset = get_user_model().objects.all()

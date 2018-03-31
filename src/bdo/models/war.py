@@ -1,20 +1,19 @@
-from enum import Enum
 import re
 
-from django.db import models
-from django.db.models import Count, F, Sum
+from dirtyfields import DirtyFieldsMixin
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import JSONField
+from django.db import models
+from django.db.models import Count, F, Sum
+from django.dispatch import Signal
 
 from bdo.models.character import Character, Profile
 from bdo.models.content import WarNode
 from bdo.models.guild import Guild, WarRole
+from bdo.utils import ChoicesEnum
 
 
-class ChoicesEnum(Enum):
-    @classmethod
-    def choices(cls):
-        return ((field.value, field.name) for field in cls)
+war_finish = Signal(providing_args=['war'])
 
 
 class War(models.Model):
@@ -34,7 +33,7 @@ class War(models.Model):
         ordering = ('-date', 'id')
 
     def __str__(self):
-        return u"[{0}] - {1}".format(self.guild.name, self.date)
+        return u"[{0}] - {1}".format(self.guild.name, self.date.strftime("%b %d, %Y"))
 
     @property
     def stats(self):
@@ -114,7 +113,7 @@ class WarTeamSlot(models.Model):
     slot = models.IntegerField()
 
 
-class WarAttendance(models.Model):
+class WarAttendance(DirtyFieldsMixin, models.Model):
     class AttendanceStatus(ChoicesEnum):
         ATTENDING = 0
         NOT_ATTENDING = 1
@@ -140,6 +139,9 @@ class WarAttendance(models.Model):
             return self.user_profile.family_name
 
         return u"{0} ({1})".format(self.user_profile.family_name, self.character.name)
+
+    def save(self, *args, **kwargs):
+        return super(WarAttendance, self).save(update_fields=self.get_dirty_fields(), *args, **kwargs)
 
 
 class WarTemplate(models.Model):
