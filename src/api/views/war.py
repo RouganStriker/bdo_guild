@@ -1,6 +1,8 @@
 from collections import defaultdict
+from datetime import datetime
 from enum import Enum
 
+from django.db.models import Prefetch
 from django_filters import rest_framework as filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import OrderingFilter
@@ -9,12 +11,14 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
-from api.permissions import (UserPermission,
+from api.permissions import (RestrictedUserPermission,
+                             UserPermission,
                              WarAttendancePermission,
                              WarCallSignPermission,
                              WarPermission,
                              WarTeamPermission)
 from api.serializers.war import (PlayerStatSerializer,
+                                 PlayerWarSerializer,
                                  WarSerializer,
                                  WarAttendanceSerializer,
                                  WarCallSignSerializer,
@@ -226,8 +230,30 @@ class PlayerStatViewSet(ReadOnlyModelViewSet):
     queryset = WarStat.objects.all()
     filter_backends = (OrderingFilter,)
     serializer_class = PlayerStatSerializer
-    permission_classes = (IsAuthenticated, UserPermission)
+    permission_classes = (IsAuthenticated, RestrictedUserPermission)
     ordering = ('-attendance__war__date',)
 
     def get_queryset(self):
         return super(PlayerStatViewSet, self).get_queryset().filter(attendance__user_profile=self.kwargs['profile_pk'])
+
+
+class PlayerWarViewSet(ReadOnlyModelViewSet):
+    queryset = War.objects.all()
+    serializer_class = PlayerWarSerializer
+    permission_classes = (IsAuthenticated, RestrictedUserPermission)
+    ordering = ('-date',)
+    boolean_params = ('active',)
+
+    def get_queryset(self):
+        prefetch_attendance = Prefetch('attendance_set',
+                                       WarAttendance.objects.filter(user_profile=self.request.user.profile),
+                                       'my_attendance')
+        qs = (super(PlayerWarViewSet, self).get_queryset()
+                                           .filter(guild__members__id=self.kwargs['profile_pk'])
+                                           .prefetch_related(prefetch_attendance, 'warcallsign_set', 'warteam_set')
+              )
+
+        if self.get_serializer_context()['boolean']['active']:
+            qs = qs.filter(outcome__isnull=True, date__gte=datetime.now())
+
+        return qs

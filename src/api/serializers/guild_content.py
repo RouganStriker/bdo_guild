@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
+from bdo.models.war import War
 
 
 class SimpleGuildRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):
@@ -16,14 +17,29 @@ class WarRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class SimpleGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+class NestedGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+    pending_war = serializers.SerializerMethodField()
+
     class Meta:
         model = Guild
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'pending_war')
+
+    def get_pending_war(self, instance):
+        membership = instance.get_membership(self.context['request'].user.profile)
+
+        if membership is None or not membership.has_permission('view_war'):
+            return None
+
+        war = War.objects.filter(guild=instance).order_by('-date', '-id').first()
+
+        if war and war.outcome is None:
+            return war.id
+        else:
+            return None
 
 
 class GuildMembershipSerializer(serializers.ModelSerializer):
-    guild = SimpleGuildSerializer(read_only=True)
+    guild = NestedGuildSerializer(read_only=True)
     role = SimpleGuildRoleSerializer(read_only=True)
 
     class Meta:

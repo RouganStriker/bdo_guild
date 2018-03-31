@@ -15,4 +15,5 @@ export WarStatsService from './guilds/wars/stats/service'
 
 export ProfileService from './users/profile/service'
 export UserStatsService from './users/profile/stats/service'
+export UserWarsService from './users/profile/wars/service'
 export CharacterService from './users/character/service'

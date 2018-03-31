@@ -13,6 +13,7 @@ from api.views import (CurrentUserViewSet,
                        UserLoginViewSet,
                        UserLogoutViewSet,
                        PlayerStatViewSet,
+                       PlayerWarViewSet,
                        ProfileViewSet,
                        WarViewSet,
                        WarAttendanceViewSet,
@@ -32,6 +33,7 @@ router.register(r'users/profile', ProfileViewSet, base_name='profile')
 # Profile
 profile_router = routers.NestedSimpleRouter(router, r'users/profile', lookup='profile')
 profile_router.register(r'stats', PlayerStatViewSet, base_name='stats')
+profile_router.register(r'wars', PlayerWarViewSet, base_name='user-wars')
 
 # Content
 router.register(r'content/classes', CharacterClassViewSet, base_name='character-class')

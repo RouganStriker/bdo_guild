@@ -291,3 +291,37 @@ class PlayerStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
             'siege_weapons',
             'war',
         )
+
+
+class PlayerWarSerializer(SimpleWarSerializer):
+    attendance = serializers.SerializerMethodField()
+    node = serializers.SerializerMethodField()
+    guild_id = serializers.IntegerField(source='guild.id')
+
+    class Meta(SimpleWarSerializer.Meta):
+        fields = SimpleWarSerializer.Meta.fields + (
+            'guild_id',
+            'attendance',
+            'node',
+        )
+
+    def get_attendance(self, instance):
+        attendance = getattr(instance, 'my_attendance', None)
+
+        if not attendance:
+            return None
+
+        team = attendance[0].warteam_set.all()
+        call_sign = attendance[0].warcallsign_set.all()
+
+        return {
+            'is_attending': attendance[0].is_attending,
+            'team': str(team[0]) if team else None,
+            'call_sign': str(call_sign[0]) if call_sign else None
+        }
+
+    def get_node(self, instance):
+        if instance.node is None:
+            return None
+
+        return str(instance.node)

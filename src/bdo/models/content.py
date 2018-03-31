@@ -36,10 +36,10 @@ class WarArea(models.Model):
 
 class WarNode(models.Model):
     TIER_CHOICES = (
-        (1, 'Level 1'),
-        (2, 'Level 2'),
-        (3, 'Level 3'),
-        (4, 'Territory'),
+        (1, 'Tier 1'),
+        (2, 'Tier 2'),
+        (3, 'Tier 3'),
+        (4, 'Tier 4'),
     )
     # Aligns with date.weekday()
     DAY_CHOICES = (
@@ -63,4 +63,4 @@ class WarNode(models.Model):
         unique_together = ('war_day', 'area')
 
     def __str__(self):
-        return u"{0} - {1}".format(self.get_tier_display(), self.name)
+        return u"{0} - {1} ({2})".format(self.get_tier_display(), self.name, self.area)

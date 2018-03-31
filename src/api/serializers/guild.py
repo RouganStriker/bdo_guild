@@ -3,10 +3,9 @@ from rest_framework import serializers
 
 from api.serializers import war as war_serializers
 from api.serializers.profile import ExtendedProfileSerializer, SimpleProfileSerializer
-from api.serializers.guild_content import SimpleGuildRoleSerializer
+from api.serializers.guild_content import NestedGuildSerializer, SimpleGuildRoleSerializer
 from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember
-from bdo.models.war import War
 
 
 class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
@@ -49,11 +48,10 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
         return 'include' in query and 'main_character' in query['include'].split(',')
 
 
-class SimpleGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+class SimpleGuildSerializer(NestedGuildSerializer):
     """
     Used to supply limited guild information like in a LIST call.
     """
-    pending_war = serializers.SerializerMethodField()
     guild_master = SimpleProfileSerializer(read_only=True)
     member_count = serializers.IntegerField(read_only=True)
 
@@ -68,19 +66,6 @@ class SimpleGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
             'description',
             'member_count',
         )
-
-    def get_pending_war(self, instance):
-        membership = instance.get_membership(self.context['request'].user.profile)
-
-        if membership is None or not membership.has_permission('view_war'):
-            return None
-
-        war = War.objects.filter(guild=instance).order_by('-date', '-id').first()
-
-        if war and war.outcome is None:
-            return war.id
-        else:
-            return None
 
 
 class ExtendedGuildSerializer(SimpleGuildSerializer):

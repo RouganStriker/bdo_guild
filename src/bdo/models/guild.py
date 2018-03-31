@@ -105,7 +105,7 @@ class Guild(DirtyFieldsMixin, models.Model):
     def get_membership(self, profile):
         try:
             return self.membership.get(user=profile)
-        except GuildMember.DoesNotExst:
+        except GuildMember.DoesNotExist:
             return None
 
     def save(self, *args, **kwargs):

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'
 import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -11,9 +12,11 @@ import ConquestIcons from '../Guild/images/conquest_icons.png';
 import LoadingWidget from '../../components/LoadingWidget';
 import BaseView from '../../components/BaseView';
 import EmptyState from '../../components/EmptyState';
+import Time from '../../components/Time';
 import WarStatTable from '../Guild/WarStatTable';
 import {
   UserStatsService,
+  UserWarsService,
 } from '../../services';
 
 class HomeView extends React.Component {
@@ -21,6 +24,7 @@ class HomeView extends React.Component {
     const { dispatch, user } = this.props;
 
     dispatch(UserStatsService.list({context: { profile_id: user.profile_id }, params: { page_size: 5 }}));
+    dispatch(UserWarsService.list({context: { profile_id: user.profile_id }, params: { active: true }}));
   }
 
   getStatTotalColumns() {
@@ -184,6 +188,33 @@ class HomeView extends React.Component {
                            sortable={false} />
   }
 
+  renderPendingWars() {
+    const { wars } = this.props;
+
+    if (!wars.items) {
+      return <span>Nothing new</span>
+    }
+    return (
+      <ul>
+        { wars.items.map(war => {
+            return (
+              <li>
+                  <div>
+                    <Link to={`/guilds/${war.guild_id}/war`}>
+                      [{war.guild}]: <Time children={war.date} />
+                    </Link>
+                  </div>
+                  <div style={{marginTop: 5}}>Node: {war.node && war.node || ''}</div>
+                  { war.attendance.team && <div style={{marginTop: 5}}>Team: {war.attendance.team}</div>}
+                  { war.attendance.call_sign && <div style={{marginTop: 5}}>Call Sign: {war.attendance.call_sign}</div>}
+              </li>
+            );
+          })
+        }
+      </ul>
+    );
+  }
+
   renderContent() {
     const { profile, stats, user } = this.props;
 
@@ -192,6 +223,14 @@ class HomeView extends React.Component {
         <Card>
           <CardText>
             <h4>Hello, { profile.selected && profile.selected.family_name }</h4>
+          </CardText>
+        </Card>
+        <Card initiallyExpanded={true}>
+          <CardHeader title="Notifications"
+                      actAsExpander={true}
+                      showExpandableButton={true} />
+          <CardText expandable={true}>
+            { this.renderPendingWars() }
           </CardText>
         </Card>
         <Card initiallyExpanded={true}>
@@ -214,11 +253,11 @@ class HomeView extends React.Component {
     );
   }
   render() {
-      const { stats } = this.props;
+      const { stats, wars } = this.props;
 
       return (
         <BaseView title={"Dashboard"}
-                  isLoading={!stats.isLoaded}
+                  isLoading={!stats.isLoaded || !wars.isLoaded}
                   renderContent={this.renderContent.bind(this)} />
       );
   }
@@ -229,6 +268,7 @@ const mapStateToProps = (state) => {
     user: state.auth.user,
     profile: state.profile,
     stats: state.stats,
+    wars: state.user_wars,
   };
 };
 

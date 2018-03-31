@@ -23,6 +23,12 @@ class UserPermission(permissions.BasePermission):
         return user == request.user
 
 
+class RestrictedUserPermission(UserPermission):
+    def has_permission(self, request, view):
+        # Only the user can access this section
+        return getattr(request.user.profile, 'id', None) == int(request.parser_context['kwargs']['profile_pk'])
+
+
 class ProfilePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
@@ -60,20 +66,14 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
         if request.method not in self.perms_map:
             raise exceptions.MethodNotAllowed(request.method)
 
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
         required_permissions = self.perms_map[request.method]
 
         if not required_permissions:
             return True
 
-        if request.method == 'POST':
-            membership = self.get_membership(request)
+        membership = self.get_membership(request)
 
-            return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
-
-        return request.method in ['DELETE', 'PUT', 'PATCH']
+        return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
 
     def has_object_permission(self, request, view, obj):
         if request.method not in self.perms_map:
@@ -81,9 +81,6 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
 
         membership = self.get_membership(request, obj)
         required_permissions = self.perms_map[request.method]
-
-        if not required_permissions:
-            return True
 
         return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
 
@@ -107,7 +104,7 @@ class GuildPermission(BaseGuildObjectPermission):
 
 class WarAttendancePermission(BaseGuildObjectPermission):
     perms_map = {
-        'GET': [],
+        'GET': ['view_war'],
         'OPTIONS': [],
         'HEAD': [],
         'POST': ['change_my_attendance'],
@@ -143,7 +140,7 @@ class WarAttendancePermission(BaseGuildObjectPermission):
 
 class WarPermission(BaseGuildObjectPermission):
     perms_map = {
-        'GET': [],
+        'GET': ['view_war'],
         'OPTIONS': [],
         'HEAD': [],
         'POST': ['add_war'],
@@ -161,7 +158,7 @@ class WarPermission(BaseGuildObjectPermission):
 
 class WarTeamPermission(BaseGuildObjectPermission):
     perms_map = {
-        'GET': [],
+        'GET': ['view_war'],
         'OPTIONS': [],
         'HEAD': [],
         'POST': ['manage_team'],
@@ -179,7 +176,7 @@ class WarTeamPermission(BaseGuildObjectPermission):
 
 class WarCallSignPermission(BaseGuildObjectPermission):
     perms_map = {
-        'GET': [],
+        'GET': ['view_war'],
         'OPTIONS': [],
         'HEAD': [],
         'POST': ['manage_call_sign'],

@@ -9,6 +9,7 @@ class FilterMixin(object):
     """
     include_params = []
     exclude_params = []
+    boolean_params = []
 
     def get_serializer_context(self):
         context = super(FilterMixin, self).get_serializer_context()
@@ -16,11 +17,14 @@ class FilterMixin(object):
 
         context['include'] = []
         context['exclude'] = []
+        context['boolean'] = {}
 
         if 'include' in query:
             context['include'] = [param for param in query['include'].split(',') if param in self.include_params]
         if 'exclude' in query:
             context['exclude'] = [param for param in query['exclude'].split(',') if param in self.exclude_params]
+        for param in self.boolean_params:
+            context['boolean'][param] = param in query
 
         return context
 
