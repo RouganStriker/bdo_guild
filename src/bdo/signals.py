@@ -86,7 +86,7 @@ def handle_war_finish(instance, *args, **kwargs):
 
 @receiver(post_save, sender=WarAttendance)
 def handle_war_attendance_change(instance, update_fields, *args, **kwargs):
-    if 'is_attending' not in update_fields or not UserContext.has_current:
+    if (update_fields is not None and 'is_attending' not in update_fields) or not UserContext.has_current:
         return
 
     # Track attendance changes

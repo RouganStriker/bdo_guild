@@ -221,7 +221,10 @@ class WarAttendance(DirtyFieldsMixin, models.Model):
         return u"{0} ({1})".format(self.user_profile.family_name, self.character.name)
 
     def save(self, *args, **kwargs):
-        return super(WarAttendance, self).save(update_fields=self.get_dirty_fields(check_relationship=True), *args, **kwargs)
+        if self.id:
+            kwargs['update_fields'] = self.get_dirty_fields(check_relationship=True)
+
+        return super(WarAttendance, self).save(*args, **kwargs)
 
 
 class WarTemplate(models.Model):
