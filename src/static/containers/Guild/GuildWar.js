@@ -111,9 +111,7 @@ class GuildWar extends React.Component {
     dispatch(WarService.get({ id: guild.selected.pending_war, context: { guild_id }, params: { expand: 'node' } }));
     dispatch(WarRoleService.list({ context: { guild_id, war_id: guild.selected.pending_war }}));
 
-    if (attendance.myAttendance === null) {
-      this.refreshAttendance(guild.selected.pending_war);
-    }
+    this.refreshAttendance(guild.selected.pending_war);
   }
 
   memberHasPermission(permission) {
@@ -140,7 +138,7 @@ class GuildWar extends React.Component {
     const war_id = id || war.selected && war.selected.id
 
     dispatch(WarAttendanceService.getMyAttendance({ context: { guild_id, war_id } }));
-    dispatch(WarAttendanceService.list({ context: { guild_id, war_id }, params: { expand: 'user_profile', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this) }));
+    dispatch(WarAttendanceService.list({ context: { guild_id, war_id }, params: { expand: 'user_profile' }, onSuccess: this.calculateAttendance.bind(this) }));
   }
 
   handleAttendanceSubmitSuccess() {
