@@ -11,7 +11,6 @@ def get_user_data(request):
         "guilds": [],
         "profile_id": None,
         "discord_id": request.user.username,
-        "discord_servers": get_discord_servers(request.user),
         "role_permissions": serialize_roles()
     }
 
@@ -27,22 +26,6 @@ def get_user_data(request):
     return {
         "USER_DATA": data
     }
-
-
-# Helper
-def get_discord_servers(user):
-    # Get list of discord servers the user has manage server perms for
-    discord_account = user.socialaccount_set.filter(provider='discord_auth').first()
-    MANAGE_SERVER_PERMISSION = 32
-
-    if not discord_account:
-        return []
-
-    return [
-        (guild['id'], guild['name'])
-        for guild in discord_account.extra_data['guilds']
-        if guild['owner'] or guild['permissions'] & MANAGE_SERVER_PERMISSION
-    ]
 
 
 def serialize_roles():
