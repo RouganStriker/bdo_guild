@@ -135,11 +135,17 @@ class AttendanceTable extends React.Component {
         key: 'team',
         label: 'Team',
         sortable: true,
+        style: {
+          width: 75,
+        },
       })
       columns.push({
         key: 'call_sign',
         label: 'Call Sign',
         sortable: true,
+        style: {
+          width: 75,
+        },
       })
     }
     if (showNote) {
@@ -147,6 +153,14 @@ class AttendanceTable extends React.Component {
         key: 'note',
         label: 'Note',
         sortable: false,
+        style: {
+          width: 200,
+        },
+        render: (note, all) => {
+          return (
+            <div style={{width: 230, whiteSpace: "pre-wrap"}}>{note}</div>
+          );
+        }
       })
     }
 

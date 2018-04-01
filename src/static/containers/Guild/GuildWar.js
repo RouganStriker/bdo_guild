@@ -363,6 +363,7 @@ class GuildWar extends React.Component {
                       disabled={undecided.length === 0} />
         </CardActions>
         <Dialog autoScrollBodyContent={true}
+                contentStyle={{maxWidth: 'none'}}
                 open={showAttending || showNotAttending || showUndecided}
                 onRequestClose={this.handleCloseDialog.bind(this)}>
           { showAttending && <AttendanceTable attendance={attending} showCharacterDetails={true} showNote={true} showAssignment={true} /> }
