@@ -211,3 +211,7 @@ CSP_DICT = {
 SOCIALACCOUNT_STORE_TOKENS = False
 
 DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)
+
+# App Settings
+## Bump times by an hour if True
+DST_ADJUSTED = False

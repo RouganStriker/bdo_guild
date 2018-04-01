@@ -14,7 +14,7 @@ class DiscordRPCScopeProvider(DiscordProvider):
         return dict(username=username)
 
     def get_default_scope(self):
-        return ['identify', 'email', 'guilds']
+        return ['identify', 'email']
 
 
 provider_classes = [DiscordRPCScopeProvider]

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { call, fork, put, select, take } from 'redux-saga/effects';
 import { startSubmit, stopSubmit } from 'redux-form';
+import { toast } from 'react-toastify';
 const format = require('string-format');
 
 
@@ -204,12 +205,16 @@ function* processAPIErrors(error, form, onError) {
   const badStatusCodes = [404, 405, 500, 504];
 
   if (!response || !response.status) {
+    toast.error("Network error")
     console.error('Network error');
   } else if (badStatusCodes.includes(response.status)) {
+    toast.error("Error processing request")
     console.error('Error processing request');
   } else if (response.status === 403) {
+    toast.error("You do not have permission for this action")
     console.error('Not permitted');
   } else {
+    toast.error("An unexpected error has occured")
     console.error(response);
   }
 

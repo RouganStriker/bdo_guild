@@ -57,16 +57,18 @@ export const renderDateField = ({ input, label, meta: { touched, error }, ...cus
   />
 }
 
-export const renderCheckbox = ({ input, label }) => (
+export const renderCheckbox = ({ input, label, ...custom }) => (
   <Checkbox label={label}
-    checked={input.value ? true : false}
-    onCheck={input.onChange}/>
+            checked={input.value ? true : false}
+            onCheck={input.onChange}
+            {...custom} />
 )
 
-export const renderToggle = ({ input, label }) => (
+export const renderToggle = ({ input, label, ...custom }) => (
   <Toggle label={label}
           toggled={input.value ? true : false}
-          onToggle={input.onChange}/>
+          onToggle={input.onChange}
+          {...custom} />
 )
 
 export const renderRadioGroup = ({ input, ...custom }) => {

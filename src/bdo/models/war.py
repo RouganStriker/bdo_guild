@@ -1,19 +1,25 @@
 import re
+from logging import getLogger
 
 from dirtyfields import DirtyFieldsMixin
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import JSONField
+from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import Count, F, Sum
 from django.dispatch import Signal
+import pytz
+import requests
 
 from bdo.models.character import Character, Profile
 from bdo.models.content import WarNode
 from bdo.models.guild import Guild, WarRole
 from bdo.utils import ChoicesEnum
-
+from bdo.bdo_stats import BDOStats
 
 war_finish = Signal(providing_args=['war'])
+logger = getLogger('bdo')
 
 
 class War(models.Model):
@@ -70,6 +76,80 @@ class War(models.Model):
             attendances.append(WarAttendance(**kwargs))
 
         WarAttendance.objects.bulk_create(attendances)
+
+    def save(self, *args, **kwargs):
+        dst_adjusted = getattr(settings, 'DST_ADJUSTED', False)
+
+        if not self.id:
+            # Apply time adjustments
+            if dst_adjusted:
+                self.date = self.date.replace(hour=1)
+            else:
+                self.date = self.date.replace(hour=2)
+
+        super(War, self).save(*args, **kwargs)
+
+    def get_display_date(self):
+        return self.date.astimezone(pytz.timezone('US/Eastern')).strftime('%a, %d %b %Y %H:%M:%S %Z')
+
+    def notify_war_start(self):
+        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_create']:
+            return
+
+        site = Site.objects.get(id=settings.SITE_ID)
+
+        logger.info("Sending war start notification for {0}".format(self))
+
+        r = requests.post(self.guild.discord_webhook, json={
+            "content": "@everyone",
+            "embeds": [{
+                "title": ":crossed_swords: Next Node War {0}".format(self.get_display_date()),
+                "color": "13382400",
+                "fields": [{
+                    "name": "Sign Up",
+                    "value": "https://{0}/guilds/{1}/war".format(site.domain, self.guild_id)
+                }]
+            }]
+        })
+
+    def notify_war_cancelled(self):
+        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_cancel']:
+            return
+
+        logger.info("Sending war cancel notification for {0}".format(self))
+
+        r = requests.post(self.guild.discord_webhook, json={
+            "content": "@everyone",
+            "embeds": [{
+                "title": ":x: Node War on {0} is cancelled".format(self.get_display_date()),
+                "color": "7039851",
+            }]
+        })
+
+    def notify_war_finished(self):
+        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_end']:
+            return
+
+        logger.info("Sending war end notification for {0}".format(self))
+
+        stats = (WarStat.objects.filter(attendance__war=self)
+                                .annotate(player=F('attendance__user_profile__family_name'))
+                                .values_list(
+                                    'player',
+                                    'command_post',
+                                    'fort',
+                                    'gate',
+                                    'help',
+                                    'mount',
+                                    'placed_objects',
+                                    'guild_master',
+                                    'officer',
+                                    'member',
+                                    'death',
+                                    'siege_weapons'
+                                ))
+
+        BDOStats().post_stats(self.guild.discord_webhook, list(stats), self)
 
 
 class WarGroup(models.Model):

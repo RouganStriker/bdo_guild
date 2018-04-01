@@ -46,6 +46,7 @@ def handle_war_save(created, instance, *args, **kwargs):
         return
     if created:
         type = Activity.TYPES.WAR_CREATE.value
+        instance.notify_war_start()
     else:
         type = Activity.TYPES.WAR_UPDATE.value
 
@@ -55,10 +56,13 @@ def handle_war_save(created, instance, *args, **kwargs):
                             target=instance)
 
 
+
 @receiver(pre_delete, sender=War)
 def handle_war_delete(instance, *args, **kwargs):
     if not UserContext.has_current:
         return
+
+    instance.notify_war_cancelled()
     type = Activity.TYPES.WAR_DELETE.value
 
     Activity.objects.create(type=type,
@@ -73,6 +77,7 @@ def handle_war_finish(instance, *args, **kwargs):
         return
     type = Activity.TYPES.WAR_END.value
 
+    instance.notify_war_finished()
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.guild,

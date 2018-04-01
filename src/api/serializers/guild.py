@@ -25,27 +25,12 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
     def __init__(self, *args, **kwargs):
         super(GuildMemberSerializer, self).__init__(*args, **kwargs)
 
-        if not self.query_include_attendance():
+        if 'attendance' not in self.context['include']:
             self.fields.pop('attendance')
-        if not self.query_include_stats():
+        if 'stats' not in self.context['include']:
             self.fields.pop('stats')
-        if not self.query_include_main():
+        if 'main_character' not in self.context['include']:
             self.fields.pop('main_character')
-
-    def query_include_attendance(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'attendance' in query['include'].split(',')
-
-    def query_include_stats(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'stats' in query['include'].split(',')
-
-    def query_include_main(self):
-        query = self.context['request'].query_params
-
-        return 'include' in query and 'main_character' in query['include'].split(',')
 
 
 class SimpleGuildSerializer(NestedGuildSerializer):
@@ -83,16 +68,26 @@ class ExtendedGuildSerializer(SimpleGuildSerializer):
             'average_gearscore',
             'discord_id',
             'discord_roles',
+            'discord_webhook',
+            'discord_notifications',
         )
 
     def __init__(self, *args, **kwargs):
         super(ExtendedGuildSerializer, self).__init__(*args, **kwargs)
 
+        view_integrations = False
+        method = self.context['request'].method
+
+        if self.instance:
+            membership = self.instance.get_membership(self.context['request'].user.profile)
+            view_integrations = membership is not None and membership.has_permission('change_guild_info')
         if 'stats' not in self.context['include']:
             self.fields.pop('average_level')
             self.fields.pop('average_gearscore')
             self.fields.pop('class_distribution')
             self.fields.pop('stat_totals')
-        if 'integrations' not in self.context['include']:
+        if (method == 'GET' and 'integrations' not in self.context['include']) or not view_integrations:
             self.fields.pop('discord_id')
             self.fields.pop('discord_roles')
+            self.fields.pop('discord_webhook')
+            self.fields.pop('discord_notifications')

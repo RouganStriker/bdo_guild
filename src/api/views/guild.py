@@ -61,6 +61,7 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('role',)
     ordering = ('user__family_name',)
+    include_params = ['stats', 'attendance', 'main_character']
 
 
 class GuildActivityViewSet(ReadOnlyModelViewSet, GuildViewMixin):

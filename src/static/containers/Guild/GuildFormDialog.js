@@ -13,7 +13,7 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 const moment = require('moment-timezone')
 
-import { renderTextField, renderChipField, renderSelectField, renderRadioGroup, renderDateField } from '../../components/Fields';
+import { renderTextField, renderSelectField, renderToggle } from '../../components/Fields';
 import Form from '../../components/Form';
 import {
   GuildService,
@@ -32,7 +32,7 @@ class GuildFormDialog extends React.Component {
 
   renderDiscordSection() {
     const { canEditIntegration, submitting, user } = this.props;
-    const bot_invite_url = "https://discordapp.com/api/oauth2/authorize?client_id=336354195684851712&permissions=0&redirect_uri=http%3A%2F%2F192.168.56.102%3A8000%2Faccounts%2Fdiscord_auth%2Flogin%2Fcallback%2F&scope=bot";
+    const bot_invite_url = "https://discordapp.com/api/oauth2/authorize?client_id=336354195684851712&permissions=0&scope=bot";
     const link_params = {
       href: bot_invite_url,
       rel: "noopener noreferrer",
@@ -54,34 +54,21 @@ class GuildFormDialog extends React.Component {
             { canEditIntegration && <span>To complete the integration, <a {...link_params}>add the BDOGuild bot to your server.</a></span> }
           </div>
 
-          {
-            read_only &&
-            <Field name="discord_id"
-                   component={renderTextField}
-                   className="form-field"
-                   fullWidth={true}
-                   floatingLabelText="Discord Server ID"
-                   disabled={true} /> ||
-            <Field name="discord_id"
-                   component={renderSelectField}
-                   className="form-field"
-                   fullWidth={true}
-                   floatingLabelText="Discord Server"
-                   hintText="Select a server you have MANAGE_SERVER permission in"
-                   disabled={submitting}>
-              {
-                user.discord_servers.map((server) => {
-                  return <MenuItem key={server[0]} value={server[0]} primaryText={server[1]} />
-                })
-              }
-            </Field>
-          }
+          <Field name="discord_id"
+                 component={renderTextField}
+                 className="form-field"
+                 fullWidth={true}
+                 floatingLabelText="Discord Server ID"
+                 floatingLabelFixed={true}
+                 hintText="Server Settings > Widget > Server ID"
+                 disabled={submitting || read_only} />
 
           <Field name="discord_roles.2"
                  component={renderTextField}
                  className="form-field"
                  fullWidth={true}
                  floatingLabelText="Officer Mapping"
+                 floatingLabelFixed={true}
                  hintText="Discord Role Name"
                  disabled={submitting || read_only} />
           <Field name="discord_roles.3"
@@ -89,6 +76,7 @@ class GuildFormDialog extends React.Component {
                  className="form-field"
                  fullWidth={true}
                  floatingLabelText="Quartermaster Mapping"
+                 floatingLabelFixed={true}
                  hintText="Discord Role Name"
                  disabled={submitting || read_only} />
           <Field name="discord_roles.4"
@@ -96,6 +84,7 @@ class GuildFormDialog extends React.Component {
                  className="form-field"
                  fullWidth={true}
                  floatingLabelText="Member Mapping"
+                 floatingLabelFixed={true}
                  hintText="Discord Role Name"
                  disabled={submitting || read_only} />
           <Field name="discord_roles.5"
@@ -103,9 +92,42 @@ class GuildFormDialog extends React.Component {
                  className="form-field"
                  fullWidth={true}
                  floatingLabelText="Mercenary Mapping"
+                 floatingLabelFixed={true}
                  hintText="Discord Role Name"
                  disabled={submitting || read_only} />
 
+          <Divider style={{marginTop: 15, marginBottom: 15}}/>
+          <div>Notification Settings</div>
+
+          <Field name="discord_webhook"
+                 component={renderTextField}
+                 className="form-field"
+                 fullWidth={true}
+                 floatingLabelText="Discord Webhook"
+                 floatingLabelFixed={true}
+                 hintText="Notifications are post via this hook"
+                 disabled={submitting || read_only} />
+
+          <Field name="discord_notifications.war_create"
+                 component={renderToggle}
+                 className="form-field"
+                 label="Notify on Discord when war is created"
+                 style={{marginTop: 10}}
+                 disabled={submitting || read_only} />
+
+          <Field name="discord_notifications.war_cancel"
+                 component={renderToggle}
+                 className="form-field"
+                 style={{marginTop: 10}}
+                 label="Notify on Discord when war is cancelled"
+                 disabled={submitting || read_only} />
+
+          <Field name="discord_notifications.war_end"
+                 component={renderToggle}
+                 className="form-field"
+                 style={{marginTop: 10}}
+                 label="Post stats to Discord when war is finished"
+                 disabled={submitting || read_only} />
         </CardText>
       </Card>
     )
@@ -190,6 +212,8 @@ const getInitialValues = (state) => {
       description,
       discord_id,
       discord_roles,
+      discord_webhook,
+      discord_notifications,
     } = guild.selected;
 
     return {
@@ -197,6 +221,8 @@ const getInitialValues = (state) => {
       description,
       discord_id,
       discord_roles,
+      discord_webhook,
+      discord_notifications,
     }
   }
 }

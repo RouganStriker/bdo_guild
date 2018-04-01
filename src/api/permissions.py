@@ -82,7 +82,12 @@ class BaseGuildObjectPermission(permissions.DjangoObjectPermissions):
         membership = self.get_membership(request, obj)
         required_permissions = self.perms_map[request.method]
 
-        return membership and set(required_permissions).issubset(set(membership.role.permissions.values_list('codename', flat=True)))
+        if not membership:
+            return False
+
+        member_permissions = membership.role.permissions.values_list('codename', flat=True)
+
+        return set(required_permissions).issubset(set(member_permissions))
 
 
 class GuildPermission(BaseGuildObjectPermission):
@@ -93,6 +98,15 @@ class GuildPermission(BaseGuildObjectPermission):
         'PUT': ['change_guild_info'],
         'PATCH': ['change_guild_info'],
     }
+
+    def has_permission(self, request, view):
+        """
+        Allow all methods. Object level permissions will be restricted.
+        """
+        if request.method not in self.perms_map:
+            raise exceptions.MethodNotAllowed(request.method)
+
+        return True
 
     def get_guild(self, request, instance=None):
         if instance is not None:

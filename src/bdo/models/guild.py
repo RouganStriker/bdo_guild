@@ -16,6 +16,13 @@ class Guild(DirtyFieldsMixin, models.Model):
     # Discord fields
     discord_id = models.CharField(max_length=75)
     discord_roles = JSONField()
+    discord_webhook = models.URLField(null=True, blank=True)
+    discord_notifications = JSONField(default={
+        "war_create": True,
+        "war_cancel": True,
+        "war_end": True
+    })
+
     # Cached discord membership info
     discord_members = JSONField(default={})
 
