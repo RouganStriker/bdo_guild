@@ -147,10 +147,6 @@ REST_KNOX = {
 }
 
 
-# ALL AUTH
-SOCIALACCOUNT_ADAPTER = 'accounts.adapter.DiscordAccountAdapter'
-ACCOUNT_LOGOUT_ON_GET = True
-
 # Django Security
 LOGIN_URL = '/login/'
 
@@ -208,6 +204,8 @@ CSP_DICT = {
 
 
 # All Auth
+SOCIALACCOUNT_ADAPTER = 'accounts.adapter.DiscordAccountAdapter'
+ACCOUNT_LOGOUT_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = False
 
 DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)

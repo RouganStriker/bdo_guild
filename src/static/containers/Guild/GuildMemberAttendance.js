@@ -14,12 +14,16 @@ import {
 import AttendedIcon from 'material-ui/svg-icons/action/check-circle';
 import UnavailableIcon from 'material-ui/svg-icons/content/remove-circle';
 import MissedIcon from 'material-ui/svg-icons/navigation/cancel';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import IconButton from 'material-ui/IconButton';
 const _ = require('lodash');
 
 import Time from '../../components/Time';
 import LoadingWidget from '../../components/LoadingWidget';
 import {
   WarService,
+  WarAttendanceService,
   MemberService,
 } from '../../services';
 
@@ -54,6 +58,63 @@ class GuildMemberAttendance extends React.Component {
     }))
   }
 
+  memberHasPermission(permission) {
+    const { profile, guild_id, role_permissions } = this.props;
+
+    if (!profile) {
+      return false;
+    }
+
+    const guild_role = profile.membership.find((membership) => membership.guild.id == parseInt(guild_id)).role.id;
+    const guild_permissions = role_permissions[guild_role]
+
+    return guild_permissions.includes(permission);
+  }
+
+  handleAttendanceChange(attendance, war_id, new_status) {
+    const { dispatch, guild_id } = this.props;
+
+    dispatch(WarAttendanceService.update({
+      id: attendance.id,
+      context: { guild_id, war_id },
+      payload: { is_attending: new_status },
+      onSuccess: () => dispatch(MemberService.list({
+        context: { guild_id },
+        params: {
+          include: "attendance",
+          page_size: 100,
+        }
+      }))
+    }));
+  }
+
+  renderAttendanceToggle(attendance, war_id) {
+    const { war_attendance } = this.props;
+    const { id, is_attending } = attendance;
+    const icon = ((is_attending == 0 || is_attending == 4) && this.renderAttended) ||
+                 (is_attending == 1 && this.renderUnavailable) ||
+                 this.renderMissed;
+
+    if (!this.memberHasPermission('change_member_attendance')) {
+      return icon;
+    }
+
+    return (
+      <IconMenu iconButtonElement={<IconButton disabled={war_attendance.isLoading}>{icon}</IconButton>}
+                value={is_attending}
+                onChange={(e, newValue) => this.handleAttendanceChange(attendance, war_id, newValue)}>
+        <MenuItem primaryText="Attended"
+                  value={0} />
+        <MenuItem primaryText="Unavailable"
+                  value={1} />
+        <MenuItem primaryText="Missed"
+                  value={3} />
+        <MenuItem primaryText="Late"
+                  value={4} />
+      </IconMenu>
+    );
+  }
+
   render() {
     const { members, war } = this.props;
 
@@ -66,6 +127,11 @@ class GuildMemberAttendance extends React.Component {
       const placeholders = _.fill(Array(6 - columnDates.length), '-')
       columnDates = [...columnDates, ...placeholders]
     }
+
+    const dateWarMapping = war.items.reduce((current, war) => {
+      current[war.date] = war.id;
+      return current;
+    }, {});
 
     return (
       <Card style={{padding: 20}}>
@@ -98,12 +164,8 @@ class GuildMemberAttendance extends React.Component {
 
                       if (!attendance) {
                         display = '-'
-                      } else if (attendance.is_attending === 0) {
-                        display = this.renderAttended;
-                      } else if (attendance.is_attending === 1) {
-                        display = this.renderUnavailable;
                       } else {
-                        display = this.renderMissed;
+                        display = this.renderAttendanceToggle(attendance, dateWarMapping[date])
                       }
 
                       return (
@@ -127,6 +189,9 @@ const mapStateToProps = (state) => {
   return {
       members: state.members,
       war: state.war,
+      role_permissions: state.auth.user.role_permissions,
+      profile: state.profile.selected,
+      war_attendance: state.warAttendance,
   };
 };
 

@@ -15,7 +15,7 @@ class CharacterAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     search_fields = ('family_name',)
-    pass
+    list_display = ('id', 'family_name', 'user')
 
 
 # Content

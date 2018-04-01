@@ -135,7 +135,7 @@ class WarAttendancePermission(BaseGuildObjectPermission):
 
     def has_object_permission(self, request, view, obj):
         try:
-            guild_member = GuildMember.objects.get(user=request.user.profile, guild=obj)
+            guild_member = GuildMember.objects.get(user=request.user.profile, guild=self.get_guild(request, obj))
         except GuildMember.DoesNotExist:
             return False
 
@@ -147,9 +147,13 @@ class WarAttendancePermission(BaseGuildObjectPermission):
         if not required_permissions:
             return True
 
-        can_edit = set(required_permissions).issubset(set(guild_member.role.permissions.values_list('codename', flat=True)))
+        member_permissions = set(guild_member.role.permissions.values_list('codename', flat=True))
 
-        return can_edit and obj.user_profile == request.user.profile
+        can_edit = set(required_permissions).issubset(member_permissions)
+        can_edit_others = 'change_member_attendance' in member_permissions
+
+        # User can edit self or User can edit others in the same guild
+        return (can_edit and obj.user_profile == request.user.profile) or can_edit_others
 
 
 class WarPermission(BaseGuildObjectPermission):

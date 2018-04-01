@@ -88,7 +88,7 @@ class NestedWarAttendanceSerializer(WarAttendanceSerializer):
     date = serializers.DateTimeField(source='war.date')
 
     class Meta(WarAttendanceSerializer.Meta):
-        fields = ('is_attending', 'date')
+        fields = ('id', 'is_attending', 'date')
 
 
 class WarTemplateSerializer(BaseSerializerMixin, serializers.ModelSerializer):
