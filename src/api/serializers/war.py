@@ -58,7 +58,17 @@ class WarAttendanceSerializer(BaseSerializerMixin, ExpanderSerializerMixin, seri
 
     class Meta:
         model = WarAttendance
-        fields = '__all__'
+        fields = (
+            'war',
+            'user_profile',
+            'name',
+            'team',
+            'call_sign',
+            'character',
+            'id',
+            'is_attending',
+            'note'
+        )
         expandable_fields = {
             'user_profile': ExtendedProfileSerializer,
         }
