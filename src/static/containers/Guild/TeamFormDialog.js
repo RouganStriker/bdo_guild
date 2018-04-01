@@ -124,6 +124,7 @@ class TeamFormDialog extends React.Component {
         <label className="form-label">Team Type</label>
         <Field name="type"
                component={renderRadioGroup}
+               defaultSelected={1}
                className="form-field"
                onChange={() => this.props.dispatch(change('team', 'slot_setup', {}))}
                disabled={submitting}>
