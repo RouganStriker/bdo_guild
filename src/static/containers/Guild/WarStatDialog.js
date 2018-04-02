@@ -15,6 +15,8 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import ReactDataGrid,  { editors } from 'react-data-grid';
 import ReactDOM from 'react-dom';
 import ConquestIcons from './images/conquest_icons.png';
+const naturalSort = require("javascript-natural-sort");
+naturalSort.insensitive = true;
 
 const moment = require('moment-timezone')
 import {
@@ -144,7 +146,7 @@ class WarStatDialog extends React.Component {
     ];
 
     this.state = {
-      rows: props.initialValues.stats,
+      rows: props.initialValues.stats.sort((a, b) => naturalSort(a.name, b.name)),
     };
   }
 
