@@ -29,7 +29,7 @@ class CallSignSection extends React.Component {
     const { attendance, callSign, dispatch, guild, war } = this.props;
 
     if (!attendance.isLoaded && !attendance.isLoading) {
-      dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile' }}));
+      dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile', page_size: 100 }}));
     }
     if (!callSign.isLoaded && !callSign.isLoading) {
       dispatch(WarCallSignService.list({ context: { guild_id: guild.id, war_id: war.id }}));
@@ -63,7 +63,7 @@ class CallSignSection extends React.Component {
     const { dispatch, guild, war } = this.props;
 
     this.fetchCallSigns();
-    dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile' }}));
+    dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile', page_size: 100 }}));
   }
 
   handleMemberSelected(id, slot, attendee) {

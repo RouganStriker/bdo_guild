@@ -64,7 +64,13 @@ class TeamWidget extends React.Component {
       </IconMenu>
     )
 
-    const available_members = members.filter((member) => (type === 'call_sign' && !member.call_sign) || (type === 'team' && !member.team));
+    const available_members = members.filter((member) => {
+        if ((type === 'call_sign' && !member.call_sign) || (type === 'team' && !member.team)) {
+          return true;
+        }
+        return false;
+    });
+
     const muiTheme = getMuiTheme({
       ...defaultTheme,
       tableRow: {

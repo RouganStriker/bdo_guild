@@ -29,7 +29,7 @@ class TeamSection extends React.Component {
     const { attendance, dispatch, guild, team, war } = this.props;
 
     if (!attendance.isLoaded && !attendance.isLoading) {
-      dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile' }}));
+      dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile', page_size: 100 }}));
     }
     if (!team.isLoaded && !team.isLoading) {
       dispatch(WarTeamService.list({ context: { guild_id: guild.id, war_id: war.id }}));
@@ -63,7 +63,7 @@ class TeamSection extends React.Component {
     const { dispatch, guild, war } = this.props;
 
     this.fetchTeams();
-    dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile' }}));
+    dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile', page_size: 100 }}));
   }
 
   handleMemberSelected(id, slot, attendee) {
