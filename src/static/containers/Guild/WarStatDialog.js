@@ -146,7 +146,7 @@ class WarStatDialog extends React.Component {
     ];
 
     this.state = {
-      rows: props.initialValues.stats.sort((a, b) => naturalSort(a.name, b.name)),
+      rows: props.initialValues.stats,
     };
   }
 
@@ -248,7 +248,7 @@ class WarStatDialog extends React.Component {
               modal={false}
               open={open}
               onRequestClose={this.handleCancel.bind(this)}
-              contentStyle={{width: '100%', minWidth: 1080}}
+              contentStyle={{width: '100%', minWidth: 1080, height: '80%'}}
               title={'Finish War'}
       >
         { this.renderForm() }
@@ -270,7 +270,9 @@ function submitForm(values, dispatch, props) {
 }
 
 function generateRows(attendance) {
-  return attendance.map((attendee, index) => {
+  const sortedAttendance = attendance.sort((a, b) => naturalSort(a.name, b.name));
+
+  return sortedAttendance.map((attendee, index) => {
     return {
       'attended': !!attendee.preferred_roles,
       'name': attendee.name,
