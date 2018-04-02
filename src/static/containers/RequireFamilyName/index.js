@@ -35,7 +35,7 @@ class RequireFamilyNameView extends React.Component {
     return (
       <Dialog open={true}
               model={true}
-              title="Welcome to BDO Guilds!"
+              title={`Welcome to BDO Guilds, ${user.discord_id}!`}
               actions={[<FlatButton
                 label="Submit"
                 primary={true}

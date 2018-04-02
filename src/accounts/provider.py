@@ -11,7 +11,11 @@ class DiscordRPCScopeProvider(DiscordProvider):
 
         username = '{0}#{1}'.format(data.get('username'), data.get('discriminator'))
 
-        return dict(username=username)
+        return dict(
+            email=None,
+            username=username,
+            name=username
+        )
 
     def get_default_scope(self):
         return ['identify', 'email']

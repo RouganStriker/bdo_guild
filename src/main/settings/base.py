@@ -123,7 +123,7 @@ CACHES = {
 # ############# REST FRAMEWORK ###################
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    'EXCEPTION_HANDLER': 'api.exceptions.custom_exception_handler',
     'DEFAULT_PERMISSION_CLASSES': (),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
@@ -204,6 +204,7 @@ CSP_DICT = {
 
 
 # All Auth
+ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_ADAPTER = 'accounts.adapter.DiscordAccountAdapter'
 ACCOUNT_LOGOUT_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = False

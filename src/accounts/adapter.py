@@ -1,7 +1,11 @@
+from logging import getLogger
+
 from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+
+logger = getLogger('bdo')
 
 
 class DiscordAccountAdapter(DefaultSocialAccountAdapter):
@@ -9,6 +13,7 @@ class DiscordAccountAdapter(DefaultSocialAccountAdapter):
         try:
             profile = sociallogin.user.profile
         except AttributeError:
+            logger.warning("New user {0} has no profile".format(sociallogin))
             return
 
         profile.refresh_guilds()

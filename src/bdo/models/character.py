@@ -23,7 +23,7 @@ class Profile(models.Model, UserPermissionMixin):
 
     family_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     preferences = JSONField(default={}, null=True, blank=True)
-    user = models.OneToOneField(get_user_model(), null=True, blank=True)
+    user = models.OneToOneField(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     discord_id = models.CharField(max_length=255, null=True, blank=True)
     preferred_roles = models.ManyToManyField('WarRole', blank=True)
     availability = JSONField(default=DEFAULT_AVAILABILITY)
@@ -70,6 +70,8 @@ class Profile(models.Model, UserPermissionMixin):
 
     def clean(self):
         super(Profile, self).clean()
+
+        self.family_name = self.family_name.strip()
 
         if Profile.objects.filter(family_name__iexact=self.family_name).exclude(id=self.id).exists():
             raise ValidationError({"family_name": "Family name '{0}' already exists.".format(self.family_name)})

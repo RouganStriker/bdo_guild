@@ -10,7 +10,7 @@ def get_user_data(request):
         "is_superuser": request.user.is_superuser,
         "guilds": [],
         "profile_id": None,
-        "discord_id": request.user.username,
+        "discord_id": request.user.first_name,
         "role_permissions": serialize_roles()
     }
 
