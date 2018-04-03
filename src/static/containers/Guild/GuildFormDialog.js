@@ -142,6 +142,7 @@ class GuildFormDialog extends React.Component {
                className="form-field"
                fullWidth={true}
                floatingLabelText="Description"
+               hintText="Text, Markdown, etc."
                multiLine={true}
                rowsMax={4}
                disabled={submitting} />

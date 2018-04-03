@@ -21,6 +21,8 @@ const VENDOR = [
     'react-chartjs-2',
     'react-router',
     'react-mixin',
+    //'react-markdown',
+    //'remark-parse',
     'classnames',
     'redux',
     'react-router-redux',
@@ -120,7 +122,7 @@ const common = {
             },
             {
                 test: /\.json(\?.*)?$/,
-                exclude: /node_modules\/moment-timezone/,
+                exclude: [/node_modules\/moment-timezone/, /node_modules\/remark-parse\/lib/],
                 loader: 'file-loader?name=/files/[name].[ext]'
             },
             {

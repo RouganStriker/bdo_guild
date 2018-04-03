@@ -5,6 +5,7 @@ import Paper from 'material-ui/Paper';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 import { Bar, Radar } from 'react-chartjs-2';
+import Markdown from 'react-markdown';
 
 import LoadingWidget from '../../components/LoadingWidget';
 import {
@@ -209,9 +210,9 @@ class GuildOverview extends React.Component {
             </Row>
           </CardText>
           <CardText>
-            <div>
-              { description }
-            </div>
+            <Markdown source={description}
+                      disallowedTypes={['html']}
+                      skipHtml={true} />
           </CardText>
         </Card>
         <Card>
