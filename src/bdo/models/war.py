@@ -80,6 +80,7 @@ class War(models.Model):
     def initialize_setup_from_previous(self):
         last_war = (War.objects.filter(guild=self.guild)
                                .order_by('-date', '-id')
+                               .exclude(id=self.id)
                                .prefetch_related('warteam_set', 'warcallsign_set')
                                .first())
         war_teams = [
