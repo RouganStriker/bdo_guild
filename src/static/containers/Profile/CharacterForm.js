@@ -69,18 +69,24 @@ class CharacterForm extends React.Component {
 
 
 function submit(values, dispatch, props) {
-  const { handleSubmitSuccess, initialValues } = props;
+  const { character, handleSubmitSuccess, initialValues } = props;
 
   if (initialValues) {
     dispatch(CharacterService.update({ id: initialValues.id, payload: values, form: 'character', onSuccess: handleSubmitSuccess }));
   } else {
-    dispatch(CharacterService.create({ payload: values, form: 'character', onSuccess: handleSubmitSuccess }));
+    dispatch(CharacterService.create({
+      // Make first character the main
+      payload: character.items.length == 0 && { ...values, is_main: true } || values,
+      form: 'character',
+      onSuccess: handleSubmitSuccess,
+    }));
   }
 
 }
 
 const mapStateToProps = state => ({
   characterClass: state.characterClasses,
+  character: state.character,
 });
 
 const formOptions = {
