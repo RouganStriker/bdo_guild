@@ -72,7 +72,17 @@ class WarAttendanceViewSet(NestedWarViewSet):
     permission_classes = (IsAuthenticated, WarAttendancePermission)
 
     def get_queryset(self):
-        return super(WarAttendanceViewSet, self).get_queryset().order_by('user_profile__family_name')
+        qs = super(WarAttendanceViewSet, self).get_queryset().order_by('user_profile__family_name')
+        qs = (qs.select_related('user_profile')
+                .prefetch_related(
+                    'user_profile__character_set',
+                    'user_profile__preferred_roles',
+                    'warcallsign_set',
+                    'slot__team'
+                )
+        )
+
+        return qs
 
     def get_serializer_context(self):
         context = super(WarAttendanceViewSet, self).get_serializer_context()

@@ -77,6 +77,31 @@ class War(models.Model):
 
         WarAttendance.objects.bulk_create(attendances)
 
+    def initialize_setup_from_previous(self):
+        last_war = (War.objects.filter(guild=self.guild)
+                               .order_by('-date', '-id')
+                               .prefetch_related('warteam_set', 'warcallsign_set')
+                               .first())
+        war_teams = [
+            WarTeam(
+                war=self,
+                name=team.name,
+                default_role=team.default_role,
+                type=team.type,
+                slot_setup=team.slot_setup)
+            for team in last_war.warteam_set.all()
+        ]
+        war_callsigns = [
+            WarCallSign(
+                war=self,
+                name=callsign.name
+            )
+            for callsign in last_war.warcallsign_set.all()
+        ]
+
+        WarTeam.objects.bulk_create(war_teams)
+        WarCallSign.objects.bulk_create(war_callsigns)
+
     def save(self, *args, **kwargs):
         dst_adjusted = getattr(settings, 'DST_ADJUSTED', False)
 
@@ -100,7 +125,7 @@ class War(models.Model):
 
         logger.info("Sending war start notification for {0}".format(self))
 
-        r = requests.post(self.guild.discord_webhook, json={
+        requests.post(self.guild.discord_webhook, json={
             "content": "@everyone",
             "embeds": [{
                 "title": ":crossed_swords: Next Node War {0}".format(self.get_display_date()),
@@ -118,7 +143,7 @@ class War(models.Model):
 
         logger.info("Sending war cancel notification for {0}".format(self))
 
-        r = requests.post(self.guild.discord_webhook, json={
+        requests.post(self.guild.discord_webhook, json={
             "content": "@everyone",
             "embeds": [{
                 "title": ":x: Node War on {0} is cancelled".format(self.get_display_date()),

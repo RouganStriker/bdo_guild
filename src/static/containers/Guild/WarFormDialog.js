@@ -13,7 +13,7 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 const moment = require('moment-timezone')
 
 import { required } from '../../utils/validations';
-import { renderTextField, renderChipField, renderSelectField, renderRadioGroup, renderDateField } from '../../components/Fields';
+import { renderTextField, renderCheckbox, renderSelectField, renderRadioGroup, renderDateField } from '../../components/Fields';
 import Form from '../../components/Form';
 import WarNodes from '../../services/content/nodes/service';
 import WarService from '../../services/guilds/wars/service';
@@ -56,7 +56,7 @@ class WarFormDialog extends React.Component {
     // the days are stored in terms of EST time.
     // 0 means Sunday in Javascript and 0 means Monday in Python.
     const convertDay = [5, 6, 0, 1, 2, 3, 4]
-    dispatch(WarNodes.list({ params: { page_size: 0, war_day: convertDay[date.getUTCDay()] }}));
+    dispatch(WarNodes.list({ params: { page_size: 50, war_day: convertDay[date.getUTCDay()] }}));
   }
 
   handleDateChange(evt, date) {
@@ -116,6 +116,15 @@ class WarFormDialog extends React.Component {
                hintText="Pre war notes"
                multiLine={true}
                disabled={submitting} />
+        {
+          !war.selected &&
+          <Field name="use_last_setup"
+                 component={renderCheckbox}
+                 className="form-field"
+                 defaultChecked={true}
+                 label={"Reuse setup from last war"}
+                 disabled={submitting} />
+        }
       </Form>
     );
   }
@@ -207,6 +216,7 @@ const getInitialValues = (state) => {
     date: fixDate(new Date()),
     node: null,
     note: '',
+    use_last_setup: true,
   }
 }
 

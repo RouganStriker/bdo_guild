@@ -157,6 +157,7 @@ class NestedWarTeamSerializer(WarTeamSerializer):
 class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     guild = serializers.HiddenField(default=CurrentGuildDefault())
     stats = serializers.DictField(read_only=True)
+    use_last_setup = serializers.BooleanField(default=True, required=False)
 
     class Meta:
         model = War
@@ -168,6 +169,7 @@ class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.Mo
             'outcome',
             'node',
             'stats',
+            'use_last_setup',
         )
         expandable_fields = {
             'node': WarNodeSerializer,
@@ -178,10 +180,17 @@ class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.Mo
 
         if 'stats' not in self.context['include']:
             self.fields.pop('stats')
+        if self.context['request'].method != 'POST':
+            self.fields.pop('use_last_setup')
 
     def create(self, validated_data):
+        use_last_setup = validated_data.pop('use_last_setup')
+
         war = super(WarSerializer, self).create(validated_data)
         war.generate_attendance()
+
+        if use_last_setup:
+            war.initialize_setup_from_previous()
 
         return war
 

@@ -34,9 +34,9 @@ class Profile(models.Model, UserPermissionMixin):
         unique_together = ('id', 'user')
 
     def __str__(self):
-        try:
-            main = self.character_set.get(is_main=True)
-        except Character.DoesNotExist:
+        main = self.get_main()
+
+        if main is None:
             return self.family_name
 
         return u'{0} ({1})'.format(self.family_name, main.name)

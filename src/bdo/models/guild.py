@@ -150,13 +150,15 @@ class GuildMember(models.Model):
         return self.get_attendance()
 
     def get_attendance(self, limit=6):
-        return self.user.attendance_set.filter(war__guild=self.guild, war__outcome__isnull=False).order_by('-war__date')[:limit]
+        return (self.user.attendance_set.filter(war__guild=self.guild, war__outcome__isnull=False)
+                                        .order_by('-war__date')
+                                        .select_related('war')[:limit])
 
     @property
     def main_character(self):
-        try:
-            main = self.user.character_set.get(is_main=True)
-        except Character.DoesNotExist:
+        main = self.user.get_main()
+
+        if main is None:
             return {}
 
         return {
