@@ -111,7 +111,9 @@ class BaseView extends React.Component {
     renderBody() {
         const { isLoading, profile, showNavBar, renderContent } = this.props;
 
-        if (isLoading || !profile.selected) {
+        if (isLoading || (profile.isLoading && !profile.selected)) {
+          !profile.selected && console.log("Waiting for profile to load")
+          !profile.selected && console.log("Waiting other to load")
           return <LinearProgress />;
         }
 

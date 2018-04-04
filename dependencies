@@ -81,6 +81,7 @@ pytest-forked==0.2
 pytest-pythonpath==0.7.1
 pytest-xdist==1.20.0
 python-dateutil==2.6.1
+python-memcached==1.59
 python3-openid==3.1.0
 pytz==2017.2
 PyYAML==3.12

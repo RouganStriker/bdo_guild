@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'security',
+    'debug_toolbar',
+    'debug_panel',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -68,6 +70,8 @@ MIDDLEWARE_CLASSES = [
     'security.middleware.NoConfidentialCachingMiddleware',
     'security.middleware.ContentSecurityPolicyMiddleware',
     'security.middleware.StrictTransportSecurityMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_panel.middleware.DebugPanelMiddleware',
 ]
 
 TEMPLATES = [
@@ -117,9 +121,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    },
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
 }
+
 # ############# REST FRAMEWORK ###################
 
 REST_FRAMEWORK = {
@@ -137,13 +143,6 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     )
-}
-
-# ############ REST KNOX ########################
-REST_KNOX = {
-    'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
-    'AUTH_TOKEN_CHARACTER_LENGTH': 64,
-    'USER_SERIALIZER': 'knox.serializers.UserSerializer'
 }
 
 
@@ -214,3 +213,6 @@ DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)
 # App Settings
 ## Bump times by an hour if True
 DST_ADJUSTED = False
+
+# Django Debug Toolbar
+INTERNAL_IPS = ['localhost:8000']

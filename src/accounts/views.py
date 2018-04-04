@@ -28,23 +28,6 @@ class ReactLoginView(LoginView):
 
 class DiscordRPCScopeOAuth2Adapter(DiscordOAuth2Adapter):
     provider_id = DiscordRPCScopeProvider.id
-    guild_url = 'https://discordapp.com/api/users/@me/guilds'
-
-    def complete_login(self, request, app, token, **kwargs):
-        headers = {
-            'Authorization': 'Bearer {0}'.format(token.token),
-            'Content-Type': 'application/json',
-        }
-        extra_data = requests.get(self.profile_url, headers=headers)
-        guild_data = requests.get(self.guild_url, headers=headers)
-
-        profile_data = extra_data.json()
-        profile_data['guilds'] = guild_data.json()
-
-        return self.get_provider().sociallogin_from_response(
-            request,
-            profile_data
-        )
 
 
 oauth2_login = OAuth2LoginView.adapter_view(DiscordRPCScopeOAuth2Adapter)
