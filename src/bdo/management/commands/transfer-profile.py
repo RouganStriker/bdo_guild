@@ -42,6 +42,7 @@ class Command(BaseCommand):
 
         old_profile.character_set.update(profile=new_profile)
         old_profile.attendance_set.update(user_profile=new_profile)
+        old_profile.membership.update(user=new_profile)
         old_profile.user = None
 
         old_profile.save()
