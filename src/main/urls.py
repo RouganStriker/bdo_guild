@@ -3,7 +3,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.decorators.cache import cache_page
 from django.http import Http404
 from django.views.defaults import page_not_found
 
@@ -56,13 +55,16 @@ urlpatterns += [
     
     url(r'^accounts/', include(disabled_account_urls)),
     url(r'^accounts/social/', include(social_urls)),
-    #url(r'^accounts/', include('allauth.urls')),
     url(r'^accounts/', include('accounts.urls')),
 
     url(r'^api/', include('api.urls', namespace='api')),
-    #url(r'^api/v1/accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^api/v1/getdata/', include('base.urls', namespace='base')),
 
-    # catch all others because of how history is handled by react router - cache this page because it will never change
-    url(r'', cache_page(settings.PAGE_CACHE_SECONDS)(base_views.IndexView.as_view()), name='index'),
+    url(r'', base_views.IndexView.as_view(), name='index'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

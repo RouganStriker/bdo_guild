@@ -3,6 +3,10 @@
 import os
 
 ATOMIC_REQUESTS = True
+LOCAL_DEVELOPMENT = False
+ADMIN_MODE = False
+DEBUG = False
+TEMPLATE_DEBUG = DEBUG
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # remove /sswmain/settings to get base folder
 
@@ -81,9 +85,9 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'bdo.context_processors.get_user_data',
             ],
@@ -160,7 +164,7 @@ LOGIN_EXEMPT_URLS = [
 
 CSP_DICT = {
     "default-src": ["self"],
-    "img-src": ["self", "data:", "blob:"],
+    "img-src": ["self", "data:", "blob:", "https://cdn.discordapp.com"],
     "script-src": ["self", "unsafe-eval", "unsafe-inline"],
     "style-src": ["self", "unsafe-inline"]
 }
@@ -172,7 +176,6 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 SESSION_COOKIE_HTTPONLY = True
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Use cookies in-memory instead of on persistent storage
 CSRF_COOKIE_AGE = None
@@ -192,15 +195,10 @@ SESSION_COOKIE_AGE = 172800
 SESSION_INACTIVITY_TIMEOUT = 7200
 
 # TODO: Should move to JSON serializer: need to move datetime out of session.
-#SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Session Cookies should expire on browser close.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
-CSP_DICT = {
-    "img-src": ["self", "https://cdn.discordapp.com"]
-}
-
 
 # All Auth
 ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -213,6 +211,3 @@ DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)
 # App Settings
 ## Bump times by an hour if True
 DST_ADJUSTED = False
-
-# Django Debug Toolbar
-INTERNAL_IPS = ['localhost:8000']

@@ -381,6 +381,8 @@ class GuildWar extends React.Component {
       return <LoadingWidget />
     }
 
+    const war_started = new Date(war.selected.date) < new Date();
+
     return (
       <Grid componentClass={Paper} style={{padding: 0}}>
 
@@ -400,6 +402,7 @@ class GuildWar extends React.Component {
           <Card>
             <CardActions>
               <RaisedButton fullWidth={true}
+                            disabled={!war_started}
                             label='Finish War'
                             onClick={() => this.setState({openFinishWarDialog: true})}
                             primary={true} />
