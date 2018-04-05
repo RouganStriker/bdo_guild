@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         new_profile.user = old_profile.user
         new_profile.discord_id = old_profile.discord_id
-        new_profile.preferred_roles = old_profile.preferred_roles
+        new_profile.preferred_roles.set(old_profile.preferred_roles.all)
         new_profile.availability = old_profile.availability
         new_profile.auto_sign_up = old_profile.auto_sign_up
 
