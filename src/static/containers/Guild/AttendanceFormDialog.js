@@ -173,6 +173,8 @@ function submitForm(values, dispatch, props) {
 
 const getInitialValues = (state, props) => {
   const { warAttendance: { myAttendance } } = state;
+  const { characters } = props;
+
   let initialValues = {
      is_attending: 0,
      character: null,
@@ -187,6 +189,10 @@ const getInitialValues = (state, props) => {
       character: myAttendance.character,
       note: myAttendance.note,
     };
+  }
+  if (initialValues.is_attending == 2) {
+    // Select a default character
+    initialValues["character"] = (characters.find((char) => char.is_main) || characters[0]).id;
   }
 
   return initialValues;

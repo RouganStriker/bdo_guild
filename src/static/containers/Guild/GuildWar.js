@@ -210,14 +210,23 @@ class GuildWar extends React.Component {
   }
 
   handleAttendanceToggle() {
-    const { auth, attendance: { myAttendance }, dispatch } = this.props;
+    const { auth, attendance: { myAttendance }, dispatch, profile } = this.props;
 
     if (myAttendance === null) {
       // Undecided
       this.setState({openAttendanceDialog: true});
     } else {
+      const payload = { is_attending: myAttendance.is_attending === 0 ? 1 : 0 }
+
+      // Set an initial character for first toggle
+      if (!myAttendance || (myAttendance.is_attending != 0 && myAttendance.character == null)) {
+        if (profile.selected.character_set.length > 0) {
+          payload["character"] = (profile.selected.character_set.find(char => char.is_main) || profile.selected.character_set[0]).id;
+        }
+      }
+
       dispatch(WarAttendanceService.updateMyAttendance({
-        payload: { is_attending: myAttendance.is_attending === 0 ? 1 : 0 },
+        payload,
         context: this.getContext(),
         onSuccess: () => this.refreshAttendance(),
       }))
