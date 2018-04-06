@@ -372,7 +372,9 @@ class GuildWar extends React.Component {
                       disabled={undecided.length === 0} />
         </CardActions>
         <Dialog autoScrollBodyContent={true}
-                contentStyle={{maxWidth: 'none'}}
+                contentStyle={{
+                  maxWidth: (showUndecided && 475) || (showNotAttending && 500) || 900,
+                }}
                 open={showAttending || showNotAttending || showUndecided}
                 onRequestClose={this.handleCloseDialog.bind(this)}>
           { showAttending && <AttendanceTable attendance={attending} showCharacterDetails={true} showNote={true} showAssignment={true} /> }
@@ -486,6 +488,7 @@ class GuildWar extends React.Component {
           openFinishWarDialog &&
           <WarStatDialog attendance={[...attending, ...not_attending, ...undecided]}
                          guild_id={guild_id}
+                         contentStyle={{minHeight: '80%'}}
                          handleSubmitSuccess={this.handleWarStatSuccess.bind(this)}
                          onClose={this.handleCloseDialog.bind(this)}/>
         }
