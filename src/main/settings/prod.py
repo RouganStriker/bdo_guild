@@ -3,9 +3,6 @@ import os
 from main.settings.base import *  # NOQA (ignore all errors on this line)
 
 
-DEBUG = False
-TEMPLATE_DEBUG = DEBUG
-
 PAGE_CACHE_SECONDS = 60
 
 # TODO: n a real production server this should have a proper url
@@ -17,7 +14,7 @@ DATABASES = {
         'NAME': 'bdo',
         'USER': 'bdo',
         'PASSWORD': os.environ.get('BDO_GUILD_DB_PASSWORD', None),
-        'HOST': 'postgres',
+        'HOST': '127.0.0.1',
         'PORT': 5432,
     }
 }
@@ -34,18 +31,43 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
+        'web_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
             'filename': '/var/log/bdo/main.log',
+            'formatter': 'verbose'
+        },
+        'command_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'D',
+            'interval': 1,
+            'backupCount': 7,
+            'filename': '/var/log/bdo/command.log',
             'formatter': 'verbose'
         }
     },
     'loggers': {
         '': {
             'level': 'INFO',
+            'handlers': ['web_log'],
+            'propagate': False,
+        },
+        'bdo': {
+            'level': 'DEBUG',
+            'handlers': ['web_log'],
+            'propagate': False,
+        },
+        'bdo.commands': {
+            'level': 'command_log',
             'handlers': ['file'],
             'propagate': False,
         },
     },
 }
+
+# Add local setting overrides
+from main.settings.local_settings import *  # noqa

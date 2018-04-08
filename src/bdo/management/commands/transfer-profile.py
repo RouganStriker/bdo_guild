@@ -6,7 +6,7 @@ from django.core.management import BaseCommand, CommandError
 
 from bdo.models.character import Profile
 
-logger = getLogger()
+logger = getLogger('bdo.commands')
 
 
 class Command(BaseCommand):

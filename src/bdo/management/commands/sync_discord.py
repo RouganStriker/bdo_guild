@@ -10,7 +10,7 @@ from django.db.models import Case, OuterRef, Q, Subquery, When
 from bdo.models.character import Profile
 from bdo.models.guild import Guild, GuildMember, GuildRole
 
-logger = getLogger()
+logger = getLogger('bdo.commands')
 
 
 class Command(BaseCommand):
@@ -79,11 +79,12 @@ class Command(BaseCommand):
             bdo_guild.discord_members = cached_members
             bdo_guild.save()
 
-            # Prune old members, update existing
+            # Prune old members
             existing_users = Profile.objects.filter(discord_id__in=cached_members.keys())
             deleted = (GuildMember.objects.filter(guild=bdo_guild)
                                           .exclude(role=1)  # Exclude GMs
                                           .exclude(user__in=existing_users).delete())
+            # Update existing member's roles
             outdated_members_q = (Q(user__discord_id__in=discord_ids) & ~Q(role_id=role_id)
                                   for role_id, discord_ids in members_by_roles.items())
             members_qs = existing_users.filter(id=OuterRef('user_id'))
@@ -95,6 +96,17 @@ class Command(BaseCommand):
                                                 for role_id, discord_ids in members_by_roles.items()]
                                           ))
             )
+            # Add new members
+            new_members = [
+                GuildMember(guild=bdo_guild, profile=profile, role=cached_members[profile.discord_id])
+                for profile in cached_members
+                if profile in existing_users.exclude(membership__guild=bdo_guild)
+            ]
+            created = GuildMember.objects.bulk_create(new_members)
 
             logger.info("Synchronized Guild `{0}`, found {1} discord members, removed {2} members, "
-                        "updated {3} members.".format(bdo_guild, len(cached_members), deleted[0], updated))
+                        "updated {3} members, added {4} members.".format(bdo_guild,
+                                                                         len(cached_members),
+                                                                         deleted[0],
+                                                                         updated,
+                                                                         len(new_members)))
