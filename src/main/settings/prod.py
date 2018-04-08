@@ -62,8 +62,8 @@ LOGGING = {
             'propagate': False,
         },
         'bdo.commands': {
-            'level': 'command_log',
-            'handlers': ['file'],
+            'level': 'DEBUG',
+            'handlers': ['command_log'],
             'propagate': False,
         },
     },
