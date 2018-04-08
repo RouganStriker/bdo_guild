@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 from logging import getLogger
 
 from dirtyfields import DirtyFieldsMixin
@@ -40,6 +41,19 @@ class War(models.Model):
 
     def __str__(self):
         return u"[{0}] - {1}".format(self.guild.name, self.date.strftime("%b %d, %Y"))
+
+    @staticmethod
+    def next_war():
+        # Return the closed war date
+        dst_adjusted = getattr(settings, 'DST_ADJUSTED', False)
+        now = datetime.now()
+        war_hour = 1 if dst_adjusted else 2
+        war_date = datetime(year=now.year, month=now.month, day=now.day, hour=war_hour)
+
+        if now.hour > war_hour:
+            war_date += timedelta(days=1)
+
+        return war_date
 
     @property
     def stats(self):

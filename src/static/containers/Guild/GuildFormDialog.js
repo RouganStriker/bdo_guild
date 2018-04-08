@@ -122,6 +122,13 @@ class GuildFormDialog extends React.Component {
                  label="Notify on Discord when war is cancelled"
                  disabled={submitting || read_only} />
 
+          <Field name="discord_notifications.war_start_warning"
+                 component={renderToggle}
+                 className="form-field"
+                 style={{marginTop: 10}}
+                 label="Post 15min warning to Discord along with war setup and details"
+                 disabled={submitting || read_only} />
+
           <Field name="discord_notifications.war_end"
                  component={renderToggle}
                  className="form-field"

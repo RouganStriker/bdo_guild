@@ -43,7 +43,7 @@ const common = {
         app: PATHS.app
     },
     output: {
-        filename: '[name].js',
+        filename: '[name].[hash].js',
         path: PATHS.build,
         publicPath: '/static'
     },
@@ -60,7 +60,7 @@ const common = {
         }),
         new HtmlWebpackPlugin({
             template: path.join(__dirname, '../src/static/index.html'),
-            hash: false,
+            hash: true,
             chunks: ['vendor', 'app'],
             chunksSortMode: 'manual',
             filename: 'index.html',

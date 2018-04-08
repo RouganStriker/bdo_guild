@@ -20,7 +20,8 @@ class Guild(DirtyFieldsMixin, models.Model):
     discord_notifications = JSONField(default={
         "war_create": True,
         "war_cancel": True,
-        "war_end": True
+        "war_end": True,
+        "war_start_warning": True
     })
 
     # Cached discord membership info
