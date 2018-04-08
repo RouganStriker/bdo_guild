@@ -98,11 +98,12 @@ class Command(BaseCommand):
             )
             # Add new members
             new_members = [
-                GuildMember(guild=bdo_guild, profile=profile, role=cached_members[profile.discord_id])
-                for profile in cached_members
-                if profile in existing_users.exclude(membership__guild=bdo_guild)
+                GuildMember(guild=bdo_guild,
+                            profile=profile,
+                            role=bdo_guild_role_mapping[cached_members[profile.discord_id]])
+                for profile in existing_users.exclude(membership__guild=bdo_guild)
             ]
-            created = GuildMember.objects.bulk_create(new_members)
+            GuildMember.objects.bulk_create(new_members)
 
             logger.info("Synchronized Guild `{0}`, found {1} discord members, removed {2} members, "
                         "updated {3} members, added {4} members.".format(bdo_guild,
