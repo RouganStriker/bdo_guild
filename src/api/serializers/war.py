@@ -276,46 +276,45 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
 
         if war_stats:
             WarStat.objects.bulk_create(war_stats.values())
-
-            # Update aggregated stats
-            AggregatedGuildWarStats.update(war.guild, guild_totals)
-
-            # Refresh aggregated stats
-            def get_attending(profile_id):
-                if profile_id in war_stats:
-                    return 0
-                elif profile_id in no_shows:
-                    return 3
-                else:
-                    return 1
-
-            # Update member stats
-            old_member_stats = AggregatedGuildMemberWarStats.objects.filter(guild=war.guild,
-                                                                            user_profile__in=war.attendees.all())
-            new_member_stats = [
-                old_stat.clone_and_increment(war_stat=war_stats.get(old_stat.user_profile_id, None),
-                                             is_attending=get_attending(old_stat.user_profile_id))
-                for old_stat in old_member_stats
-            ]
-            old_member_stats.delete()
-            AggregatedGuildMemberWarStats.objects.bulk_create(new_member_stats)
-
-            # Update user stats
-            old_user_stats = AggregatedUserWarStats.objects.filter(user_profile__in=war.attendees.all())
-            new_user_stats = [
-                old_stat.clone_and_increment(war_stat=war_stats.get(old_stat.user_profile_id, None),
-                                             is_attending=get_attending(old_stat.user_profile_id))
-                for old_stat in old_user_stats
-            ]
-            old_user_stats.delete()
-            AggregatedUserWarStats.objects.bulk_create(new_user_stats)
-
         if no_shows:
             (WarAttendance.objects.filter(id__in=no_shows.values())
                                   .update(is_attending=WarAttendance.AttendanceStatus.NO_SHOW.value))
         if no_sign_ups:
             (WarAttendance.objects.filter(id__in=no_sign_ups.values())
                                   .update(is_attending=WarAttendance.AttendanceStatus.LATE.value))
+
+        # Update aggregated stats
+        AggregatedGuildWarStats.update(war.guild, guild_totals)
+
+        # Refresh aggregated stats
+        def get_attending(profile_id):
+            if profile_id in war_stats:
+                return 0
+            elif profile_id in no_shows:
+                return 3
+            else:
+                return 1
+
+        # Update member stats
+        old_member_stats = AggregatedGuildMemberWarStats.objects.filter(guild=war.guild,
+                                                                        user_profile__in=war.attendees.all())
+        new_member_stats = [
+            old_stat.clone_and_increment(war_stat=war_stats.get(old_stat.user_profile_id, None),
+                                         is_attending=get_attending(old_stat.user_profile_id))
+            for old_stat in old_member_stats
+            ]
+        old_member_stats.delete()
+        AggregatedGuildMemberWarStats.objects.bulk_create(new_member_stats)
+
+        # Update user stats
+        old_user_stats = AggregatedUserWarStats.objects.filter(user_profile__in=war.attendees.all())
+        new_user_stats = [
+            old_stat.clone_and_increment(war_stat=war_stats.get(old_stat.user_profile_id, None),
+                                         is_attending=get_attending(old_stat.user_profile_id))
+            for old_stat in old_user_stats
+            ]
+        old_user_stats.delete()
+        AggregatedUserWarStats.objects.bulk_create(new_user_stats)
 
         war.outcome = validated_data['outcome']
         war.save()

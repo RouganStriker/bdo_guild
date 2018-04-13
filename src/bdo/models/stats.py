@@ -127,6 +127,9 @@ class AggregatedGuildWarStats(BaseAggregatedWarStats):
 
     @staticmethod
     def update(guild, stats):
+        if not stats:
+            return
+
         stats["total_kills"] = stats["guild_master"] + stats["officer"] + stats["member"] + stats["siege_weapons"]
 
         try:
