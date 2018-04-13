@@ -32,7 +32,7 @@ class NestedGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
 
         war = War.objects.filter(guild=instance).order_by('-date', '-id').first()
 
-        if war and war.outcome is None:
+        if war is not None and war.outcome is None:
             return war.id
         else:
             return None

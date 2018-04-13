@@ -90,23 +90,6 @@ class Guild(DirtyFieldsMixin, models.Model):
         }
 
     @property
-    def stat_totals(self):
-        from bdo.models.war import WarStat
-
-        stats = (
-            WarStat.objects.filter(attendance__war__guild=self)
-                           .values('attendance__war__guild')
-                           .aggregate(
-                                total_guild_master=Sum('guild_master'),
-                                total_officer=Sum('officer'),
-                                total_member=Sum('member'),
-                                total_siege_weapons=Sum('siege_weapons'),
-                                total_death=Sum('death'))
-        )
-
-        return stats
-
-    @property
     def member_count(self):
         return self.members.count()
 
@@ -174,26 +157,14 @@ class GuildMember(models.Model):
 
     @property
     def stats(self):
-        fields = [
-            'command_post',
-            'fort',
-            'gate',
-            'help',
-            'mount',
-            'placed_objects',
-            'guild_master',
-            'officer',
-            'member',
-            'death',
-            'siege_weapons',
-        ]
+        # Return the AggregatedGuildMemberWarStats
+        profile = self.user
 
-        return self.user.attendance_set.filter(war__guild=self.guild, war__outcome__isnull=False).values('user_profile').aggregate(
-            total_attended=Count(Case(When(is_attending__in=[0, 4], then=1))),
-            total_unavailable=Count(Case(When(is_attending=1, then=1))),
-            total_missed=Count(Case(When(is_attending__in=[2, 3], then=1))),
-            **{'total_{0}'.format(field): Sum('stats__{0}'.format(field)) for field in fields}
-        )
+        if hasattr(profile, 'member_stats'):
+            # Use prefetched value
+            return profile.member_stats[0]
+
+        return profile.user__aggregatedguildmemberwarstats.get(guild=self.guild)
 
 
 class WarRole(models.Model):

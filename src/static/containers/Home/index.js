@@ -150,7 +150,7 @@ class HomeView extends React.Component {
   renderTotalStatTable() {
     const { profile } = this.props;
 
-    if (profile.selected.stats.total_wars === 0) {
+    if (profile.selected.stats == null) {
       return <EmptyState text="You have no recorded stats" />
     }
 
@@ -204,8 +204,8 @@ class HomeView extends React.Component {
                     </Link>
                   </div>
                   <div style={{marginTop: 5}}>Node: {war.node && war.node || ''}</div>
-                  { war.attendance.team && <div style={{marginTop: 5}}>Team: {war.attendance.team}</div>}
-                  { war.attendance.call_sign && <div style={{marginTop: 5}}>Call Sign: {war.attendance.call_sign}</div>}
+                  { war.attendance && war.attendance.team && <div style={{marginTop: 5}}>Team: {war.attendance.team}</div>}
+                  { war.attendance && war.attendance.call_sign && <div style={{marginTop: 5}}>Call Sign: {war.attendance.call_sign}</div>}
               </li>
             );
           })

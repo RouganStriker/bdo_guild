@@ -1,10 +1,18 @@
+from logging import getLogger
+
 from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 
 from bdo.context import UserContext
 from bdo.models.activity import Activity
-from bdo.models.guild import Guild
-from bdo.models.war import War, WarAttendance, war_finish
+from bdo.models.character import Profile
+from bdo.models.guild import Guild, GuildMember
+from bdo.models.stats import (AggregatedGuildMemberWarStats,
+                              AggregatedGuildWarStats,
+                              AggregatedUserWarStats)
+from bdo.models.war import War, WarAttendance, WarStat, war_finish
+
+logger = getLogger('bdo')
 
 
 # Guild Signals
@@ -14,6 +22,7 @@ def handle_guild_save(created, instance, update_fields, *args, **kwargs):
         return
     if created:
         type = Activity.TYPES.GUILD_CREATE.value
+        AggregatedGuildWarStats.objects.create(guild=instance)
     else:
         type = Activity.TYPES.GUILD_UPDATE.value
 
@@ -56,7 +65,6 @@ def handle_war_save(created, instance, *args, **kwargs):
                             target=instance)
 
 
-
 @receiver(pre_delete, sender=War)
 def handle_war_delete(instance, *args, **kwargs):
     if not UserContext.has_current:
@@ -97,3 +105,32 @@ def handle_war_attendance_change(instance, update_fields, *args, **kwargs):
                             guild=instance.war.guild,
                             extras={'is_attending': instance.is_attending},
                             target=instance)
+
+
+@receiver(post_save, sender=GuildMember)
+def handle_guild_member_create(created, instance, *args, **kwargs):
+    if not created:
+        return
+
+    # Create the aggregated stat row
+    AggregatedGuildMemberWarStats.objects.get_or_create(guild=instance.guild, user_profile=instance.user)
+
+
+@receiver(post_save, sender=Profile)
+def handle_profile_created(created, instance, *args, **kwargs):
+    if not created:
+        return
+
+    # Create the aggregated stat row
+    AggregatedUserWarStats.objects.get_or_create(user_profile=instance)
+
+
+@receiver(post_save, sender=WarStat)
+def handle_war_stat_saved(created, instance, *args, **kwargs):
+    # Re-calculate everything
+    logger.info("Re-calculating stats for {0}".format(instance))
+
+    AggregatedGuildWarStats.objects.get(guild=instance.attendance.war.guild).recalculate()
+    AggregatedGuildMemberWarStats.objects.get(guild=instance.attendance.war.guild,
+                                              user_profile=instance.attendance.user_profile).recalculate()
+    AggregatedUserWarStats.objects.get(user_profile=instance.attendance.user_profile).recalculate()

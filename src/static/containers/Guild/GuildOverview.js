@@ -110,33 +110,33 @@ class GuildOverview extends React.Component {
         {
           ...baseDataSet,
           label: 'Guild Master',
-          data: [stat_totals.total_guild_master, 0]
+          data: [stat_totals.guild_master, 0]
         },
         {
           ...baseDataSet,
           label: 'Officer',
           hoverBackgroundColor: 'rgba(255, 127, 161, 0.4)',
           hoverBorderColor: 'rgba(255, 64, 129,1)',
-          data: [stat_totals.total_officer, 0]
+          data: [stat_totals.officer, 0]
         },
         {
           ...baseDataSet,
           label: 'Member',
           hoverBackgroundColor: 'rgba(	255, 174, 193, 0.4)',
           hoverBorderColor: 'rgba(255, 64, 129,1)',
-          data: [stat_totals.total_member, 0]
+          data: [stat_totals.member, 0]
         },
         {
           ...baseDataSet,
           label: 'Siege Weapon',
           hoverBackgroundColor: 'rgba(255, 215, 224, 0.4)',
           hoverBorderColor: 'rgba(255, 64, 129,1)',
-          data: [stat_totals.total_siege_weapons, 0]
+          data: [stat_totals.siege_weapons, 0]
         },
         {
           ...baseDataSet,
           label: 'Death',
-          data: [0, stat_totals.total_death]
+          data: [0, stat_totals.death]
         }
       ]
     }

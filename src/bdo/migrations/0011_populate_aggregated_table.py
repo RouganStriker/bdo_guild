@@ -11,6 +11,9 @@ def populate_aggregated_table(apps, schema_editor):
     AggregatedGuildMemberWarStats = apps.get_model('bdo', 'AggregatedGuildMemberWarStats')
     AggregatedGuildWarStats = apps.get_model('bdo', 'AggregatedGuildWarStats')
     AggregatedUserWarStats = apps.get_model('bdo', 'AggregatedUserWarStats')
+    Guild = apps.get_model('bdo', 'Guild')
+    GuildMember = apps.get_model('bdo', 'GuildMember')
+    Profile = apps.get_model('bdo', 'Profile')
     WarAttendance = apps.get_model('bdo', 'WarAttendance')
     WarStat = apps.get_model('bdo', 'WarStat')
 
@@ -126,6 +129,33 @@ def populate_aggregated_table(apps, schema_editor):
                                            wars_unavailable=F('unavailable'),
                                            total_kills=total_kills_expr,
                                            kdr=kdr_expr))
+
+    # Generate stub rows
+    AggregatedGuildWarStats.objects.bulk_create([
+        AggregatedGuildWarStats(guild=guild)
+        for guild in Guild.objects.exclude(id__in=AggregatedGuildWarStats.objects.values_list('guild'))
+    ])
+
+    member_tuples = AggregatedGuildMemberWarStats.objects.values_list('guild', 'user_profile')
+    new_aggregated_members = []
+
+    for member in GuildMember.objects.all():
+        if (member.guild_id, member.user_id) in member_tuples:
+            continue
+
+        new_aggregated_members.append(AggregatedGuildMemberWarStats(guild=member.guild,
+                                                                    user_profile=member.user))
+    AggregatedGuildMemberWarStats.objects.bulk_create(new_aggregated_members)
+
+    AggregatedGuildMemberWarStats.objects.bulk_create([
+        AggregatedGuildMemberWarStats(guild=guild)
+        for guild in Guild.objects.exclude(id__in=AggregatedGuildWarStats.objects.values_list('guild'))
+    ])
+
+    AggregatedUserWarStats.objects.bulk_create([
+        AggregatedUserWarStats(user_profile=profile)
+        for profile in Profile.objects.exclude(id__in=AggregatedUserWarStats.objects.values_list('user_profile'))
+    ])
 
 
 class Migration(migrations.Migration):

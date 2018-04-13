@@ -171,10 +171,10 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 120},
       render: (_, all) => {
-        const { total_attended, total_unavailable, total_missed } = all.stats;
+        const { wars_attended, wars_unavailable, wars_missed } = all.stats;
         return (
           <Tooltip label='Attended / Unavailable / Missed'>
-            {[total_attended, total_unavailable, total_missed].join(" / ")}
+            {[wars_attended, wars_unavailable, wars_missed].join(" / ")}
           </Tooltip>
         );
       }
@@ -185,7 +185,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 150},
       render: (_, all) => {
-        return all.stats.total_command_post;
+        return all.stats.command_post;
       }
     }
     const fortColumn = {
@@ -194,7 +194,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        return all.stats.total_fort;
+        return all.stats.fort;
       }
     }
     const gateColumn = {
@@ -203,7 +203,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        return all.stats.total_gate;
+        return all.stats.gate;
       }
     }
     const helpColumn = {
@@ -212,7 +212,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        return all.stats.total_help;
+        return all.stats.help;
       }
     }
     const mountColumn = {
@@ -221,7 +221,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        return all.stats.total_mount;
+        return all.stats.mount;
       }
     }
     const placedObjectColumn = {
@@ -230,7 +230,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 150},
       render: (_, all) => {
-        return all.stats.total_placed_objects;
+        return all.stats.placed_objects;
       }
     }
     const guildMasterColumn = {
@@ -239,7 +239,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 150},
       render: (_, all) => {
-        return all.stats.total_guild_master;
+        return all.stats.guild_master;
       }
     }
     const officerColumn = {
@@ -248,7 +248,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 120},
       render: (_, all) => {
-        return all.stats.total_officer;
+        return all.stats.officer;
       }
     }
     const memberColumn = {
@@ -257,7 +257,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 120},
       render: (_, all) => {
-        return all.stats.total_member;
+        return all.stats.member;
       }
     }
     const deathColumn = {
@@ -266,7 +266,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        return all.stats.total_death;
+        return all.stats.death;
       }
     }
     const siegeWeaponsColumn = {
@@ -275,7 +275,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 160},
       render: (_, all) => {
-        return all.stats.total_siege_weapons;
+        return all.stats.siege_weapons;
       }
     }
     const totalKillsColumn = {
@@ -284,14 +284,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 140},
       render: (_, all) => {
-        const {
-          total_guild_master,
-          total_officer,
-          total_member,
-          total_siege_weapons,
-        } = all.stats;
-
-        return total_guild_master + total_officer + total_member + total_siege_weapons;
+        return all.stats.total_kills;
       }
     }
     const kdrColumn = {
@@ -300,15 +293,7 @@ class GuildMemberStats extends React.Component {
       sortable: false,
       style: {width: 100},
       render: (_, all) => {
-        const {
-          total_guild_master,
-          total_officer,
-          total_member,
-          total_siege_weapons,
-          total_death,
-        } = all.stats;
-
-        return total_death !== 0 && ((total_guild_master + total_officer + total_member + total_siege_weapons) / total_death).toFixed(2) || 0;
+        return all.stats.kdr;
       }
     }
 

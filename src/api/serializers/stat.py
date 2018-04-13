@@ -5,7 +5,7 @@ from bdo.models.stats import AggregatedGuildMemberWarStats, AggregatedGuildWarSt
 
 
 class BaseAggregatedStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
-    kdr = serializers.DecimalField(max_digits=19, decimal_places=2)
+    kdr = serializers.DecimalField(max_digits=19, decimal_places=2, coerce_to_string=False)
 
     class Meta:
         fields = [

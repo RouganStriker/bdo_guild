@@ -4,6 +4,7 @@ from rest_framework import serializers
 from api.serializers import war as war_serializers
 from api.serializers.profile import ExtendedProfileSerializer, SimpleProfileSerializer
 from api.serializers.guild_content import NestedGuildSerializer, SimpleGuildRoleSerializer
+from api.serializers.stat import AggregatedGuildWarStatsSerializer, AggregatedGuildMemberWarStatsSerializer
 from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember
 
@@ -12,7 +13,7 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
     attendance = war_serializers.NestedWarAttendanceSerializer(many=True)
     name = serializers.StringRelatedField(source='user', read_only=True)
     main_character = serializers.DictField(read_only=True)
-    stats = serializers.DictField(read_only=True)
+    stats = AggregatedGuildMemberWarStatsSerializer(read_only=True)
 
     class Meta:
         model = GuildMember
@@ -39,6 +40,8 @@ class SimpleGuildSerializer(NestedGuildSerializer):
     """
     guild_master = SimpleProfileSerializer(read_only=True)
     member_count = serializers.IntegerField(read_only=True)
+    average_level = serializers.IntegerField(read_only=True)
+    average_gearscore = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Guild
@@ -50,22 +53,27 @@ class SimpleGuildSerializer(NestedGuildSerializer):
             'logo_url',
             'description',
             'member_count',
+            'average_level',
+            'average_gearscore',
         )
+
+    def __init__(self, *args, **kwargs):
+        super(SimpleGuildSerializer, self).__init__(*args, **kwargs)
+
+        if 'stats' not in self.context['include']:
+            self.fields.pop('average_level')
+            self.fields.pop('average_gearscore')
 
 
 class ExtendedGuildSerializer(SimpleGuildSerializer):
     # Extra stats fields
-    average_level = serializers.IntegerField(read_only=True)
-    average_gearscore = serializers.IntegerField(read_only=True)
     class_distribution = serializers.DictField(read_only=True)
-    stat_totals = serializers.DictField(read_only=True)
+    stat_totals = AggregatedGuildWarStatsSerializer(source='guild_stats', read_only=True)
 
     class Meta(SimpleGuildSerializer.Meta):
         fields = SimpleGuildSerializer.Meta.fields + (
             'stat_totals',
             'class_distribution',
-            'average_level',
-            'average_gearscore',
             'discord_id',
             'discord_roles',
             'discord_webhook',

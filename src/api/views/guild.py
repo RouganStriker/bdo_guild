@@ -1,4 +1,4 @@
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import Prefetch, Q
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,8 +13,8 @@ from api.serializers.guild import (ExtendedGuildSerializer,
 from api.serializers.guild_content import WarRoleSerializer
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.activity import Activity
-from bdo.models.character import Character
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
+from bdo.models.stats import AggregatedGuildMemberWarStats
 
 
 class GuildViewMixin(object):
@@ -76,7 +76,11 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
             qs = qs.select_related('guild', 'role', 'user')
         if 'role' in self.request.query_params.get('expand', []):
             qs = qs.select_related('role')
-
+        if 'stats' in includes:
+            guild_id = self.kwargs['guild_pk']
+            qs = qs.prefetch_related(Prefetch('user__aggregatedguildmemberwarstats_set',
+                                              AggregatedGuildMemberWarStats.objects.filter(guild=guild_id),
+                                              'member_stats'))
         return qs
 
 
