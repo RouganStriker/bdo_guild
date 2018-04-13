@@ -41,29 +41,6 @@ class Profile(models.Model, UserPermissionMixin):
 
         return u'{0} ({1})'.format(self.family_name, main.name)
 
-    @property
-    def stats(self):
-        fields = [
-            'command_post',
-            'fort',
-            'gate',
-            'help',
-            'mount',
-            'placed_objects',
-            'guild_master',
-            'officer',
-            'member',
-            'death',
-            'siege_weapons',
-        ]
-
-        return self.attendance_set.aggregate(
-            total_attended=Count(Case(When(is_attending__in=[0, 4], then=1))),
-            total_unavailable=Count(Case(When(is_attending=1, then=1))),
-            total_missed=Count(Case(When(is_attending__in=[2, 3], then=1))),
-            **{'total_{0}'.format(field): models.Sum('stats__{0}'.format(field)) for field in fields}
-        )
-
     def user_can_edit(self, user):
         # Only the owner or a superuser can edit the profile
         return user.is_superuser or user == self.user

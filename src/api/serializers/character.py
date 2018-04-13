@@ -3,6 +3,7 @@ from rest_framework.exceptions import ValidationError
 
 from api.serializers.guild_content import GuildMembershipSerializer
 from api.serializers.mixin import BaseSerializerMixin
+from api.serializers.stat import AggregatedUserWarStatsSerializer
 from bdo.models.character import Character, Profile
 from bdo.models.content import CharacterClass
 
@@ -56,7 +57,7 @@ class NestedCharacterSerializer(CharacterSerializer):
 
 class ProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     character_set = NestedCharacterSerializer(many=True, read_only=True)
-    stats = serializers.DictField(read_only=True)
+    stats = AggregatedUserWarStatsSerializer(source='user_stats', read_only=True)
     family_name = serializers.CharField(max_length=255)
     membership = GuildMembershipSerializer(many=True, read_only=True)
 

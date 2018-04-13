@@ -53,67 +53,67 @@ class HomeView extends React.Component {
 
     let columns = [
       {
-        key: 'total_command_post',
+        key: 'command_post',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '0 0'}} />,
         tooltip: 'Command Post',
         ...columnOptions,
       },
       {
-        key: 'total_fort',
+        key: 'fort',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-61px 0'}} />,
         tooltip: 'Fortress',
         ...columnOptions,
       },
       {
-        key: 'total_gate',
+        key: 'gate',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-126px 0'}} />,
         tooltip: 'Gate',
         ...columnOptions,
       },
       {
-        key: 'total_help',
+        key: 'help',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-193px 0'}} />,
         tooltip: 'Help',
         ...columnOptions,
       },
       {
-        key: 'total_mount',
+        key: 'mount',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-253px 0'}} />,
         tooltip: 'Mount',
         ...columnOptions,
       },
       {
-        key: 'total_placed_objects',
+        key: 'placed_objects',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-319px 0'}} />,
         tooltip: 'Placed Objects',
         ...columnOptions,
       },
       {
-        key: 'total_guild_master',
+        key: 'guild_master',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-384px 0'}} />,
         tooltip: 'Guild Master',
         ...columnOptions,
       },
       {
-        key: 'total_officer',
+        key: 'officer',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-448px 0'}} />,
         tooltip: 'Officer',
         ...columnOptions,
       },
       {
-        key: 'total_member',
+        key: 'member',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-512px 0'}} />,
         tooltip: 'Member',
         ...columnOptions,
       },
       {
-        key: 'total_death',
+        key: 'death',
         label: <img src={ConquestIcons} style={{...iconStyle, objectPosition: '-575px 0'}} />,
         tooltip: 'Death',
         ...columnOptions,
       },
       {
-        key: 'total_siege_weapons',
+        key: 'siege_weapons',
         label: <img src={ConquestIcons} style={{...iconStyle, width: 40, objectPosition: '-635px 0'}} />,
         tooltip: 'Siege Weapons',
         ...columnOptions,
@@ -124,10 +124,10 @@ class HomeView extends React.Component {
         sortable: false,
         style: {width: 120},
         render: (_, all) => {
-          const { total_attended, total_unavailable, total_missed } = all;
+          const { wars_attended, wars_unavailable, wars_missed } = all;
           return (
             <Tooltip label='Attended / Unavailable / Missed'>
-                {[total_attended, total_unavailable, total_missed].join(" / ")}
+                {[wars_attended, wars_unavailable, wars_missed].join(" / ")}
             </Tooltip>
           );
         }
@@ -136,23 +136,11 @@ class HomeView extends React.Component {
         key: 'total_kills',
         label: "Kills",
         ...columnOptions,
-        render: (kills, all) => {
-          if (kills !== undefined) {
-            return kills;
-          }
-          return all.total_guild_master + all.total_officer + all.total_member + all.total_siege_weapons;
-        }
       },
       {
         key: 'kdr',
         label: "KDR",
         ...columnOptions,
-        render: (kdr, all) => {
-          if (kdr !== undefined) {
-            return kdr;
-          }
-          return parseFloat((all.total_guild_master + all.total_officer + all.total_member + all.total_siege_weapons) / all.total_death).toFixed(2);
-        }
       },
     ];
 

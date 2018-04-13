@@ -3,6 +3,7 @@ from django.contrib import admin
 from bdo.models.character import Character, Profile
 from bdo.models.content import CharacterClass, WarArea, WarNode
 from bdo.models.guild import Guild, GuildRole, GuildMember, WarRole
+from bdo.models.stats import AggregatedGuildMemberWarStats, AggregatedGuildWarStats, AggregatedUserWarStats
 from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam
 
 
@@ -80,4 +81,20 @@ class WarStatAdmin(admin.ModelAdmin):
 
 @admin.register(WarTeam)
 class WarTeamAdmin(admin.ModelAdmin):
+    pass
+
+
+# Stats
+@admin.register(AggregatedGuildMemberWarStats)
+class AggregatedGuildMemberWarStatsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(AggregatedGuildWarStats)
+class AggregatedGuildWarStatsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(AggregatedUserWarStats)
+class AggregatedUserWarStatsAdmin(admin.ModelAdmin):
     pass
