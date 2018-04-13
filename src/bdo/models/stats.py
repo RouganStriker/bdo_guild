@@ -42,7 +42,10 @@ class BaseAggregatedWarStats(models.Model):
         self.total_kills = self.guild_master + self.officer + self.member + self.siege_weapons
 
     def recalculate_kdr(self):
-        self.kdr = self.total_kills * 1.0 / self.death
+        if self.death == 0:
+            self.kdr = 0.0
+        else:
+            self.kdr = self.total_kills * 1.0 / self.death
 
     def war_stat_qs(self):
         """WarStat query used when recalcuating."""
@@ -52,13 +55,15 @@ class BaseAggregatedWarStats(models.Model):
         stats = self.war_stat_qs().annotate(**{
             field: models.Sum(field)
             for field in self.base_stat_fields
-        }).values(*self.base_stat_fields)[0]
+        }).values(*self.base_stat_fields)
 
-        for field, value in stats.items():
-            setattr(self, field.strip('_'), value)
+        if stats:
+            stats = stats[0]
+            for field, value in stats.items():
+                setattr(self, field.strip('_'), value)
 
-        self.recalculate_total_kills()
-        self.recalculate_kdr()
+            self.recalculate_total_kills()
+            self.recalculate_kdr()
 
         if save:
             self.save()
@@ -111,11 +116,14 @@ class BaseUserAggregatedWarStats(BaseAggregatedWarStats):
             wars_attended=Sum(Case(When(is_attending__in=[0, 4], then=1), default=0), output_field=IntegerField()),
             wars_unavailable=Sum(Case(When(is_attending=1, then=1), default=0), output_field=IntegerField()),
             wars_missed=Sum(Case(When(is_attending=3, then=1), default=0), output_field=IntegerField()),
-        ).values('wars_attended', 'wars_unavailable', 'wars_missed')[0]
+        ).values('wars_attended', 'wars_unavailable', 'wars_missed')
 
-        self.wars_attended = attendance['wars_attended']
-        self.wars_unavailable = attendance['wars_unavailable']
-        self.wars_missed = attendance['wars_missed']
+        if attendance:
+            attendance = attendance[0]
+            self.wars_attended = attendance['wars_attended']
+            self.wars_unavailable = attendance['wars_unavailable']
+            self.wars_missed = attendance['wars_missed']
+
         self.save()
 
 
