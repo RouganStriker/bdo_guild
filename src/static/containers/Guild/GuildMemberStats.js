@@ -3,6 +3,9 @@ import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
+import Popover, {PopoverAnimationVertical} from 'material-ui/Popover';
+import Checkbox from 'material-ui/Checkbox';
+import Menu from 'material-ui/Menu';
 import HideIcon from 'material-ui/svg-icons/action/visibility';
 import DataTables from 'material-ui-datatables';
 
@@ -25,7 +28,7 @@ class GuildMemberStats extends React.Component {
         pageSize: 8,
         page: 1,
         sortColumn: 'role',
-        ordering: 'asc'
+        ordering: 'asc',
       },
       filterColumns: {
         "class": true,
@@ -45,8 +48,30 @@ class GuildMemberStats extends React.Component {
         "siege_weapons": false,
         "total_kills": true,
         "kdr": true,
-      }
+      },
+      showColumnDialog: false,
+      anchorEl: null,
     };
+
+    this.columnKeyMapping = {
+      "class": "Class",
+      "level": "Level",
+      "gearscore": "Gearscore",
+      "attendance": "Attendance",
+      "command_post": "Command Post",
+      "fort": "Fort",
+      "gate": "Gate",
+      "help": "Help",
+      "mount": "Mount",
+      "placed_objects": "Placed Objects",
+      "guild_master": "Guild Master",
+      "officer": "Officer",
+      "member": "Member",
+      "death": "Death",
+      "siege_weapons": "Siege Weapons",
+      "total_kills": "Total Kills",
+      "kdr": "KDR",
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -61,6 +86,7 @@ class GuildMemberStats extends React.Component {
     const {
       page,
       pageSize,
+      search,
       sortColumn,
       ordering,
     } = query;
@@ -70,13 +96,19 @@ class GuildMemberStats extends React.Component {
       order = `-${order}`;
     }
 
-    dispatch(MemberService.list({ context: { guild_id }, params: {
+    const params = {
       expand: "role",
       include: "stats,main_character",
       page,
       page_size: pageSize,
       ordering: order,
-    }}))
+    }
+
+    if (search) {
+      params["search"] = search;
+    }
+
+    dispatch(MemberService.list({ context: { guild_id }, params }))
   }
   componentWillMount() {
     const { dispatch } = this.props;
@@ -313,6 +345,54 @@ class GuildMemberStats extends React.Component {
     this.fetchMembers(newQuery);
   }
 
+  renderHideColumnDialog() {
+    const {
+      anchorEl,
+      filterColumns,
+      showColumnDialog,
+    } = this.state;
+
+    const wrapperStyle = {
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      padding: 15,
+      width: 400,
+    };
+
+    return (
+      <Popover open={showColumnDialog}
+               animation={PopoverAnimationVertical}
+               anchorEl={anchorEl}
+               anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+               targetOrigin={{horizontal: 'left', vertical: 'top'}}
+               onRequestClose={() => this.setState({showColumnDialog: false})}>
+
+          <Menu listStyle={wrapperStyle}>
+            {
+              Object.keys(filterColumns).map((key, index) => {
+                const column = filterColumns[key];
+
+                return <Checkbox label={this.columnKeyMapping[key]}
+                                 checked={filterColumns[key]}
+                                 onCheck={() => {
+                                   const newFilterColumns = {
+                                     ...filterColumns
+                                   };
+                                   newFilterColumns[key] = !filterColumns[key];
+
+                                   this.setState({
+                                     filterColumns: newFilterColumns
+                                   })
+                                 }}
+                                 style={{width: '50%'}} />
+              })
+            }
+          </Menu>
+      </Popover>
+    );
+  }
+
   render() {
     const { members } = this.props;
     const {
@@ -327,7 +407,7 @@ class GuildMemberStats extends React.Component {
     }
 
     const tableActions = [
-      <IconButton>
+      <IconButton onClick={(e) => this.setState({showColumnDialog: true, anchorEl: e.currentTarget})}>
         <HideIcon />
       </IconButton>
     ];
@@ -348,6 +428,7 @@ class GuildMemberStats extends React.Component {
                       sortColumn: key,
                       ordering: order,
                     })}
+                    onFilterValueChange={(value) => this.handleQueryUpdate({ search: value })}
                     page={page}
                     rowSize={pageSize}
                     rowSizeList={[8, 16, 32, 64]}
@@ -360,6 +441,7 @@ class GuildMemberStats extends React.Component {
                     showHeaderToolbarFilterIcon={true}
                     showRowHover={true}
                     tableBodyStyle={{overflowX: 'none', overflowY: 'none'}} />
+        { this.renderHideColumnDialog() }
       </Grid>
     )
   }
