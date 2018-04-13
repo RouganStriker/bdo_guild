@@ -17,35 +17,23 @@ class WarFilter(django_filters.FilterSet):
 
 
 class MemberOrderingFilter(OrderingFilter):
+    custom_ordering_fields = ['level', 'className', 'gearscore', ]
+    custom_ordering_field_regex = re.compile('^-?({0})'.format("|".join(custom_ordering_fields)))
+
     def get_ordering(self, request, queryset, view):
         params = request.query_params.get(self.ordering_param)
 
         if params:
             fields = [param.strip() for param in params.split(',')]
-            char_qs = Character.objects.filter(is_main=True, id=OuterRef('pk'))
-            gearscore_expression = Case(
-                When(ap__lt=F('aap'), then=ExpressionWrapper(F('aap') + F('dp'), output_field=IntegerField())),
-                default=ExpressionWrapper(F('ap') + F('dp'), output_field=IntegerField()),
-            )
             ordering = []
+
             # Special Ordering
             for field in fields:
                 if field == 'name':
                     ordering.append('user__family_name')
                 elif field == '-name':
                     ordering.append('-user__family_name')
-                elif re.match('^-?level$', field):
-                    qs = qs.annotate(level=Coalesce(Subquery(char_qs.values('level')[:1]), 0))
-                    ordering.append(field)
-                elif re.match('^-?className', field):
-                    qs = qs.annotate(className=Coalesce(Subquery(char_qs.values('character_class__name')[:1]), Value('')))
-                    ordering.append(field)
-                elif re.match('^-?gearscore$', field):
-                    qs = qs.annotate(gearscore=Coalesce(
-                        Subquery(char_qs.annotate(gearscore=gearscore_expression).values('gearscore')[:1],
-                                 output_field=IntegerField()), 0))
-                    ordering.append(field)
-                else:
+                elif self.custom_ordering_field_regex.match(field):
                     ordering.append(field)
 
             if ordering:

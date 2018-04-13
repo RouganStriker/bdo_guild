@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Paper from 'material-ui/Paper';
+import IconButton from 'material-ui/IconButton';
+import HideIcon from 'material-ui/svg-icons/action/visibility';
 import DataTables from 'material-ui-datatables';
 
 import LoadingWidget from '../../components/LoadingWidget';
@@ -24,6 +26,25 @@ class GuildMemberStats extends React.Component {
         page: 1,
         sortColumn: 'role',
         ordering: 'asc'
+      },
+      filterColumns: {
+        "class": true,
+        "level": true,
+        "gearscore": true,
+        "attendance": true,
+        "command_post": false,
+        "fort": false,
+        "gate": false,
+        "help": false,
+        "mount": false,
+        "placed_objects": false,
+        "guild_master": false,
+        "officer": false,
+        "member": false,
+        "death": false,
+        "siege_weapons": false,
+        "total_kills": true,
+        "kdr": true,
       }
     };
   }
@@ -66,6 +87,7 @@ class GuildMemberStats extends React.Component {
   }
 
   getColumns() {
+    const { filterColumns } = this.state;
     const columns = [
       {
         key: 'role',
@@ -82,182 +104,202 @@ class GuildMemberStats extends React.Component {
         sortable: true,
         style: {width: 250},
       },
-      {
-        key: 'className',
-        label: 'Class',
-        sortable: true,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.main_character.class;
-        }
-      },
-      {
-        key: 'level',
-        label: 'Level',
-        sortable: true,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.main_character.level;
-        }
-      },
-      {
-        key: 'gearscore',
-        label: 'Gearscore',
-        sortable: true,
-        style: {width: 130},
-        render: (_, all) => {
-          return all.main_character.gearscore;
-        }
-      },
-      {
-        key: 'attended',
-        label: 'Attendance',
-        sortable: false,
-        style: {width: 120},
-        render: (_, all) => {
-          const { total_attended, total_unavailable, total_missed } = all.stats;
-          return (
-            <Tooltip label='Attended / Unavailable / Missed'>
-              {[total_attended, total_unavailable, total_missed].join(" / ")}
-            </Tooltip>
-          );
-        }
-      },
-      {
-        key: 'command_post',
-        label: 'Command Post',
-        sortable: false,
-        style: {width: 150},
-        render: (_, all) => {
-          return all.stats.total_command_post;
-        }
-      },
-      {
-        key: 'fort',
-        label: 'Fort',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.stats.total_fort;
-        }
-      },
-      {
-        key: 'gate',
-        label: 'Gate',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.stats.total_gate;
-        }
-      },
-      {
-        key: 'help',
-        label: 'Help',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.stats.total_help;
-        }
-      },
-      {
-        key: 'mount',
-        label: 'Mount',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.stats.total_mount;
-        }
-      },
-      {
-        key: 'placed_object',
-        label: 'Placed Object',
-        sortable: false,
-        style: {width: 150},
-        render: (_, all) => {
-          return all.stats.total_placed_objects;
-        }
-      },
-      {
-        key: 'guild_master',
-        label: 'Guild Master',
-        sortable: false,
-        style: {width: 150},
-        render: (_, all) => {
-          return all.stats.total_guild_master;
-        }
-      },
-      {
-        key: 'officer',
-        label: 'Officer',
-        sortable: false,
-        style: {width: 120},
-        render: (_, all) => {
-          return all.stats.total_officer;
-        }
-      },
-      {
-        key: 'member',
-        label: 'Member',
-        sortable: false,
-        style: {width: 120},
-        render: (_, all) => {
-          return all.stats.total_member;
-        }
-      },
-      {
-        key: 'death',
-        label: 'Death',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          return all.stats.total_death;
-        }
-      },
-      {
-        key: 'siege_weapons',
-        label: 'Siege Weapons',
-        sortable: false,
-        style: {width: 160},
-        render: (_, all) => {
-          return all.stats.total_siege_weapons;
-        }
-      },
-      {
-        key: 'total_kills',
-        label: 'Total Kills',
-        sortable: false,
-        style: {width: 140},
-        render: (_, all) => {
-          const {
-            total_guild_master,
-            total_officer,
-            total_member,
-            total_siege_weapons,
-          } = all.stats;
-
-          return total_guild_master + total_officer + total_member + total_siege_weapons;
-        }
-      },
-      {
-        key: 'kdr',
-        label: 'KDR',
-        sortable: false,
-        style: {width: 100},
-        render: (_, all) => {
-          const {
-            total_guild_master,
-            total_officer,
-            total_member,
-            total_siege_weapons,
-            total_death,
-          } = all.stats;
-
-          return total_death !== 0 && ((total_guild_master + total_officer + total_member + total_siege_weapons) / total_death).toFixed(2) || 0;
-        }
-      },
     ];
 
-    return columns
+    const classColumn = {
+      key: 'className',
+      label: 'Class',
+      sortable: true,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.main_character.class;
+      }
+    }
+    const levelColumn = {
+      key: 'level',
+      label: 'Level',
+      sortable: true,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.main_character.level;
+      }
+    }
+    const gearscoreColumn = {
+      key: 'gearscore',
+      label: 'Gearscore',
+      sortable: true,
+      style: {width: 130},
+      render: (_, all) => {
+        return all.main_character.gearscore;
+      }
+    }
+    const attendanceColumn = {
+      key: 'attendance',
+      label: 'Attendance',
+      sortable: false,
+      style: {width: 120},
+      render: (_, all) => {
+        const { total_attended, total_unavailable, total_missed } = all.stats;
+        return (
+          <Tooltip label='Attended / Unavailable / Missed'>
+            {[total_attended, total_unavailable, total_missed].join(" / ")}
+          </Tooltip>
+        );
+      }
+    }
+    const commandPostColumn = {
+      key: 'command_post',
+      label: 'Command Post',
+      sortable: false,
+      style: {width: 150},
+      render: (_, all) => {
+        return all.stats.total_command_post;
+      }
+    }
+    const fortColumn = {
+      key: 'fort',
+      label: 'Fort',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.stats.total_fort;
+      }
+    }
+    const gateColumn = {
+      key: 'gate',
+      label: 'Gate',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.stats.total_gate;
+      }
+    }
+    const helpColumn = {
+      key: 'help',
+      label: 'Help',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.stats.total_help;
+      }
+    }
+    const mountColumn = {
+      key: 'mount',
+      label: 'Mount',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.stats.total_mount;
+      }
+    }
+    const placedObjectColumn = {
+      key: 'placed_object',
+      label: 'Placed Object',
+      sortable: false,
+      style: {width: 150},
+      render: (_, all) => {
+        return all.stats.total_placed_objects;
+      }
+    }
+    const guildMasterColumn = {
+      key: 'guild_master',
+      label: 'Guild Master',
+      sortable: false,
+      style: {width: 150},
+      render: (_, all) => {
+        return all.stats.total_guild_master;
+      }
+    }
+    const officerColumn = {
+      key: 'officer',
+      label: 'Officer',
+      sortable: false,
+      style: {width: 120},
+      render: (_, all) => {
+        return all.stats.total_officer;
+      }
+    }
+    const memberColumn = {
+      key: 'member',
+      label: 'Member',
+      sortable: false,
+      style: {width: 120},
+      render: (_, all) => {
+        return all.stats.total_member;
+      }
+    }
+    const deathColumn = {
+      key: 'death',
+      label: 'Death',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        return all.stats.total_death;
+      }
+    }
+    const siegeWeaponsColumn = {
+      key: 'siege_weapons',
+      label: 'Siege Weapons',
+      sortable: false,
+      style: {width: 160},
+      render: (_, all) => {
+        return all.stats.total_siege_weapons;
+      }
+    }
+    const totalKillsColumn = {
+      key: 'total_kills',
+      label: 'Total Kills',
+      sortable: false,
+      style: {width: 140},
+      render: (_, all) => {
+        const {
+          total_guild_master,
+          total_officer,
+          total_member,
+          total_siege_weapons,
+        } = all.stats;
+
+        return total_guild_master + total_officer + total_member + total_siege_weapons;
+      }
+    }
+    const kdrColumn = {
+      key: 'kdr',
+      label: 'KDR',
+      sortable: false,
+      style: {width: 100},
+      render: (_, all) => {
+        const {
+          total_guild_master,
+          total_officer,
+          total_member,
+          total_siege_weapons,
+          total_death,
+        } = all.stats;
+
+        return total_death !== 0 && ((total_guild_master + total_officer + total_member + total_siege_weapons) / total_death).toFixed(2) || 0;
+      }
+    }
+
+    // Add columns
+    filterColumns.class && columns.push(classColumn);
+    filterColumns.level && columns.push(levelColumn);
+    filterColumns.gearscore && columns.push(gearscoreColumn);
+    filterColumns.attendance && columns.push(attendanceColumn);
+    filterColumns.command_post && columns.push(commandPostColumn);
+    filterColumns.fort && columns.push(fortColumn);
+    filterColumns.gate && columns.push(gateColumn);
+    filterColumns.help && columns.push(helpColumn);
+    filterColumns.mount && columns.push(mountColumn);
+    filterColumns.placed_object && columns.push(placedObjectColumn);
+    filterColumns.guild_master && columns.push(guildMasterColumn);
+    filterColumns.officer && columns.push(officerColumn);
+    filterColumns.member && columns.push(memberColumn);
+    filterColumns.death && columns.push(deathColumn);
+    filterColumns.siege_weapons && columns.push(siegeWeaponsColumn);
+    filterColumns.total_kills && columns.push(totalKillsColumn);
+    filterColumns.kdr && columns.push(kdrColumn);
+
+    return columns;
   }
 
   handleQueryUpdate(query, items = null) {
@@ -284,6 +326,12 @@ class GuildMemberStats extends React.Component {
       return <LoadingWidget />;
     }
 
+    const tableActions = [
+      <IconButton>
+        <HideIcon />
+      </IconButton>
+    ];
+
     return (
       <Grid componentClass={Paper} style={{padding: 0}}>
         <DataTables initialSort={{
@@ -307,8 +355,9 @@ class GuildMemberStats extends React.Component {
                     selectedRows={null}
                     showCheckboxes={false}
                     showFooterToolbar={true}
-                    showHeaderToolbar={false}
-                    showHeaderToolbarFilterIcon={false}
+                    showHeaderToolbar={true}
+                    toolbarIconRight={tableActions}
+                    showHeaderToolbarFilterIcon={true}
                     showRowHover={true}
                     tableBodyStyle={{overflowX: 'none', overflowY: 'none'}} />
       </Grid>

@@ -1,4 +1,5 @@
-from django.db.models import F, Prefetch, Q
+from django.db.models import OuterRef, Q, Subquery
+from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -12,8 +13,8 @@ from api.serializers.guild import (ExtendedGuildSerializer,
 from api.serializers.guild_content import WarRoleSerializer
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.activity import Activity
+from bdo.models.character import Character
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
-from bdo.models.war import WarAttendance
 
 
 class GuildViewMixin(object):
@@ -58,10 +59,11 @@ class GuildRoleViewSet(ReadOnlyModelViewSet):
 class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
     queryset = GuildMember.objects.all()
     serializer_class = GuildMemberSerializer
-    filter_backends = (MemberOrderingFilter,)
+    filter_backends = (MemberOrderingFilter, filters.SearchFilter)
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('role',)
     ordering = ('user__family_name',)
+    search_fields = ('user__family_name',)
     include_params = ['stats', 'attendance', 'main_character']
 
     def get_queryset(self):
