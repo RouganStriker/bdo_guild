@@ -106,6 +106,11 @@ def handle_war_attendance_change(instance, update_fields, *args, **kwargs):
                             extras={'is_attending': instance.is_attending},
                             target=instance)
 
+    # Update aggregates
+    AggregatedGuildMemberWarStats.objects.get(guild=instance.war.guild,
+                                              user_profile=instance.user_profile).recalculate()
+    AggregatedUserWarStats.objects.get(user_profile=instance.user_profile).recalculate()
+
 
 @receiver(post_save, sender=GuildMember)
 def handle_guild_member_create(created, instance, *args, **kwargs):

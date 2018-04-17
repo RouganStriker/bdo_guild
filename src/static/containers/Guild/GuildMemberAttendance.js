@@ -111,6 +111,8 @@ class GuildMemberAttendance extends React.Component {
                   value={3} />
         <MenuItem primaryText="Late"
                   value={4} />
+        <MenuItem primaryText="Reneged"
+                  value={5} />
       </IconMenu>
     );
   }

@@ -1,16 +1,17 @@
 from dirtyfields import DirtyFieldsMixin
-from django.db import models
-from django.db.models import Q, Avg, F, Case, Count, When, Sum
 from django.contrib.auth.models import Group
 from django.contrib.postgres.fields import JSONField
+from django.db import models
+from django.db.models import Q, Avg, F, Case, Count, When
 
-from bdo.models.character import Character, Profile
+from bdo.models.character import Character
+from bdo.models.war import WarRole
 
 
 class Guild(DirtyFieldsMixin, models.Model):
     name = models.CharField(max_length=255)
     logo_url = models.URLField()
-    members = models.ManyToManyField(Profile, through='GuildMember', related_name='guilds')
+    members = models.ManyToManyField("Profile", through='GuildMember', related_name='guilds')
     description = models.TextField(default='')
 
     # Discord fields
@@ -107,7 +108,7 @@ class Guild(DirtyFieldsMixin, models.Model):
 
 class GuildRole(Group):
     icon = models.ImageField(null=True, blank=True)
-    custom_for = models.ForeignKey(Guild, null=True, blank=True, related_name='custom_guild_roles')
+    custom_for = models.ForeignKey("Guild", null=True, blank=True, related_name='custom_guild_roles')
 
     class Meta:
         ordering = ('id',)
@@ -118,9 +119,9 @@ class GuildRole(Group):
 
 
 class GuildMember(models.Model):
-    guild = models.ForeignKey(Guild, related_name="membership")
-    user = models.ForeignKey(Profile, related_name="membership")
-    role = models.ForeignKey(GuildRole)
+    guild = models.ForeignKey("Guild", related_name="membership")
+    user = models.ForeignKey("Profile", related_name="membership")
+    role = models.ForeignKey("GuildRole")
 
     class Meta:
         ordering = ('id',)
@@ -166,18 +167,6 @@ class GuildMember(models.Model):
 
         return profile.user__aggregatedguildmemberwarstats.get(guild=self.guild)
 
-
-class WarRole(models.Model):
-    name = models.CharField(max_length=255)
-    custom_for = models.ForeignKey(Guild, blank=True, null=True, related_name='custom_war_roles')
-
-    class Meta:
-        unique_together = ('name', 'custom_for')
-        ordering = ('id',)
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def GET_DEFAULT_ROLE():
-        return WarRole.objects.get(id=-1)
+    @property
+    def attendance_rate(self):
+        return self.user.guild_attendance_rate(self.guild)

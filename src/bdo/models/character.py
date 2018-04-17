@@ -4,9 +4,9 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Case, Count, When
 from bdo.models.content import CharacterClass
 from bdo.models.mixins import UserPermissionMixin
+from bdo.models.stats import AggregatedGuildMemberWarStats
 
 
 class Profile(models.Model, UserPermissionMixin):
@@ -110,6 +110,53 @@ class Profile(models.Model, UserPermissionMixin):
     @property
     def has_main(self):
         return self.get_main() is not None
+
+    @property
+    def renege_rate(self):
+        """
+        Likelihood for user to flake out and not actually attend a war they signed up for.
+
+        Percentage is a combination of historical flake out rate and recent flake out rate
+        with a bigger skew towards recent flake outs.
+        """
+        stats = self.user_stats
+        historical_wars_attended = stats.wars_attended + stats.wars_reneged
+
+        if historical_wars_attended == 0:
+            historical_renege_rate = 0.0
+        else:
+            historical_renege_rate = stats.wars_reneged * 1.0 / (stats.wars_attended + stats.wars_reneged)
+
+        # Use up to last 5 wars
+        recent_wars = self.attendance_set.filter(is_attending__in=[0, 4, 5]).order_by('-war__date')[:5]
+        recent_attended = 0
+        recent_reneged = 0
+
+        for attendance in recent_wars:
+            if attendance.is_attending == 5:
+                recent_reneged += 1
+            recent_attended += 1
+
+        if recent_attended == 0:
+            recent_renege_rate = 0.0
+        else:
+            recent_renege_rate = recent_reneged * 1.0 / recent_attended
+
+        return (historical_renege_rate * 0.3) + (recent_renege_rate * 0.7)
+
+    def guild_attendance_rate(self, guild):
+        """
+        Calculate player's attendance rate.
+        """
+        try:
+            stats = self.aggregatedguildmemberwarstats_set.get(guild=guild)
+        except AggregatedGuildMemberWarStats.DoesNotExist:
+            return 0.0
+
+        total_wars = stats.wars_attended + stats.wars_unavailable + stats.wars_missed
+        attendance_score = stats.wars_attended + (stats.wars_unavailable * 0.5)
+
+        return attendance_score / total_wars
 
     def get_availability(self, date):
         day = datetime.strftime(date - timedelta(1), '%A')

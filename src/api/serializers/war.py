@@ -60,6 +60,10 @@ class WarAttendanceSerializer(BaseSerializerMixin, ExpanderSerializerMixin, seri
     name = serializers.CharField(read_only=True)
     team = serializers.SerializerMethodField(read_only=True)
     call_sign = serializers.SerializerMethodField(read_only=True)
+    renege_rate = serializers.DecimalField(source='user_profile.renege_rate',
+                                           max_digits=19,
+                                           decimal_places=2,
+                                           coerce_to_string=False)
 
     class Meta:
         model = WarAttendance
@@ -72,7 +76,8 @@ class WarAttendanceSerializer(BaseSerializerMixin, ExpanderSerializerMixin, seri
             'character',
             'id',
             'is_attending',
-            'note'
+            'note',
+            'renege_rate'
         )
         expandable_fields = {
             'user_profile': ExtendedProfileSerializer,
@@ -244,6 +249,7 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
         war = self.context['war']
         war_stats = {}
         no_shows = {}
+        flaked_out = {}
         no_sign_ups = {}
         guild_totals = defaultdict(int)
 
@@ -266,7 +272,7 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
             if attended != (attendance.is_attending == WarAttendance.AttendanceStatus.ATTENDING.value):
                 if not attended:
                     # Marked attending but no show
-                    no_shows[user_profile.id] = attendance.id
+                    flaked_out[user_profile.id] = attendance.id
                 else:
                     # Marked undecided or unavailable but made it
                     no_sign_ups[user_profile.id] = attendance.id
@@ -276,6 +282,9 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
 
         if war_stats:
             WarStat.objects.bulk_create(war_stats.values())
+        if flaked_out:
+            (WarAttendance.objects.filter(id__in=flaked_out.values())
+             .update(is_attending=WarAttendance.AttendanceStatus.RENEGED.value))
         if no_shows:
             (WarAttendance.objects.filter(id__in=no_shows.values())
                                   .update(is_attending=WarAttendance.AttendanceStatus.NO_SHOW.value))

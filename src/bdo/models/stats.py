@@ -74,6 +74,8 @@ class BaseUserAggregatedWarStats(BaseAggregatedWarStats):
     wars_attended = models.IntegerField(default=0)
     wars_unavailable = models.IntegerField(default=0)
     wars_missed = models.IntegerField(default=0)
+    # Reneged is counted the same as a miss but called out separately
+    wars_reneged = models.IntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -96,7 +98,6 @@ class BaseUserAggregatedWarStats(BaseAggregatedWarStats):
 
         if is_attending in [0, 4]:
             new_obj.wars_attended += 1
-            print(new_obj.__dict__)
         elif is_attending == 1:
             new_obj.wars_unavailable += 1
         else:
@@ -115,7 +116,8 @@ class BaseUserAggregatedWarStats(BaseAggregatedWarStats):
         attendance = self.attendance_qs().annotate(
             wars_attended=Sum(Case(When(is_attending__in=[0, 4], then=1), default=0), output_field=IntegerField()),
             wars_unavailable=Sum(Case(When(is_attending=1, then=1), default=0), output_field=IntegerField()),
-            wars_missed=Sum(Case(When(is_attending=3, then=1), default=0), output_field=IntegerField()),
+            wars_missed=Sum(Case(When(is_attending__in=[3, 5], then=1), default=0), output_field=IntegerField()),
+            wars_reneged=Sum(Case(When(is_attending=5, then=1), default=0), output_field=IntegerField()),
         ).values('wars_attended', 'wars_unavailable', 'wars_missed')
 
         if attendance:

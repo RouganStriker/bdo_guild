@@ -96,7 +96,7 @@ class AttendanceTable extends React.Component {
   }
 
   getColumns() {
-    const { showAssignment, showCharacterDetails, showNote } = this.props;
+    const { showAssignment, showCharacterDetails, showNote, showRenegeRate } = this.props;
     const columns = [
       {
         key: 'name',
@@ -160,6 +160,19 @@ class AttendanceTable extends React.Component {
           return (
             <div style={{width: 230, whiteSpace: "pre-wrap"}}>{note}</div>
           );
+        }
+      })
+    }
+    if (showRenegeRate) {
+      columns.push({
+        key: 'renege_rate',
+        label: 'Flake Rate',
+        sortable: true,
+        style: {
+          width: 75,
+        },
+        render: (renege_rate, all) => {
+          return `${(renege_rate * 100).toFixed(2)}%`;
         }
       })
     }
@@ -241,6 +254,7 @@ AttendanceTable.propTypes = {
   showAssignment: PropTypes.bool,
   showCharacter: PropTypes.bool,
   showNote: PropTypes.bool,
+  showRenegeRate: PropTypes.bool,
   selectable: PropTypes.bool,
   title: PropTypes.string,
   toolbarActions: PropTypes.array,
@@ -250,6 +264,7 @@ AttendanceTable.defaultProps = {
   showAssignment: false,
   showCharacterDetails: false,
   showNote: false,
+  showRenegeRate: false,
   selectable: false,
   title: null,
   toolbarActions: null,

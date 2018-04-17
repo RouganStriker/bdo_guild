@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from api.serializers.mixin import BaseSerializerMixin
 from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
-from bdo.models.war import War
+from bdo.models.war import War, WarRole
 
 
 class SimpleGuildRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):

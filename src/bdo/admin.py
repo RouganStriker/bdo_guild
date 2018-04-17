@@ -2,9 +2,9 @@ from django.contrib import admin
 
 from bdo.models.character import Character, Profile
 from bdo.models.content import CharacterClass, WarArea, WarNode
-from bdo.models.guild import Guild, GuildRole, GuildMember, WarRole
+from bdo.models.guild import Guild, GuildRole, GuildMember
 from bdo.models.stats import AggregatedGuildMemberWarStats, AggregatedGuildWarStats, AggregatedUserWarStats
-from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam
+from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam, WarRole
 
 
 # User

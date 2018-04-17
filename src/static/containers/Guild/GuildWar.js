@@ -278,6 +278,7 @@ class GuildWar extends React.Component {
         name: member.user.family_name,
         profile_id: member.user.id,
         id: attendance && attendance.id || null,
+        renege_rate: attendance.renege_rate,
       }
 
       if (!attendance || attendance.is_attending === 2) {
@@ -373,11 +374,15 @@ class GuildWar extends React.Component {
         </CardActions>
         <Dialog autoScrollBodyContent={true}
                 contentStyle={{
-                  maxWidth: (showUndecided && 475) || (showNotAttending && 500) || 900,
+                  maxWidth: (showUndecided && 475) || (showNotAttending && 500) || 975,
                 }}
                 open={showAttending || showNotAttending || showUndecided}
                 onRequestClose={this.handleCloseDialog.bind(this)}>
-          { showAttending && <AttendanceTable attendance={attending} showCharacterDetails={true} showNote={true} showAssignment={true} /> }
+          { showAttending && <AttendanceTable attendance={attending}
+                                              showCharacterDetails={true}
+                                              showNote={true}
+                                              showAssignment={true}
+                                              showRenegeRate={true} /> }
           { showNotAttending && <AttendanceTable attendance={not_attending} showNote={true} /> }
           { showUndecided && <AttendanceTable attendance={undecided} /> }
         </Dialog>

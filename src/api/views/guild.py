@@ -13,7 +13,8 @@ from api.serializers.guild import (ExtendedGuildSerializer,
 from api.serializers.guild_content import WarRoleSerializer
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.activity import Activity
-from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
+from bdo.models.guild import Guild, GuildMember, GuildRole
+from bdo.models.war import WarRole
 from bdo.models.stats import AggregatedGuildMemberWarStats
 
 

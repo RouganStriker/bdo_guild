@@ -11,13 +11,17 @@ from bdo.models.guild import Guild, GuildMember
 
 class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.ModelSerializer):
     attendance = war_serializers.NestedWarAttendanceSerializer(many=True)
+    attendance_rate = serializers.DecimalField(max_digits=19,
+                                               decimal_places=2,
+                                               coerce_to_string=False,
+                                               read_only=True)
     name = serializers.StringRelatedField(source='user', read_only=True)
     main_character = serializers.DictField(read_only=True)
     stats = AggregatedGuildMemberWarStatsSerializer(read_only=True)
 
     class Meta:
         model = GuildMember
-        fields = ('id', 'user', 'role', 'attendance', 'name', 'main_character', 'stats')
+        fields = ('id', 'user', 'role', 'attendance', 'attendance_rate', 'name', 'main_character', 'stats')
         expandable_fields = {
             'user': ExtendedProfileSerializer,
             'role': SimpleGuildRoleSerializer,
@@ -30,6 +34,7 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
             self.fields.pop('attendance')
         if 'stats' not in self.context['include']:
             self.fields.pop('stats')
+            self.fields.pop('attendance_rate')
         if 'main_character' not in self.context['include']:
             self.fields.pop('main_character')
 

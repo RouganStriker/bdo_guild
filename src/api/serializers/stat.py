@@ -32,7 +32,8 @@ class AggregatedGuildMemberWarStatsSerializer(BaseAggregatedStatSerializer):
         fields = BaseAggregatedStatSerializer.Meta.fields + [
             'wars_attended',
             'wars_unavailable',
-            'wars_missed'
+            'wars_missed',
+            'wars_reneged'
         ]
 
 
@@ -47,5 +48,6 @@ class AggregatedUserWarStatsSerializer(BaseAggregatedStatSerializer):
         fields = BaseAggregatedStatSerializer.Meta.fields + [
             'wars_attended',
             'wars_unavailable',
-            'wars_missed'
+            'wars_missed',
+            'wars_reneged'
         ]

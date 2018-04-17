@@ -13,9 +13,6 @@ from django.dispatch import Signal
 import pytz
 import requests
 
-from bdo.models.character import Character, Profile
-from bdo.models.content import WarNode
-from bdo.models.guild import Guild, WarRole
 from bdo.utils import ChoicesEnum
 from bdo.bdo_stats import BDOStats
 
@@ -29,12 +26,12 @@ class War(models.Model):
         LOSS = 1
         STALEMATE = 2
 
-    node = models.ForeignKey(WarNode, blank=True, null=True)
+    node = models.ForeignKey("WarNode", blank=True, null=True)
     date = models.DateTimeField()
     note = models.CharField(max_length=1024, null=True, blank=True)
     outcome = models.IntegerField(choices=Outcome.choices(), null=True, blank=True)
-    attendees = models.ManyToManyField(Profile, through='WarAttendance')
-    guild = models.ForeignKey(Guild)
+    attendees = models.ManyToManyField("Profile", through='WarAttendance')
+    guild = models.ForeignKey("Guild")
 
     class Meta:
         ordering = ('-date', 'id')
@@ -192,6 +189,22 @@ class War(models.Model):
         BDOStats().post_stats(self.guild.discord_webhook, list(stats), self)
 
 
+class WarRole(models.Model):
+    name = models.CharField(max_length=255)
+    custom_for = models.ForeignKey("Guild", blank=True, null=True, related_name='custom_war_roles')
+
+    class Meta:
+        unique_together = ('name', 'custom_for')
+        ordering = ('id',)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def GET_DEFAULT_ROLE():
+        return WarRole.objects.get(id=-1)
+
+
 class WarGroup(models.Model):
     name = models.CharField(max_length=255)
     war = models.ForeignKey(War)
@@ -214,7 +227,7 @@ class WarTeam(WarGroup):
         PLATOON = 0
         PARTY = 1
 
-    default_role = models.ForeignKey(WarRole, on_delete=models.SET(WarRole.GET_DEFAULT_ROLE))
+    default_role = models.ForeignKey("WarRole", on_delete=models.SET(WarRole.GET_DEFAULT_ROLE))
     type = models.IntegerField(choices=Type.choices())
     slot_setup = JSONField(default={}, null=True, blank=True)
     members = models.ManyToManyField('WarAttendance', through='WarTeamSlot')
@@ -240,11 +253,12 @@ class WarAttendance(DirtyFieldsMixin, models.Model):
         UNDECIDED = 2
         NO_SHOW = 3
         LATE = 4
+        RENEGED = 5
 
-    character = models.ForeignKey(Character, on_delete=models.SET_NULL, null=True, blank=True)
+    character = models.ForeignKey("Character", on_delete=models.SET_NULL, null=True, blank=True)
     is_attending = models.IntegerField(choices=AttendanceStatus.choices(), default=2)
     note = models.CharField(max_length=512, null=True, blank=True)
-    user_profile = models.ForeignKey(Profile, related_name="attendance_set", on_delete=models.PROTECT, null=True, blank=True)
+    user_profile = models.ForeignKey("Profile", related_name="attendance_set", on_delete=models.PROTECT, null=True, blank=True)
     war = models.ForeignKey(War, related_name="attendance_set", on_delete=models.CASCADE)
 
     class Meta:

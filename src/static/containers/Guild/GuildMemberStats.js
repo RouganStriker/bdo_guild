@@ -35,6 +35,7 @@ class GuildMemberStats extends React.Component {
         "level": true,
         "gearscore": true,
         "attendance": true,
+        "attendanceRate": true,
         "command_post": false,
         "fort": false,
         "gate": false,
@@ -58,6 +59,7 @@ class GuildMemberStats extends React.Component {
       "level": "Level",
       "gearscore": "Gearscore",
       "attendance": "Attendance",
+      "attendanceRate": "Attendance Rate",
       "command_post": "Command Post",
       "fort": "Fort",
       "gate": "Gate",
@@ -175,6 +177,20 @@ class GuildMemberStats extends React.Component {
         return (
           <Tooltip label='Attended / Unavailable / Missed'>
             {[wars_attended, wars_unavailable, wars_missed].join(" / ")}
+          </Tooltip>
+        );
+      }
+    }
+    const attendanceRateColumn = {
+      key: 'attendance_rate',
+      label: 'Attendance Rate',
+      sortable: false,
+      style: {width: 120},
+      render: (attendance_rate, all) => {
+        const { wars_attended, wars_unavailable, wars_missed } = all.stats;
+        return (
+          <Tooltip label='(attended + available * 0.5) / total wars'>
+            {`${(attendance_rate * 100).toFixed(2)}%`}
           </Tooltip>
         );
       }
@@ -302,6 +318,7 @@ class GuildMemberStats extends React.Component {
     filterColumns.level && columns.push(levelColumn);
     filterColumns.gearscore && columns.push(gearscoreColumn);
     filterColumns.attendance && columns.push(attendanceColumn);
+    filterColumns.attendanceRate && columns.push(attendanceRateColumn);
     filterColumns.command_post && columns.push(commandPostColumn);
     filterColumns.fort && columns.push(fortColumn);
     filterColumns.gate && columns.push(gateColumn);

@@ -197,7 +197,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('type', models.IntegerField(choices=[(0, 'PLATOON'), (1, 'PARTY')])),
                 ('slot_setup', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default={}, null=True)),
-                ('default_role', models.ForeignKey(on_delete=models.SET(bdo.models.guild.WarRole.GET_DEFAULT_ROLE), to='bdo.WarRole')),
+                ('default_role', models.ForeignKey(on_delete=models.SET(bdo.models.war.WarRole.GET_DEFAULT_ROLE), to='bdo.WarRole')),
             ],
             options={
                 'ordering': ('id',),
