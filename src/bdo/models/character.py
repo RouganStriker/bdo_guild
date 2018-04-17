@@ -156,6 +156,9 @@ class Profile(models.Model, UserPermissionMixin):
         total_wars = stats.wars_attended + stats.wars_unavailable + stats.wars_missed
         attendance_score = stats.wars_attended + (stats.wars_unavailable * 0.5)
 
+        if total_wars == 0:
+            return 0.0
+
         return attendance_score / total_wars
 
     def get_availability(self, date):

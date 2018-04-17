@@ -278,7 +278,7 @@ class GuildWar extends React.Component {
         name: member.user.family_name,
         profile_id: member.user.id,
         id: attendance && attendance.id || null,
-        renege_rate: attendance.renege_rate,
+        renege_rate: attendance && attendance.renege_rate || 0.0,
       }
 
       if (!attendance || attendance.is_attending === 2) {
