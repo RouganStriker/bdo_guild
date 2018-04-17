@@ -9,6 +9,7 @@ from django.db.models import Case, OuterRef, Q, Subquery, When
 
 from bdo.models.character import Profile
 from bdo.models.guild import Guild, GuildMember, GuildRole
+from bdo.models.stats import AggregatedGuildMemberWarStats
 
 logger = getLogger('bdo.commands')
 
@@ -97,13 +98,20 @@ class Command(BaseCommand):
                                           ))
             )
             # Add new members
+            new_member_profiles = existing_users.exclude(membership__guild=bdo_guild)
             new_members = [
                 GuildMember(guild=bdo_guild,
                             profile=profile,
                             role=bdo_guild_role_mapping[cached_members[profile.discord_id]])
-                for profile in existing_users.exclude(membership__guild=bdo_guild)
+                for profile in new_member_profiles
+            ]
+            new_stats = [
+                AggregatedGuildMemberWarStats(guild, user_profile=profile)
+                for profile in new_member_profiles.exclude(aggregatedguildmemberwarstats_set__guild=guild,
+                                                           aggregatedguildmemberwarstats_set__user_profile__in=new_member_profiles)
             ]
             GuildMember.objects.bulk_create(new_members)
+            AggregatedGuildMemberWarStats.objects.bulk_create(new_stats)
 
             logger.info("Synchronized Guild `{0}`, found {1} discord members, removed {2} members, "
                         "updated {3} members, added {4} members.".format(bdo_guild,
