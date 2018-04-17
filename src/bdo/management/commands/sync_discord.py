@@ -107,8 +107,8 @@ class Command(BaseCommand):
             ]
             new_stats = [
                 AggregatedGuildMemberWarStats(guild, user_profile=profile)
-                for profile in new_member_profiles.exclude(aggregatedguildmemberwarstats_set__guild=guild,
-                                                           aggregatedguildmemberwarstats_set__user_profile__in=new_member_profiles)
+                for profile in new_member_profiles.exclude(aggregatedguildmemberwarstats__guild=guild,
+                                                           aggregatedguildmemberwarstats__user_profile__in=new_member_profiles)
             ]
             GuildMember.objects.bulk_create(new_members)
             AggregatedGuildMemberWarStats.objects.bulk_create(new_stats)
