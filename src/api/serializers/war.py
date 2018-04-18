@@ -63,7 +63,8 @@ class WarAttendanceSerializer(BaseSerializerMixin, ExpanderSerializerMixin, seri
     renege_rate = serializers.DecimalField(source='user_profile.renege_rate',
                                            max_digits=19,
                                            decimal_places=2,
-                                           coerce_to_string=False)
+                                           coerce_to_string=False,
+                                           read_only=True)
 
     class Meta:
         model = WarAttendance
