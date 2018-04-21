@@ -21,7 +21,7 @@ class Command(BaseCommand):
         qs = GuildMember.objects.filter(user__in=profiles)
 
         for member in qs:
-            missing_stats.append(AggregatedGuildMemberWarStats(profile=member.user, guild=member.guild))
+            missing_stats.append(AggregatedGuildMemberWarStats(user_profile=member.user, guild=member.guild))
 
         created = AggregatedGuildMemberWarStats.objects.bulk_create(missing_stats)
 
