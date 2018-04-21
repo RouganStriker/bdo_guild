@@ -105,12 +105,11 @@ class Command(BaseCommand):
                             role=bdo_guild_role_mapping[cached_members[profile.discord_id]])
                 for profile in new_member_profiles
             ]
-            existing_stats = AggregatedGuildMemberWarStats.objects.filter(guild=bdo_guild,
-                                                                          user_profile__in=new_member_profiles)
+
             new_stats = [
                 AggregatedGuildMemberWarStats(guild=bdo_guild,
                                               user_profile=profile)
-                for profile in new_member_profiles.exclude(aggregatedguildmemberwarstats__in=existing_stats)
+                for profile in new_member_profiles.exclude(aggregatedguildmemberwarstats__guild_id=bdo_guild.id)
             ]
             GuildMember.objects.bulk_create(new_members)
             AggregatedGuildMemberWarStats.objects.bulk_create(new_stats)
