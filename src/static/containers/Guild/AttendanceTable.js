@@ -240,6 +240,7 @@ class AttendanceTable extends React.Component {
                     showHeaderToolbar={!!title || !!toolbarActions  }
                     showHeaderToolbarFilterIcon={false}
                     showRowHover={selectable}
+                    tableBodyStyle={{overflowX: 'auto'}}
                     title={title}
                     toolbarIconRight={toolbarActions} />
       </MuiThemeProvider>

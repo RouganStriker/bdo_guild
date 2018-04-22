@@ -190,7 +190,7 @@ const getInitialValues = (state, props) => {
       note: myAttendance.note,
     };
   }
-  if (initialValues.is_attending == 2) {
+  if (initialValues.character == null && characters) {
     // Select a default character
     initialValues["character"] = (characters.find((char) => char.is_main) || characters[0]).id;
   }

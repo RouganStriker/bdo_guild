@@ -181,6 +181,7 @@ class MemberSelectField extends React.Component {
                        onSelectionChange={this.handleMemberSelectionChange.bind(this)}
                        onSelectionDoubleClick={this.handleSearchSelect.bind(this)}
                        showCharacterDetails={true}
+                       showRenegeRate={true}
                        selectable={true}
                        title={"Available Members"}
                        toolbarActions={role && [filterMembersByRoleButton] || null} />

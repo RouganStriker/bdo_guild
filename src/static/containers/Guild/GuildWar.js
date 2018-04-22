@@ -493,7 +493,7 @@ class GuildWar extends React.Component {
           openFinishWarDialog &&
           <WarStatDialog attendance={[...attending, ...not_attending, ...undecided]}
                          guild_id={guild_id}
-                         contentStyle={{minHeight: '80%'}}
+                         contentStyle={{minHeight: '90%'}}
                          handleSubmitSuccess={this.handleWarStatSuccess.bind(this)}
                          onClose={this.handleCloseDialog.bind(this)}/>
         }
