@@ -152,7 +152,7 @@ class Profile(models.Model, UserPermissionMixin):
         Calculate player's attendance rate.
         """
         try:
-            stats = self.aggregatedguildmemberwarstats_set.get(guild=guild)
+            stats = self.aggregatedmemberstats.get(guild=guild)
         except AggregatedGuildMemberWarStats.DoesNotExist:
             return 0.0
 
