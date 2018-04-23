@@ -13,8 +13,9 @@ from api.serializers.guild import (ExtendedGuildSerializer,
 from api.serializers.guild_content import WarRoleSerializer
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.activity import Activity
+from bdo.models.character import Character
 from bdo.models.guild import Guild, GuildMember, GuildRole
-from bdo.models.war import WarRole
+from bdo.models.war import WarAttendance, WarRole
 from bdo.models.stats import AggregatedGuildMemberWarStats
 
 
@@ -69,19 +70,28 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
 
     def get_queryset(self):
         qs = super(GuildMemberViewSet, self).get_queryset()
-        qs = qs.prefetch_related('user__character_set')
+        character_qs = Character.objects.select_related('character_class')
+        qs = qs.prefetch_related(Prefetch('user__character_set', character_qs))
 
+        guild_id = self.kwargs['guild_pk']
         includes = self.get_serializer_context()['include']
 
         if 'attendance' in includes:
+            attendance_qs = (WarAttendance.objects.filter(war__guild_id=guild_id, war__outcome__isnull=False)
+                                                  .order_by('-war__date')
+                                                  .select_related('war'))
+            attendance_prefetch = Prefetch('user__attendance_set', attendance_qs, '_prefetched_attendance')
             qs = qs.select_related('guild', 'role', 'user')
+            qs = qs.prefetch_related(attendance_prefetch)
         if 'role' in self.request.query_params.get('expand', []):
             qs = qs.select_related('role')
+        if 'user' in self.request.query_params.get('expand', []):
+            qs = qs.prefetch_related('user__preferred_roles')
         if 'stats' in includes:
-            guild_id = self.kwargs['guild_pk']
-            qs = qs.prefetch_related(Prefetch('user__aggregatedguildmemberwarstats_set',
-                                              AggregatedGuildMemberWarStats.objects.filter(guild=guild_id),
-                                              'member_stats'))
+            stats_prefetch = Prefetch('user__aggregatedmemberstats',
+                                      AggregatedGuildMemberWarStats.objects.filter(guild=guild_id),
+                                      'member_stats')
+            qs = qs.prefetch_related(stats_prefetch)
         return qs
 
 

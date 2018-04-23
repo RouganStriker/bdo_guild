@@ -76,6 +76,8 @@ MIDDLEWARE_CLASSES = [
     'security.middleware.StrictTransportSecurityMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'debug_panel.middleware.DebugPanelMiddleware',
+    # Custom middlewares
+    'accounts.middleware.RequireFamilyNameMiddleware',
 ]
 
 TEMPLATES = [
@@ -161,6 +163,7 @@ LOGIN_EXEMPT_URLS = [
     'accounts',
     'admin/',
 ]
+FAMILY_NAME_EXEMPT_URLS = LOGIN_EXEMPT_URLS
 
 CSP_DICT = {
     "default-src": ["self"],

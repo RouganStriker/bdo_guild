@@ -128,7 +128,10 @@ class Profile(models.Model, UserPermissionMixin):
             historical_renege_rate = stats.wars_reneged * 1.0 / (stats.wars_attended + stats.wars_reneged)
 
         # Use up to last 5 wars
-        recent_wars = self.attendance_set.filter(is_attending__in=[0, 4, 5]).order_by('-war__date')[:5]
+        if hasattr(self, '_prefetched_recent_wars'):
+            recent_wars = self._prefetched_recent_wars[:5]
+        else:
+            recent_wars = self.attendance_set.filter(is_attending__in=[0, 4, 5]).order_by('-war__date')[:5]
         recent_attended = 0
         recent_reneged = 0
 

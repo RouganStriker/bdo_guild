@@ -28,6 +28,7 @@ from api.serializers.war import (PlayerStatSerializer,
                                  WarTemplateSerializer)
 from api.views.guild import GuildViewMixin
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
+from bdo.models.character import Character
 from bdo.models.war import War, WarAttendance, WarCallSign, WarStat, WarTeam, WarTeamSlot, WarTemplate
 
 
@@ -72,11 +73,14 @@ class WarAttendanceViewSet(NestedWarViewSet):
     permission_classes = (IsAuthenticated, WarAttendancePermission)
 
     def get_queryset(self):
+        attendance_qs = WarAttendance.objects.filter(is_attending__in=[0, 4, 5]).order_by('-war__date')
         qs = super(WarAttendanceViewSet, self).get_queryset().order_by('user_profile__family_name')
-        qs = (qs.select_related('user_profile')
+        qs = (qs.select_related('user_profile', 'character')
                 .prefetch_related(
-                    'user_profile__character_set',
+                    Prefetch('user_profile__character_set', Character.objects.select_related('character_class')),
                     'user_profile__preferred_roles',
+                    'user_profile__user_stats',
+                    Prefetch('user_profile__attendance_set', attendance_qs, '_prefetched_recent_wars'),
                     'warcallsign_set',
                     'slot__team'
                 )

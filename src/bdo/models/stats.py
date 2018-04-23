@@ -182,8 +182,8 @@ class AggregatedUserWarStats(BaseUserAggregatedWarStats):
 
 
 class AggregatedGuildMemberWarStats(BaseUserAggregatedWarStats):
-    guild = models.ForeignKey("Guild")
-    user_profile = models.ForeignKey("Profile")
+    guild = models.ForeignKey("Guild", related_name="aggregatedmemberstats")
+    user_profile = models.ForeignKey("Profile", related_name="aggregatedmemberstats")
 
     class Meta:
         unique_together = ('guild', 'user_profile')

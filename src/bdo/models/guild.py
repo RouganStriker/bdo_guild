@@ -101,7 +101,10 @@ class Guild(DirtyFieldsMixin, models.Model):
             return None
 
     def save(self, *args, **kwargs):
-        dirty_fields = self.get_dirty_fields()
+        if self.id:
+            dirty_fields = self.get_dirty_fields()
+        else:
+            dirty_fields = []
 
         return super(Guild, self).save(update_fields=dirty_fields, *args, **kwargs)
 
@@ -132,6 +135,9 @@ class GuildMember(models.Model):
 
     @property
     def attendance(self):
+        if hasattr(self.user, '_prefetched_attendance'):
+            return self.user._prefetched_attendance[:6]
+
         return self.get_attendance()
 
     def get_attendance(self, limit=6):
@@ -165,8 +171,8 @@ class GuildMember(models.Model):
             # Use prefetched value
             return profile.member_stats[0]
 
-        return profile.user__aggregatedguildmemberwarstats.get(guild=self.guild)
+        return profile.aggregatedguildmemberwarstats.get(guild=self.guild_id)
 
     @property
     def attendance_rate(self):
-        return self.user.guild_attendance_rate(self.guild)
+        return self.user.guild_attendance_rate(self.guild_id)

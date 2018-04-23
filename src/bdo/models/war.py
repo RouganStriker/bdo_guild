@@ -269,7 +269,7 @@ class WarAttendance(DirtyFieldsMixin, models.Model):
         return u"{0} : {1}".format(self.war, self.user_profile.family_name)
 
     def name(self):
-        if self.is_attending != WarAttendance.AttendanceStatus.ATTENDING.value or not self.character:
+        if self.is_attending != WarAttendance.AttendanceStatus.ATTENDING.value or not self.character_id:
             return self.user_profile.family_name
 
         return u"{0} ({1})".format(self.user_profile.family_name, self.character.name)
