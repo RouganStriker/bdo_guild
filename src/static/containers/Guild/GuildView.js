@@ -77,6 +77,22 @@ class GuildView extends React.Component {
     );
   }
 
+  renderContent() {
+    const  { match } = this.props;
+    const guild_id = parseInt(match.params.guild_id);
+
+    return (
+      <Switch>
+        <Route path={`${match.url}/overview`} render={(props) => <GuildOverview guild_id={guild_id} {...props} />} />
+        <Route path={`${match.url}/members`} render={(props) => <GuildMembers guild_id={guild_id} {...props} />} />
+        <Route path={`${match.url}/history`} render={(props) => <GuildHistory guild_id={guild_id} {...props} />} />
+        <Route path={`${match.url}/war`} render={(props) => <GuildWar guild_id={guild_id} {...props} />} />
+        <Redirect from={match.url} to={`${match.url}/overview`} />
+        <Route path='*' render={() => <Redirect to="/404"/> } />
+      </Switch>
+    );
+  }
+
   renderTabs() {
     const  { dispatch, location, match } = this.props;
 
@@ -119,15 +135,6 @@ class GuildView extends React.Component {
             })
           }
         </Tabs>
-
-        <Switch>
-          <Route path={`${match.url}/overview`} render={(props) => <GuildOverview guild_id={guild_id} {...props} />} />
-          <Route path={`${match.url}/members`} render={(props) => <GuildMembers guild_id={guild_id} {...props} />} />
-          <Route path={`${match.url}/history`} render={(props) => <GuildHistory guild_id={guild_id} {...props} />} />
-          <Route path={`${match.url}/war`} render={(props) => <GuildWar guild_id={guild_id} {...props} />} />
-          <Redirect from={match.url} to={`${match.url}/overview`} />
-          <Route path='*' render={() => <Redirect to="/404"/> } />
-        </Switch>
       </div>
     );
   }
@@ -149,13 +156,12 @@ class GuildView extends React.Component {
     const { guild, match, profile } = this.props;
     const { showEditDialog } = this.state;
 
-
     return (
-      <BaseView title={guild.selected.name}
-                isLoading={!guild.selected}
+      <BaseView title={guild.selected && guild.selected.name || null}
+                 isLoading={!guild.selected}
                 iconElementRight={this.renderEditButton()}>
         { this.renderTabs() }
-
+        { this.renderContent() }
         <GuildFormDialog handleSubmitSuccess={this.handleEditSuccess.bind(this)}
                          canEditIntegration={this.memberHasPermission('change_guild_integration')}
                          open={showEditDialog}

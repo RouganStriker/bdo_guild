@@ -28,9 +28,6 @@ class CallSignSection extends React.Component {
   componentWillMount() {
     const { attendance, callSign, dispatch, guild, war } = this.props;
 
-    if (!attendance.isLoaded && !attendance.isLoading) {
-      dispatch(WarAttendanceService.list({ context: { guild_id: guild.id, war_id: war.id }, params: { expand: 'user_profile', page_size: 100 }}));
-    }
     if (!callSign.isLoaded && !callSign.isLoading) {
       dispatch(WarCallSignService.list({ context: { guild_id: guild.id, war_id: war.id }}));
     }

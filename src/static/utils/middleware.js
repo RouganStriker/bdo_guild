@@ -157,10 +157,7 @@ export function guildMiddleware(Component) {
 
             return (
                 <div>
-                    {this.props.user !== null
-                        ? <Component {...this.props} />
-                        : null
-                    }
+                  <Component {...this.props} />
                 </div>
             );
         }
