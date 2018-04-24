@@ -102,24 +102,19 @@ class GuildWar extends React.Component {
   componentDidMount() {
     const { auth, guild, members, war, war_roles, attendance, dispatch, guild_id, profile } = this.props;
 
-    if (!members.isLoaded && !members.isLoading) {
-      dispatch(MemberService.list({ context: { guild_id }, params: { expand: 'user,role', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this)}))
-    }
+    dispatch(MemberService.list({ context: { guild_id }, params: { expand: 'user,role', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this)}))
+
     if (!guild.selected || !guild.selected.pending_war) {
       return;
     }
 
-    if (!war.selected && !war.isLoading) {
-      dispatch(WarService.get({ id: guild.selected.pending_war, context: { guild_id }, params: { expand: 'node' } }));
-    }
+    dispatch(WarService.get({ id: guild.selected.pending_war, context: { guild_id }, params: { expand: 'node' } }));
 
     if (!war_roles.isLoaded && !war_roles.isLoading) {
       dispatch(WarRoleService.list({ context: { guild_id, war_id: guild.selected.pending_war }}));
     }
 
-    if (!attendance.isLoaded && !attendance.isLoading) {
-      this.refreshAttendance(guild.selected.pending_war);
-    }
+    this.refreshAttendance(guild.selected.pending_war);
   }
 
   memberHasPermission(permission) {

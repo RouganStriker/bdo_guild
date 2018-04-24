@@ -94,7 +94,7 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
                                       AggregatedGuildMemberWarStats.objects.filter(guild=guild_id),
                                       'member_stats')
             qs = qs.prefetch_related(stats_prefetch)
-        if 'stats' in includes or 'attendance_rate' in ordering:
+        if 'stats' in includes or ordering and 'attendance_rate' in ordering:
             attended = F('user__aggregatedmemberstats__wars_attended')
             unavailable = F('user__aggregatedmemberstats__wars_unavailable')
             missed = F('user__aggregatedmemberstats__wars_missed')
