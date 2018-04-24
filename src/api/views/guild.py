@@ -1,5 +1,6 @@
-from django.db.models import Prefetch, Q
+from django.db.models import Case, F, FloatField, Prefetch, Q, When
 from rest_framework import filters
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -19,7 +20,7 @@ from bdo.models.war import WarAttendance, WarRole
 from bdo.models.stats import AggregatedGuildMemberWarStats
 
 
-class GuildViewMixin(object):
+class GuildViewMixin(GenericAPIView):
     def get_queryset(self):
         # Filters by guild
         qs = super(GuildViewMixin, self).get_queryset()
@@ -75,6 +76,7 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
 
         guild_id = self.kwargs['guild_pk']
         includes = self.get_serializer_context()['include']
+        ordering = self.request.query_params.get(MemberOrderingFilter.ordering_param)
 
         if 'attendance' in includes:
             attendance_qs = (WarAttendance.objects.filter(war__guild_id=guild_id, war__outcome__isnull=False)
@@ -92,6 +94,21 @@ class GuildMemberViewSet(ReadOnlyModelViewSet, GuildViewMixin):
                                       AggregatedGuildMemberWarStats.objects.filter(guild=guild_id),
                                       'member_stats')
             qs = qs.prefetch_related(stats_prefetch)
+        if 'stats' in includes or 'attendance_rate' in ordering:
+            attended = F('user__aggregatedmemberstats__wars_attended')
+            unavailable = F('user__aggregatedmemberstats__wars_unavailable')
+            missed = F('user__aggregatedmemberstats__wars_missed')
+            attendance_rate_expr = Case(
+                When(user__aggregatedmemberstats__wars_attended=0,
+                     user__aggregatedmemberstats__wars_unavailable=0,
+                     user__aggregatedmemberstats__wars_missed=0,
+                     then=0.0),
+                default=((attended + unavailable * 0.5) / (attended + unavailable + missed)),
+                output_field=FloatField()
+            )
+            qs = (qs.filter(user__aggregatedmemberstats__guild_id=guild_id)
+                    .annotate(_prefetched_attendance_rate=attendance_rate_expr))
+
         return qs
 
 

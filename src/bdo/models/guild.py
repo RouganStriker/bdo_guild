@@ -102,11 +102,9 @@ class Guild(DirtyFieldsMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.id:
-            dirty_fields = self.get_dirty_fields()
-        else:
-            dirty_fields = []
+            kwargs['update_fields'] = self.get_dirty_fields()
 
-        return super(Guild, self).save(update_fields=dirty_fields, *args, **kwargs)
+        return super(Guild, self).save(*args, **kwargs)
 
 
 class GuildRole(Group):
@@ -175,4 +173,7 @@ class GuildMember(models.Model):
 
     @property
     def attendance_rate(self):
+        if hasattr(self, '_prefetched_attendance_rate'):
+            return self._prefetched_attendance_rate
+
         return self.user.guild_attendance_rate(self.guild_id)

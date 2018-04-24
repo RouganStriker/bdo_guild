@@ -184,10 +184,9 @@ class GuildMemberStats extends React.Component {
     const attendanceRateColumn = {
       key: 'attendance_rate',
       label: 'Attendance Rate',
-      sortable: false,
+      sortable: true,
       style: {width: 120},
       render: (attendance_rate, all) => {
-        const { wars_attended, wars_unavailable, wars_missed } = all.stats;
         return (
           <Tooltip label='(attended + available * 0.5) / total wars'>
             {`${(attendance_rate * 100).toFixed(2)}%`}
@@ -198,7 +197,7 @@ class GuildMemberStats extends React.Component {
     const commandPostColumn = {
       key: 'command_post',
       label: 'Command Post',
-      sortable: false,
+      sortable: true,
       style: {width: 150},
       render: (_, all) => {
         return all.stats.command_post;
@@ -207,7 +206,7 @@ class GuildMemberStats extends React.Component {
     const fortColumn = {
       key: 'fort',
       label: 'Fort',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.fort;
@@ -216,7 +215,7 @@ class GuildMemberStats extends React.Component {
     const gateColumn = {
       key: 'gate',
       label: 'Gate',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.gate;
@@ -225,7 +224,7 @@ class GuildMemberStats extends React.Component {
     const helpColumn = {
       key: 'help',
       label: 'Help',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.help;
@@ -234,16 +233,16 @@ class GuildMemberStats extends React.Component {
     const mountColumn = {
       key: 'mount',
       label: 'Mount',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.mount;
       }
     }
     const placedObjectColumn = {
-      key: 'placed_object',
+      key: 'placed_objects',
       label: 'Placed Object',
-      sortable: false,
+      sortable: true,
       style: {width: 150},
       render: (_, all) => {
         return all.stats.placed_objects;
@@ -252,7 +251,7 @@ class GuildMemberStats extends React.Component {
     const guildMasterColumn = {
       key: 'guild_master',
       label: 'Guild Master',
-      sortable: false,
+      sortable: true,
       style: {width: 150},
       render: (_, all) => {
         return all.stats.guild_master;
@@ -261,7 +260,7 @@ class GuildMemberStats extends React.Component {
     const officerColumn = {
       key: 'officer',
       label: 'Officer',
-      sortable: false,
+      sortable: true,
       style: {width: 120},
       render: (_, all) => {
         return all.stats.officer;
@@ -270,7 +269,7 @@ class GuildMemberStats extends React.Component {
     const memberColumn = {
       key: 'member',
       label: 'Member',
-      sortable: false,
+      sortable: true,
       style: {width: 120},
       render: (_, all) => {
         return all.stats.member;
@@ -279,7 +278,7 @@ class GuildMemberStats extends React.Component {
     const deathColumn = {
       key: 'death',
       label: 'Death',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.death;
@@ -288,7 +287,7 @@ class GuildMemberStats extends React.Component {
     const siegeWeaponsColumn = {
       key: 'siege_weapons',
       label: 'Siege Weapons',
-      sortable: false,
+      sortable: true,
       style: {width: 160},
       render: (_, all) => {
         return all.stats.siege_weapons;
@@ -297,7 +296,7 @@ class GuildMemberStats extends React.Component {
     const totalKillsColumn = {
       key: 'total_kills',
       label: 'Total Kills',
-      sortable: false,
+      sortable: true,
       style: {width: 140},
       render: (_, all) => {
         return all.stats.total_kills;
@@ -306,7 +305,7 @@ class GuildMemberStats extends React.Component {
     const kdrColumn = {
       key: 'kdr',
       label: 'KDR',
-      sortable: false,
+      sortable: true,
       style: {width: 100},
       render: (_, all) => {
         return all.stats.kdr;

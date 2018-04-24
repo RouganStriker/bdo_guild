@@ -118,7 +118,7 @@ def handle_guild_member_create(created, instance, *args, **kwargs):
         return
 
     # Create the aggregated stat row
-    AggregatedGuildMemberWarStats.objects.get_or_create(guild=instance.guild, user_profile=instance.user)
+    AggregatedGuildMemberWarStats.objects.get_or_create(guild_id=instance.guild_id, user_profile_id=instance.user_id)
 
 
 @receiver(post_save, sender=Profile)

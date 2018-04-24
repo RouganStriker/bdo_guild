@@ -17,7 +17,23 @@ class WarFilter(django_filters.FilterSet):
 
 
 class MemberOrderingFilter(OrderingFilter):
-    custom_ordering_fields = ['level', 'className', 'gearscore', ]
+    stat_ordering_fields = [
+        'command_post',
+        'fort',
+        'gate',
+        'help',
+        'mount',
+        'placed_objects',
+        'guild_master',
+        'officer',
+        'member',
+        'death',
+        'siege_weapons',
+        'total_kills',
+        'kdr'
+    ]
+    stat_ordering_fields_regex = re.compile('^-?({0})'.format("|".join(stat_ordering_fields)))
+    custom_ordering_fields = ['level', 'className', 'gearscore', 'attendance_rate'] + stat_ordering_fields
     custom_ordering_field_regex = re.compile('^-?({0})'.format("|".join(custom_ordering_fields)))
 
     def get_ordering(self, request, queryset, view):
@@ -43,6 +59,7 @@ class MemberOrderingFilter(OrderingFilter):
 
     def filter_queryset(self, request, queryset, view):
         params = request.query_params.get(self.ordering_param)
+        guild_pk = int(request.parser_context['kwargs']['guild_pk'])
 
         if params:
             fields = [param.strip() for param in params.split(',')]
@@ -55,10 +72,8 @@ class MemberOrderingFilter(OrderingFilter):
 
             # Special Ordering
             for field in fields:
-                if field == 'name':
-                    ordering.append('user__family_name')
-                elif field == '-name':
-                    ordering.append('-user__family_name')
+                if re.match('^-?name', field):
+                    ordering.append(field.replace("name", "user__family_name"))
                 elif re.match('^-?level$', field):
                     queryset = queryset.annotate(level=Coalesce(Subquery(char_qs.values('level')[:1]), 0))
                     ordering.append(field)
@@ -71,6 +86,14 @@ class MemberOrderingFilter(OrderingFilter):
                         Subquery(char_qs.annotate(gearscore=gearscore_expression).values('gearscore')[:1],
                                  output_field=IntegerField()), 0))
                     ordering.append(field)
+                elif re.match('^-?attendance_rate', field):
+                    # Prefetching is done in viewset
+                    ordering.append(field.replace('attendance_rate', '_prefetched_attendance_rate'))
+                elif re.match(self.stat_ordering_fields_regex, field):
+                    queryset = queryset.filter(user__aggregatedmemberstats__guild_id=guild_pk)
+                    ordering.append(re.sub(r'({0})'.format("|".join(self.stat_ordering_fields)),
+                                           r'user__aggregatedmemberstats__\1',
+                                           field))
                 else:
                     ordering.append(field)
         else:

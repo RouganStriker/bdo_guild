@@ -166,7 +166,7 @@ class GuildOverview extends React.Component {
   render() {
     const { guild: { selected } } = this.props;
 
-    if (!selected || !selected.stat_totals) {
+    if (!selected || selected.stat_totals === undefined) {
       return <LoadingWidget />
     }
 
