@@ -19,6 +19,7 @@ import SettingsIcon from 'material-ui/svg-icons/action/settings'
 import ListIcon from 'material-ui/svg-icons/action/list'
 
 import {
+  GuildService,
   ProfileService,
 } from '../services';
 
@@ -41,6 +42,16 @@ class BaseView extends React.Component {
       this.handleNavMenuClose();
     }
 
+    handleNavToGuild(guild_id) {
+      const { dispatch, guild } = this.props;
+      // Reset selected guild if applicable
+      if (guild.selected && guild.selected.id != guild_id) {
+        dispatch(GuildService.clearSelected());
+        dispatch(GuildService.get({ id: guild_id, params: { include: 'stats,integrations' } }));
+      }
+      this.handleNav(`/guilds/${guild_id}/`)
+    }
+
     componentWillMount() {
       const { dispatch, profile, user } = this.props;
 
@@ -56,7 +67,7 @@ class BaseView extends React.Component {
         return (
           <ListItem key={index}
                     leftIcon={<GroupIcon />}
-                    onClick={() => this.handleNav(`/guilds/${membership.guild.id}/`)}
+                    onClick={() => this.handleNavToGuild(membership.guild.id)}
                     primaryText={membership.guild.name} />
         );
       })
@@ -155,6 +166,7 @@ BaseView.defaultProps = {
 
 const mapStateToProps = (state) => ({
   user: state.auth.user,
+  guild: state.guild,
   profile: state.profile,
 });
 

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
 from django_filters import rest_framework as filters
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -36,3 +37,11 @@ class ProfileViewSet(ModelViewSet):
         context = super(ProfileViewSet, self).get_serializer_context()
 
         return context
+
+    def get_queryset(self):
+        qs = super(ProfileViewSet, self).get_queryset()
+        qs = qs.select_related('user_stats')
+        qs = qs.prefetch_related(Prefetch('character_set', Character.objects.select_related('character_class')),
+                                 'preferred_roles')
+
+        return qs

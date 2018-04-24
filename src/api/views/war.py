@@ -237,7 +237,8 @@ class WarStatViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return self.queryset.filter(attendance__war=self.kwargs['war_pk'])
+        return self.queryset.filter(attendance__war=self.kwargs['war_pk']).select_related('attendance__user_profile',
+                                                                                          'attendance__character')
 
 
 class PlayerStatViewSet(ReadOnlyModelViewSet):
@@ -248,7 +249,9 @@ class PlayerStatViewSet(ReadOnlyModelViewSet):
     ordering = ('-attendance__war__date',)
 
     def get_queryset(self):
-        return super(PlayerStatViewSet, self).get_queryset().filter(attendance__user_profile=self.kwargs['profile_pk'])
+        return (super(PlayerStatViewSet, self).get_queryset()
+                                              .filter(attendance__user_profile=self.kwargs['profile_pk'])
+                                              .select_related('attendance__war__guild'))
 
 
 class PlayerWarViewSet(ReadOnlyModelViewSet):
