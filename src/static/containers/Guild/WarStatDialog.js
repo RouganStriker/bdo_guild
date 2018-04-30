@@ -190,7 +190,6 @@ class WarStatDialog extends React.Component {
         enableCellSelect={true}
         columns={this._columns}
         minWidth={1021}
-        minHeight={minHeight}
         rowGetter={this.rowGetter}
         rowsCount={this.state.rows.length}
         onGridRowsUpdated={this.handleGridRowsUpdated.bind(this)} />
@@ -244,11 +243,11 @@ class WarStatDialog extends React.Component {
 
     return (
       <Dialog actions={actions}
-              bodyStyle={{overflowY: 'scroll', overflowX: 'hidden'}}
-              modal={false}
+              modal={true}
               open={open}
+              autoDetectWindowHeight={true}
               onRequestClose={this.handleCancel.bind(this)}
-              contentStyle={{width: '100%', minWidth: 1080, height: '80%'}}
+              contentStyle={{width: '100%', minWidth: 1080, height: window.innerHeight}}
               title={'Finish War'}
       >
         { this.renderForm() }

@@ -47,10 +47,6 @@ module.exports = {
     plugins: [
         new ExtractTextPlugin('styles/[name].css'),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.LoaderOptionsPlugin({
-          minimize: false,
-          debug: false
-        }),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
