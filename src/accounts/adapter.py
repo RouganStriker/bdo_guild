@@ -16,6 +16,14 @@ class DiscordAccountAdapter(DefaultSocialAccountAdapter):
             logger.warning("New user {0} has no profile".format(sociallogin))
             return
 
+        # Keep email up to date
+        user = sociallogin.user
+        socialaccount = sociallogin.account
+
+        if user.email != socialaccount.extra_data["email"]:
+            user.email = socialaccount.extra_data["email"]
+            user.save()
+
         profile.refresh_guilds()
 
     def authentication_error(self,

@@ -39,11 +39,13 @@ p {
 a {
   font-family: $font-family-regular;
   font-size: 1rem;
-  text-decoration: underline;
+  text-decoration: none;
+  color: #525252;
 
   &:hover {
     color: $color-silver-dark;
     cursor: pointer;
+    text-decoration: underline;
   }
 }
 

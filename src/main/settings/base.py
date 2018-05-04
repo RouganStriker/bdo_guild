@@ -214,3 +214,7 @@ DISCORD_BOT_TOKEN = os.environ.get('BDO_GUILD_BOT_TOKEN', None)
 # App Settings
 ## Bump times by an hour if True
 DST_ADJUSTED = False
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SUPPORT_EMAIL = 'support@bdoguilds.com'

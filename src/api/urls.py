@@ -3,9 +3,10 @@ from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
-from api.views import (CurrentUserViewSet,
-                       CharacterViewSet,
+from api.views import (CharacterViewSet,
                        CharacterClassViewSet,
+                       ContactViewSet,
+                       CurrentUserViewSet,
                        GuildActivityViewSet,
                        GuildViewSet,
                        GuildMemberViewSet,
@@ -34,6 +35,9 @@ router.register(r'users/profile', ProfileViewSet, base_name='profile')
 profile_router = routers.NestedSimpleRouter(router, r'users/profile', lookup='profile')
 profile_router.register(r'stats', PlayerStatViewSet, base_name='stats')
 profile_router.register(r'wars', PlayerWarViewSet, base_name='user-wars')
+
+# Contact
+router.register(r'contact', ContactViewSet, base_name='contact-us')
 
 # Content
 router.register(r'content/classes', CharacterClassViewSet, base_name='character-class')

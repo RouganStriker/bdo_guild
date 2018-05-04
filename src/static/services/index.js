@@ -1,5 +1,7 @@
 export AuthService from './auth/service'
 
+export ContactService from './contact/service'
+
 export CharacterClassService from './content/classes/service'
 export WarNodesService from './content/nodes/service'
 

@@ -174,7 +174,7 @@ class ProfileView extends React.Component {
           <AvailabilityTable initialValues={profile.selected.availability}
                              onChange={this.handleAvailabilityChange.bind(this)} />
 
-          <Toggle label="Enable auto sign up. Requires a main character specified."
+          <Toggle label="Enable auto attendance. Requires a main character specified."
                   disabled={!has_main}
                   style={{ paddingTop: 30 }}
                   defaultToggled={profile.selected.auto_sign_up}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -17,6 +17,7 @@ import HomeIcon from 'material-ui/svg-icons/action/home'
 import GroupIcon from 'material-ui/svg-icons/social/group'
 import SettingsIcon from 'material-ui/svg-icons/action/settings'
 import ListIcon from 'material-ui/svg-icons/action/list'
+import EmailIcon from 'material-ui/svg-icons/communication/email'
 
 import {
   GuildService,
@@ -112,9 +113,36 @@ class BaseView extends React.Component {
     }
 
     renderFooter() {
+      const textStyle = {
+        fontSize: "small",
+        color: "#999",
+      }
+      const activeLinkStyle = {
+        color: "#777",
+      }
+      const footerStyle = {
+        left: 0,
+        bottom: 0,
+        textAlign: "center",
+        width: "100%",
+        margin: 25,
+        ...textStyle,
+      };
+      const iconStyle = {
+        width: 18,
+        height: 18,
+      };
+      const divider = <span style={{paddingLeft: 10, paddingRight: 10}}>|</span>;
+
       return (
-        <div className="footer">
-          BDO Guild 2017.
+        <div style={footerStyle}>
+            <Link to="/privacy" style={textStyle} activeStyle={activeLinkStyle}>Privacy Policy</Link>
+            {divider}
+            <Link to="/contact" style={textStyle} activeStyle={activeLinkStyle}>Contact</Link>
+            {divider}
+            Donate
+            {divider}
+            © {(new Date()).getFullYear()} BDO Guilds
         </div>
       );
     }

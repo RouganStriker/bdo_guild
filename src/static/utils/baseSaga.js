@@ -213,6 +213,8 @@ function* processAPIErrors(error, form, onError) {
   } else if (response.status === 403) {
     toast.error("You do not have permission for this action")
     console.error('Not permitted');
+  } else if (response.status === 400) {
+    console.error("Invalid user input");
   } else {
     toast.error("An unexpected error has occured")
     console.error(response);
@@ -226,7 +228,7 @@ function* processAPIErrors(error, form, onError) {
 
   let errors = {};
 
-  if (response.data) {
+  if (response && response.data) {
     if (response.data.hasOwnProperty('errors')) {
       errors = { _error: response.data.errors };
     } else {

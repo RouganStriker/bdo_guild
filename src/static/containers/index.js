@@ -7,3 +7,6 @@ export NotFoundView from './NotFound/index';
 
 export GuildView from './Guild/GuildView';
 export GuildOverview from './Guild/GuildOverview';
+
+export PrivacyPolicyView from './PrivacyPolicy/index';
+export ContactUsView from './ContactUs/index';
