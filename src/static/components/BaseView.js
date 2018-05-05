@@ -140,7 +140,7 @@ class BaseView extends React.Component {
             {divider}
             <Link to="/contact" style={textStyle} activeStyle={activeLinkStyle}>Contact</Link>
             {divider}
-            Donate
+            <a href="https://www.patreon.com/bdoguilds" style={textStyle}>Patreon</a>
             {divider}
             © {(new Date()).getFullYear()} BDO Guilds
         </div>
@@ -151,8 +151,6 @@ class BaseView extends React.Component {
         const { isLoading, profile, showNavBar, renderContent } = this.props;
 
         if (isLoading || (profile.isLoading && !profile.selected)) {
-          !(profile.isLoading && !profile.selected) && console.log("Waiting for profile to load")
-          !isLoading && console.log("Waiting other to load")
           return <LinearProgress />;
         }
 
