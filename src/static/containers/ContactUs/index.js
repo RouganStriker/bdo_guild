@@ -26,7 +26,7 @@ class ContactUsView extends React.Component {
       <Grid componentClass={Paper} style={{padding: 0}}>
         <Card style={{padding: 24}}>
           <CardText>
-            <p>Use the form below to contact us.</p>
+            <p>For help and other inquiries, use the form below to contact support.</p>
 
             {this.renderContactForm()}
 
