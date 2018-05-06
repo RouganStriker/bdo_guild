@@ -253,18 +253,22 @@ class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):
         flaked_out = {}
         no_sign_ups = {}
         guild_totals = defaultdict(int)
+        # In case the submission is out of sync with actual attendance
+        attendance_mapping = {
+            attendance.user_profile_id: attendance
+            for attendance in war.attendance_set.all()
+        }
 
         for stat in validated_data['stats']:
             attended = stat.pop('attended')
-            attendance = stat.pop('attendance', None)
             user_profile = stat.pop('user_profile')
+            stat.pop('attendance')
+            attendance = attendance_mapping.get(user_profile.id, None)
 
-            if attendance and attendance.war != war:
-                raise serializers.ValidationError("Attendee {0} is not part of the war".format(str(attendance)))
             if attendance is None:
                 attendance = WarAttendance.objects.create(war=war, user_profile=user_profile)
             if attended:
-                war_stats[user_profile.id] = WarStat(attendance=attendance, **stat)
+                war_stats[user_profile.id] = WarStat(attendance_id=attendance.id, **stat)
 
                 for stat_field, stat_value in stat.items():
                     guild_totals[stat_field] += stat_value
