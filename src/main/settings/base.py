@@ -22,6 +22,7 @@ ALLOWED_HOSTS = ['localhost']
 SITE_ID = 1
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 APPEND_SLASH = True
 

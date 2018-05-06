@@ -18,6 +18,7 @@ import GroupIcon from 'material-ui/svg-icons/social/group'
 import SettingsIcon from 'material-ui/svg-icons/action/settings'
 import ListIcon from 'material-ui/svg-icons/action/list'
 import EmailIcon from 'material-ui/svg-icons/communication/email'
+import LogoutIcon from 'material-ui/svg-icons/action/exit-to-app'
 
 import {
   GuildService,
@@ -106,6 +107,10 @@ class BaseView extends React.Component {
             <MenuItem onClick={() => this.handleNav('/settings')}
                       leftIcon={<SettingsIcon />}>
               Settings
+            </MenuItem>
+            <MenuItem onClick={() => window.location.href="/accounts/logout/"}
+                      leftIcon={<LogoutIcon />}>
+              Logout
             </MenuItem>
           </Drawer>
         </div>

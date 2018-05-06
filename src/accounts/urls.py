@@ -1,9 +1,7 @@
 from allauth.socialaccount.providers.oauth2.urls import default_urlpatterns
-from django.conf.urls import url
-from django.utils.translation import ugettext_lazy as _
 
 from accounts.provider import DiscordRPCScopeProvider
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LogoutView
 
 from django.conf.urls import url
 from accounts.views import ReactLoginView
