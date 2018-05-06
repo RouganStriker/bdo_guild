@@ -1,7 +1,6 @@
 from logging import getLogger
 
-from django.core.management import BaseCommand, CommandError
-from django.db.models import F
+from django.core.management import BaseCommand
 
 from bdo.models.character import Profile
 from bdo.models.guild import GuildMember
@@ -17,7 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         missing_stats = []
 
-        profiles = Profile.objects.filter(aggregatedguildmemberwarstats__isnull=True)
+        profiles = Profile.objects.filter(aggregatedmemberstats__isnull=True)
         qs = GuildMember.objects.filter(user__in=profiles)
 
         for member in qs:

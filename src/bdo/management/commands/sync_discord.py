@@ -10,6 +10,7 @@ from django.db.models import Case, OuterRef, Q, Subquery, When
 from bdo.models.character import Profile
 from bdo.models.guild import Guild, GuildMember, GuildRole
 from bdo.models.stats import AggregatedGuildMemberWarStats
+from bdo.models.war import WarAttendance
 
 logger = getLogger('bdo.commands')
 
@@ -82,9 +83,19 @@ class Command(BaseCommand):
 
             # Prune old members
             existing_users = Profile.objects.filter(discord_id__in=cached_members.keys())
-            deleted = (GuildMember.objects.filter(guild=bdo_guild)
-                                          .exclude(role=1)  # Exclude GMs
-                                          .exclude(user__in=existing_users).delete())
+            prune_members = (GuildMember.objects.filter(guild=bdo_guild)
+                                                .exclude(role=1)  # Exclude GMs
+                                                .exclude(user__in=existing_users))
+            pending_war = bdo_guild.pending_war()
+
+            if pending_war is not None:
+                # Delete war attendance
+                deleted_member_ids = prune_members.values_list('user_id', flat=True)
+                (WarAttendance.objects.filter(war=pending_war, user_profile_id__in=deleted_member_ids)
+                                      .delete())
+
+            deleted = prune_members.delete()
+
             # Update existing member's roles
             outdated_members_q = (Q(user__discord_id__in=discord_ids) & ~Q(role_id=role_id)
                                   for role_id, discord_ids in members_by_roles.items())
@@ -98,6 +109,7 @@ class Command(BaseCommand):
                                                 for role_id, discord_ids in members_by_roles.items()]
                                           ))
             )
+
             # Add new members
             new_member_profiles = existing_users.exclude(membership__guild=bdo_guild)
             new_members = [
@@ -116,8 +128,10 @@ class Command(BaseCommand):
             AggregatedGuildMemberWarStats.objects.bulk_create(new_stats)
 
             logger.info("Synchronized Guild `{0}`, found {1} discord members, removed {2} members, "
-                        "updated {3} members, added {4} members.".format(bdo_guild,
+                        "updated {3} members, added {4} members, added {5} aggregated member stats".format(
+                                                                         bdo_guild,
                                                                          len(cached_members),
                                                                          deleted[0],
                                                                          updated,
-                                                                         len(new_members)))
+                                                                         len(new_members),
+                                                                         len(new_stats)))

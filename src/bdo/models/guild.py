@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Q, Avg, F, Case, Count, When
 
 from bdo.models.character import Character
-from bdo.models.war import WarRole
+from bdo.models.war import War, WarRole
 
 
 class Guild(DirtyFieldsMixin, models.Model):
@@ -52,6 +52,14 @@ class Guild(DirtyFieldsMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+    def pending_war(self):
+        war = War.objects.filter(guild=self).order_by('-date', '-id').first()
+
+        if war is not None and war.outcome is None:
+            return war.id
+        else:
+            return None
 
     @property
     def war_roles(self):

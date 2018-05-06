@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from api.serializers.mixin import BaseSerializerMixin
-from bdo.models.guild import Guild, GuildMember, GuildRole, WarRole
-from bdo.models.war import War, WarRole
+from bdo.models.guild import Guild, GuildMember, GuildRole
+from bdo.models.war import WarRole
 
 
 class SimpleGuildRoleSerializer(BaseSerializerMixin, serializers.ModelSerializer):
@@ -30,12 +30,7 @@ class NestedGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
         if membership is None or not membership.has_permission('view_war'):
             return None
 
-        war = War.objects.filter(guild=instance).order_by('-date', '-id').first()
-
-        if war is not None and war.outcome is None:
-            return war.id
-        else:
-            return None
+        return instance.pending_war()
 
 
 class GuildMembershipSerializer(serializers.ModelSerializer):
