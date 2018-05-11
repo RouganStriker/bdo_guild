@@ -8,6 +8,7 @@ import { Bar, Radar } from 'react-chartjs-2';
 import Markdown from 'react-markdown';
 
 import LoadingWidget from '../../components/LoadingWidget';
+import GuildActivityWidget from './GuildActivityWidget';
 import {
   GuildService,
 } from '../../services';
@@ -218,12 +219,27 @@ class GuildOverview extends React.Component {
         <Card>
           <CardText>
             <Row>
-              <Col md={6} style={{minHeight: 250, paddingTop: 15}}>
+              <Col md={6} style={{paddingTop: 16}}>
+                <h4 className="bdo-heading" style={{textAlign: "center"}}>Class Distribution</h4>
+              </Col>
+              <Col md={6} style={{paddingTop: 16}}>
+                <h4 className="bdo-heading" style={{textAlign: "center"}}>Statistics</h4>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6} style={{minHeight: 250}}>
                 { this.renderClassDistribution() }
               </Col>
-              <Col md={6} style={{paddingTop: 15}}>
+              <Col md={6}>
                 { this.renderStatTotals() }
               </Col>
+            </Row>
+          </CardText>
+        </Card>
+        <Card>
+          <CardText>
+            <Row>
+              <GuildActivityWidget guild_id={selected.id} />
             </Row>
           </CardText>
         </Card>

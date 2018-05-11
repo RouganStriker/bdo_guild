@@ -9,7 +9,7 @@ class ActivitySerializer(BaseSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        fields = ('id', 'date', 'actor_profile', 'description')
+        fields = ('id', 'date', 'type', 'actor_profile', 'description')
 
     def get_description(self, instance):
         return str(instance)

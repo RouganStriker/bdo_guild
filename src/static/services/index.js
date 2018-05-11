@@ -6,6 +6,7 @@ export CharacterClassService from './content/classes/service'
 export WarNodesService from './content/nodes/service'
 
 export GuildService from './guilds/service'
+export GuildActivityService from './guilds/activity/service'
 export MemberService from './guilds/members/service'
 export WarService from './guilds/wars/service'
 export WarRoleService from './guilds/war-roles/service'

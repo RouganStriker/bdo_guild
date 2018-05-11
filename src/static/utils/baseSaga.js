@@ -98,6 +98,8 @@ class BaseSaga {
         fn: () => this.list(params, combinedContext),
         resultMap: response => ({
           items: response.results,
+          hasNext: !!response.next,
+          hasPrevious: !!response.previous,
           count: response.count,
         }),
         onError,

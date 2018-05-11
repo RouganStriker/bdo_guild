@@ -266,7 +266,9 @@ class WarAttendance(DirtyFieldsMixin, models.Model):
         unique_together = ('user_profile', 'war')
 
     def __str__(self):
-        return u"{0} : {1}".format(self.war, self.user_profile.family_name)
+        return u"[{0}] {1} - {2}".format(self.war.guild,
+                                         self.user_profile.family_name,
+                                         self.war.date.strftime("%d/%m/%Y"))
 
     def name(self):
         if self.is_attending != WarAttendance.AttendanceStatus.ATTENDING.value or not self.character_id:

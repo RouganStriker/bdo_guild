@@ -77,3 +77,7 @@ DISCORD_CLIENT_ID = '336354195684851712'
 # SSL, so you should probably override the secure cookie flag
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+# Add local setting overrides
+from main.settings.local_settings import *  # noqa
+
