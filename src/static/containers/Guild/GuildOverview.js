@@ -94,6 +94,19 @@ class GuildOverview extends React.Component {
     return <Radar data={this._construct_distribution_dataset()} options={options} />
   }
 
+  memberHasPermission(permission) {
+    const { profile, guild_id, role_permissions } = this.props;
+
+    if (!profile.selected) {
+      return false;
+    }
+
+    const guild_role = profile.selected.membership.find((membership) => membership.guild.id == parseInt(guild_id)).role.id;
+    const guild_permissions = role_permissions[guild_role]
+
+    return guild_permissions.includes(permission);
+  }
+
   _construct_stat_dataset() {
     const { guild: { selected: { stat_totals } } } = this.props;
     const baseDataSet = {
@@ -236,13 +249,16 @@ class GuildOverview extends React.Component {
             </Row>
           </CardText>
         </Card>
-        <Card>
-          <CardText>
-            <Row>
-              <GuildActivityWidget guild_id={selected.id} />
-            </Row>
-          </CardText>
-        </Card>
+        {
+          this.memberHasPermission('view_activity_log') &&
+          <Card>
+            <CardText>
+              <Row>
+                <GuildActivityWidget guild_id={selected.id} />
+              </Row>
+            </CardText>
+          </Card>
+        }
       </Grid>
     )
   }
@@ -252,6 +268,7 @@ const mapStateToProps = (state) => {
   return {
       profile: state.profile,
       guild: state.guild,
+      role_permissions: state.auth.user.role_permissions,
   };
 };
 
