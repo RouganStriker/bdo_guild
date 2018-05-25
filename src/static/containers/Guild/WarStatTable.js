@@ -185,22 +185,13 @@ class WarStatTable extends React.Component {
         key: 'total_kills',
         label: "Kills",
         ...columnOptions,
-        render: (kills, all) => {
-          if (kills !== undefined) {
-            return kills;
-          }
-          return all.guild_master + all.officer + all.member + all.siege_weapons;
-        }
       },
       {
         key: 'kdr',
         label: "KDR",
         ...columnOptions,
-        render: (kdr, all) => {
-          if (kdr !== undefined) {
-            return kdr;
-          }
-          return parseFloat((all.guild_master + all.officer + all.member + all.siege_weapons) / all.death).toFixed(2);
+        render: (kdr) => {
+          return kdr === null && "N/A" || kdr;
         }
       },
     ];
@@ -212,6 +203,9 @@ class WarStatTable extends React.Component {
         sortable: sortable,
         style: {
           width: 250,
+        },
+        render: (_, all) => {
+          return all.attendance.name;
         }
       }, ...columns];
     }

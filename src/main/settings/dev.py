@@ -60,6 +60,21 @@ LOGGING = {
             'handlers': ['django_rest_logger_handler'],
             'propagate': False,
         },
+        'bdo': {
+            'level': 'DEBUG',
+            'handlers': ['django_rest_logger_handler'],
+            'propagate': False,
+        },
+        'bdo.api': {
+            'level': 'DEBUG',
+            'handlers': ['django_rest_logger_handler'],
+            'propagate': False,
+        },
+        'bdo.commands': {
+            'level': 'DEBUG',
+            'handlers': ['django_rest_logger_handler'],
+            'propagate': False,
+        }
     },
 }
 

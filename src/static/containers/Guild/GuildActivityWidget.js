@@ -13,6 +13,8 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import EventAvailableIcon from 'material-ui/svg-icons/notification/event-available';
 import EventBusyIcon from 'material-ui/svg-icons/notification/event-busy';
 import EventNoteIcon from 'material-ui/svg-icons/notification/event-note';
+import AddIcon from 'material-ui/svg-icons/content/add';
+import ClearIcon from 'material-ui/svg-icons/content/clear';
 
 import EmptyState from '../../components/EmptyState';
 import LoadingWidget from '../../components/LoadingWidget';
@@ -37,15 +39,18 @@ class GuildActivityWidget extends React.Component {
     }
 
     this.activityIconMapping = {
-      1: <GroupAddIcon {...iconProps} />,       // "GUILD_CREATE"
-      2: <GroupIcon {...iconProps} />,          // "GUILD_UPDATE"
-      3: <DeviceHubIcon {...iconProps} />,      // "GUILD_UPDATE_INTEGRATION"
-      4: <DeleteIcon {...iconProps} />,         // "GUILD_DELETE"
-      5: <EventAvailableIcon {...iconProps} />,      // "WAR_CREATE"
-      6: <EventNoteIcon {...iconProps} />,      // "WAR_UPDATE"
-      7: <EventBusyIcon {...iconProps} />,      // "WAR_DELETE"
-      8: <DoneIcon {...iconProps} />,      // "WAR_END"
-      9: <UpdateIcon {...iconProps} />,      // "ATTENDANCE_UPDATE"
+      1: <GroupAddIcon {...iconProps} />,       // GUILD_CREATE
+      2: <GroupIcon {...iconProps} />,          // GUILD_UPDATE
+      3: <DeviceHubIcon {...iconProps} />,      // GUILD_UPDATE_INTEGRATION
+      4: <DeleteIcon {...iconProps} />,         // GUILD_DELETE
+      5: <EventAvailableIcon {...iconProps} />, // WAR_CREATE
+      6: <EventNoteIcon {...iconProps} />,      // WAR_UPDATE
+      7: <EventBusyIcon {...iconProps} />,      // WAR_DELETE
+      8: <DoneIcon {...iconProps} />,           // WAR_END
+      9: <UpdateIcon {...iconProps} />,         // ATTENDANCE_UPDATE
+      10: <AddIcon {...iconProps} />,        // WAR_STAT_CREATE
+      11: <ClearIcon {...iconProps} />,        // WAR_STAT_DELETE
+      12: <UpdateIcon {...iconProps} />,        // WAR_STAT_UPDATE
     }
   }
 

@@ -23,7 +23,11 @@ class Activity(models.Model):
             # Finish war
             "WAR_END",
             # Attendance change by officer or higher
-            "ATTENDANCE_UPDATE"
+            "ATTENDANCE_UPDATE",
+            # Stat Changes
+            "WAR_STAT_CREATE",
+            "WAR_STAT_DELETE",
+            "WAR_STAT_UPDATE",
         )
     )
 
@@ -50,16 +54,16 @@ class Activity(models.Model):
         return str(self.type)
 
     def format_guild_create(self):
-        return "{0} created the guild {1}".format(self.actor_profile, self.guild)
+        return "{0} created the guild {1}".format(self.actor_profile, self.target_description)
 
     def format_guild_update(self):
-        return "{0} updated the guild {1}".format(self.actor_profile, self.guild)
+        return "{0} updated the guild {1}".format(self.actor_profile, self.target_description)
 
     def format_guild_update_integration(self):
-        return "{0} updated integration settings for the guild {1}".format(self.actor_profile, self.guild)
+        return "{0} updated integration settings for the guild {1}".format(self.actor_profile, self.target_description)
 
     def format_guild_delete(self):
-        return "{0} deleted the guild {1}".format(self.actor_profile, self.guild)
+        return "{0} deleted the guild {1}".format(self.actor_profile, self.target_description)
 
     def format_war_create(self):
         return "{0} started a war".format(self.actor_profile)
@@ -68,10 +72,19 @@ class Activity(models.Model):
         return "{0} updated war details".format(self.actor_profile)
 
     def format_war_delete(self):
-        return "{0} cancelled the war".format(self.actor_profile)
+        return "{0} cancelled the war {1}".format(self.actor_profile, self.target_description)
 
     def format_war_end(self):
         return "{0} finished the war".format(self.actor_profile)
+
+    def format_war_stat_create(self):
+        return "{0} created war stat for {1}".format(self.actor_profile, self.target_description)
+
+    def format_war_stat_delete(self):
+        return "{0} deleted war stat for {1}".format(self.actor_profile, self.target_description)
+
+    def format_war_stat_update(self):
+        return "{0} updated war stat for {1}".format(self.actor_profile, self.target_description)
 
     def format_attendance_update(self):
         return "{0} updated attendance for {1}".format(self.actor_profile, self.target)

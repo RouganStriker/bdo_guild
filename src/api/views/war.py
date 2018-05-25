@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
+from api.filters import CaseInsensitiveOrderingFilter
 from api.permissions import (RestrictedUserPermission,
                              UserPermission,
                              WarAttendancePermission,
@@ -25,7 +26,8 @@ from api.serializers.war import (PlayerStatSerializer,
                                  WarStatSerializer,
                                  WarSubmitSerializer,
                                  WarTeamSerializer,
-                                 WarTemplateSerializer)
+                                 WarTemplateSerializer,
+                                 WarUpdateSerializer)
 from api.views.guild import GuildViewMixin
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.character import Character
@@ -60,6 +62,18 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
         serializer.save()
 
         return Response(status=HTTP_201_CREATED)
+
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
+    def update_war(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = request.data
+
+        serializer = WarUpdateSerializer(data=data, context={'war': instance})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=HTTP_201_CREATED)
+
 
 
 class NestedWarViewSet(ModelViewSet):
@@ -235,6 +249,8 @@ class WarStatViewSet(ReadOnlyModelViewSet):
     queryset = WarStat.objects.all()
     serializer_class = WarStatSerializer
     permission_classes = (IsAuthenticated,)
+    filter_backends = (CaseInsensitiveOrderingFilter,)
+    ordering_fields = ('id', 'attendance__user_profile__family_name')
 
     def get_queryset(self):
         return self.queryset.filter(attendance__war=self.kwargs['war_pk']).select_related('attendance__user_profile',

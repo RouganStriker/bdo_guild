@@ -20,6 +20,10 @@ class WarSaga extends BaseSaga {
     return this.axios.post(this.getItemUrl(id, context) + 'finish/', body, params);
   }
 
+  * updateWar(id, body = {}, params = {}, context = {}) {
+    return this.axios.post(this.getItemUrl(id, context) + 'update_war/', body, params);
+  }
+
   finishSaga(action, form = null) {
     return (function* ({ id, payload = {}, params = {}, context = {}, onSuccess = null, form = null } = {}) {
       const combinedContext = yield this.mergeDefaultContext(context);
@@ -27,7 +31,20 @@ class WarSaga extends BaseSaga {
       yield call(apiRequest, {
         action: action,
         fn: () => this.finish(id, payload, params, combinedContext),
-        form: form,
+        form: 'warStat',
+        onSuccess,
+      });
+    }).bind(this);
+  }
+
+  updateWarSaga(action, form = null) {
+    return (function* ({ id, payload = {}, params = {}, context = {}, onSuccess = null, form = null } = {}) {
+      const combinedContext = yield this.mergeDefaultContext(context);
+
+      yield call(apiRequest, {
+        action: action,
+        fn: () => this.updateWar(id, payload, params, combinedContext),
+        form: 'warStat',
         onSuccess,
       });
     }).bind(this);
@@ -37,7 +54,7 @@ class WarSaga extends BaseSaga {
 class WarService extends BaseService {
   getAdditionalActions() {
     // To be extended by sub-classes
-    return ['finish'];
+    return ['finish', 'updateWar'];
   }
 }
 

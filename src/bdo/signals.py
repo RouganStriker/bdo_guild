@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
 from bdo.context import UserContext
@@ -28,13 +28,15 @@ def handle_guild_save(created, instance, update_fields, *args, **kwargs):
 
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
-                            guild=instance)
+                            guild=instance,
+                            target_description=str(instance))
 
     if not created and set(update_fields) & {'discord_id', 'discord_roles'}:
         # Track integration updates
         Activity.objects.create(type=Activity.TYPES.GUILD_UPDATE_INTEGRATION.value,
                                 actor_profile=UserContext.current.user.profile,
-                                guild=instance)
+                                guild=instance,
+                                target_description=str(instance))
 
 
 @receiver(pre_delete, sender=Guild)
@@ -62,7 +64,8 @@ def handle_war_save(created, instance, *args, **kwargs):
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.guild,
-                            target=instance)
+                            target=instance,
+                            target_description=str(instance))
 
 
 @receiver(pre_delete, sender=War)
@@ -89,7 +92,8 @@ def handle_war_finish(instance, *args, **kwargs):
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.guild,
-                            target=instance)
+                            target=instance,
+                            target_description=str(instance))
 
 
 @receiver(post_save, sender=WarAttendance)
@@ -104,7 +108,8 @@ def handle_war_attendance_change(instance, update_fields, *args, **kwargs):
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.war.guild,
                             extras={'is_attending': instance.is_attending},
-                            target=instance)
+                            target=instance,
+                            target_description=str(instance))
 
     # Update aggregates
     AggregatedGuildMemberWarStats.objects.get(guild=instance.war.guild,
@@ -133,9 +138,42 @@ def handle_profile_created(created, instance, *args, **kwargs):
 @receiver(post_save, sender=WarStat)
 def handle_war_stat_saved(created, instance, *args, **kwargs):
     # Re-calculate everything
-    logger.info("Re-calculating stats for {0}".format(instance))
+    logger.debug("Re-calculating stats for {0}".format(instance))
 
     AggregatedGuildWarStats.objects.get(guild=instance.attendance.war.guild).recalculate()
     AggregatedGuildMemberWarStats.objects.get(guild=instance.attendance.war.guild,
                                               user_profile=instance.attendance.user_profile).recalculate()
     AggregatedUserWarStats.objects.get(user_profile=instance.attendance.user_profile).recalculate()
+
+    if not UserContext.has_current:
+        return
+
+    if created:
+        type = Activity.TYPES.WAR_STAT_CREATE.value
+    else:
+        type = Activity.TYPES.WAR_STAT_UPDATE.value
+
+    Activity.objects.create(type=type,
+                            actor_profile=UserContext.current.user.profile,
+                            guild=instance.attendance.war.guild,
+                            target=instance,
+                            target_description = str(instance))
+
+
+@receiver(post_delete, sender=WarStat)
+def handle_war_stat_deleted(instance, *args, **kwargs):
+    # Re-calculate everything
+    logger.debug("Re-calculating stats for {0}".format(instance))
+
+    AggregatedGuildWarStats.objects.get(guild=instance.attendance.war.guild).recalculate()
+    AggregatedGuildMemberWarStats.objects.get(guild=instance.attendance.war.guild,
+                                              user_profile=instance.attendance.user_profile).recalculate()
+    AggregatedUserWarStats.objects.get(user_profile=instance.attendance.user_profile).recalculate()
+
+    if not UserContext.has_current:
+        return
+
+    Activity.objects.create(type=Activity.TYPES.WAR_STAT_DELETE.value,
+                            actor_profile=UserContext.current.user.profile,
+                            guild=instance.attendance.war.guild,
+                            target_description=str(instance))

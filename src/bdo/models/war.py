@@ -20,7 +20,7 @@ war_finish = Signal(providing_args=['war'])
 logger = getLogger('bdo')
 
 
-class War(models.Model):
+class War(DirtyFieldsMixin, models.Model):
     class Outcome(ChoicesEnum):
         WIN = 0
         LOSS = 1
@@ -270,9 +270,13 @@ class WarAttendance(DirtyFieldsMixin, models.Model):
                                          self.user_profile.family_name,
                                          self.war.date.strftime("%d/%m/%Y"))
 
+    @property
+    def family_name(self):
+        return self.user_profile.family_name
+
     def name(self):
-        if self.is_attending != WarAttendance.AttendanceStatus.ATTENDING.value or not self.character_id:
-            return self.user_profile.family_name
+        if self.is_attending != WarAttendance.AttendanceStatus.ATTENDING.value or not self.character:
+            return self.family_name
 
         return u"{0} ({1})".format(self.user_profile.family_name, self.character.name)
 
@@ -342,7 +346,7 @@ class WarTemplate(models.Model):
         return next_id
 
 
-class WarStat(models.Model):
+class WarStat(DirtyFieldsMixin, models.Model):
     command_post = models.IntegerField(default=0)
     fort = models.IntegerField(default=0)
     gate = models.IntegerField(default=0)
@@ -356,6 +360,11 @@ class WarStat(models.Model):
     siege_weapons = models.IntegerField(default=0)
     attendance = models.OneToOneField('WarAttendance', related_name='stats', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return u"[{0}] {1} - {2}".format(self.attendance.war.guild,
+                                         self.attendance.user_profile.family_name,
+                                         self.attendance.war.date.strftime("%d/%m/%Y"))
+
     @property
     def total_kills(self):
         return self.guild_master + self.officer + self.member + self.siege_weapons
@@ -366,3 +375,10 @@ class WarStat(models.Model):
             return None
         else:
             return round(float(self.total_kills) / float(self.death), 2)
+
+    def update_fields(self, **kwargs):
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ValidationError(u"Invalid field {0} for {1} model.".format(key, self.__class__))
+
+            setattr(self, key, value)

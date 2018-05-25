@@ -15,13 +15,14 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
                                                decimal_places=2,
                                                coerce_to_string=False,
                                                read_only=True)
+    family_name = serializers.CharField(source='user.family_name', read_only=True)
     name = serializers.StringRelatedField(source='user', read_only=True)
     main_character = serializers.DictField(read_only=True)
     stats = AggregatedGuildMemberWarStatsSerializer(read_only=True)
 
     class Meta:
         model = GuildMember
-        fields = ('id', 'user', 'role', 'attendance', 'attendance_rate', 'name', 'main_character', 'stats')
+        fields = ('id', 'user', 'role', 'attendance', 'attendance_rate', 'family_name', 'name', 'main_character', 'stats')
         expandable_fields = {
             'user': ExtendedProfileSerializer,
             'role': SimpleGuildRoleSerializer,

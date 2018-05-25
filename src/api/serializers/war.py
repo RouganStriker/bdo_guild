@@ -1,4 +1,5 @@
 from collections import defaultdict
+from logging import getLogger
 
 from expander import ExpanderSerializerMixin
 from rest_framework import serializers
@@ -8,6 +9,7 @@ from api.serializers.content import WarNodeSerializer
 from api.serializers.mixin import BaseSerializerMixin
 from api.serializers.profile import ExtendedProfileSerializer
 from bdo.models.character import Profile
+from bdo.models.content import WarNode
 from bdo.models.guild import Guild
 from bdo.models.stats import (AggregatedGuildMemberWarStats,
                               AggregatedGuildWarStats,
@@ -19,6 +21,8 @@ from bdo.models.war import (war_finish,
                             WarStat,
                             WarTeam,
                             WarTemplate)
+
+logger = getLogger('bdo.api')
 
 
 class CurrentGuildDefault(object):
@@ -110,6 +114,11 @@ class NestedWarAttendanceSerializer(WarAttendanceSerializer):
 
     class Meta(WarAttendanceSerializer.Meta):
         fields = ('id', 'is_attending', 'date')
+
+
+class SimpleNestedWarAttendanceSerializer(WarAttendanceSerializer):
+    class Meta(WarAttendanceSerializer.Meta):
+        fields = ('id', 'is_attending', 'name', 'war', 'user_profile')
 
 
 class WarTemplateSerializer(BaseSerializerMixin, serializers.ModelSerializer):
@@ -206,14 +215,18 @@ class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.Mo
         return war
 
 
-class WarStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
-    name = serializers.CharField(source='attendance.name', read_only=True)
+class WarStatSerializer(BaseSerializerMixin,
+                        ExpanderSerializerMixin,
+                        serializers.ModelSerializer):
     total_kills = serializers.IntegerField(read_only=True)
     kdr = serializers.FloatField(read_only=True)
 
     class Meta:
         model = WarStat
         fields = '__all__'
+        expandable_fields = {
+            'attendance': SimpleNestedWarAttendanceSerializer,
+        }
 
 
 class NestedWarStatSerializer(WarStatSerializer):
@@ -240,6 +253,125 @@ class NestedWarStatSerializer(WarStatSerializer):
             'death',
             'siege_weapons',
         )
+
+
+class UpdateNestedWarStatSerializer(NestedWarStatSerializer):
+    id = serializers.IntegerField(required=False, allow_null=True)
+    name = serializers.CharField(max_length=255, required=False, allow_blank=True)
+
+    class Meta(NestedWarStatSerializer.Meta):
+        fields = (
+            'id',
+            'name',
+            'command_post',
+            'fort',
+            'gate',
+            'help',
+            'mount',
+            'placed_objects',
+            'guild_master',
+            'officer',
+            'member',
+            'death',
+            'siege_weapons',
+        )
+
+
+class WarUpdateSerializer(BaseSerializerMixin, serializers.ModelSerializer):
+    stats = UpdateNestedWarStatSerializer(many=True)
+
+    class Meta:
+        model = War
+        fields = ('node', 'note', 'outcome', 'stats')
+
+    def create(self, validated_data):
+        war = self.context['war']
+
+        # Update War
+        war.outcome = validated_data.pop('outcome')
+        war.node = validated_data.pop('node')
+        war.note = validated_data.pop('note')
+
+        if war.is_dirty():
+            war.save()
+
+        # Build stat lookup
+        existing_stats = {stat.id: stat for stat in WarStat.objects.filter(attendance__war=war)}
+        seen_stats = []
+        errors = {
+            'stats': []
+        }
+        hasErrors = False
+        updatedCount = 0
+        createdCount = 0
+        deletedCount = 0
+
+        for stat in validated_data['stats']:
+            id = stat.pop('id')
+            name = stat.pop('name')
+
+            if id is not None and id not in existing_stats:
+                errors['stats'].append({
+                    '__nonfield__': "Invalid stat ID {0}".format(id)
+                })
+                hasErrors = True
+                continue
+            elif id:
+                war_stat = existing_stats[id]
+                war_stat.update_fields(**stat)
+
+                if war_stat.is_dirty():
+                    war_stat.save()
+                    updatedCount += 1
+
+                seen_stats.append(id)
+            elif name:
+                # New stat entry
+                try:
+                    user = Profile.objects.get(family_name__iexact=name)
+                except (Profile.DoesNotExist, Profile.MultipleObjectsReturned):
+                    errors['stats'].append({
+                        '__nonfield__': u"User with family name {0} does not exist.".format(name)
+                    })
+                    hasErrors = True
+                    continue
+
+                attendance, _ = WarAttendance.objects.update_or_create(war=war,
+                                                                       user_profile=user,
+                                                                       defaults={'is_attending': 0})
+                stat, created = WarStat.objects.update_or_create(attendance=attendance, defaults=stat)
+
+                if not created:
+                    seen_stats.append(stat.id)
+                    updatedCount += 1
+                else:
+                    createdCount += 1
+            else:
+                errors['stats'].append({
+                    '__nonfield__': "Missing a player identifier for stat entry."
+                })
+                hasErrors = True
+                continue
+
+            # Placeholder
+            errors['stats'].append({})
+
+        # Existing stats not included in the payload are considered removed
+        for stat in WarStat.objects.filter(id__in=existing_stats.keys()).exclude(id__in=seen_stats):
+            # Manually delete stats in order to trigger signal handlers
+            stat.attendance.is_attending = 3
+            stat.attendance.save()
+            stat.delete()
+            deletedCount += 1
+
+        logger.debug("Updated War and stats. {0} updated, {1} created, {2} deleted".format(updatedCount,
+                                                                                           createdCount,
+                                                                                           deletedCount))
+
+        if hasErrors:
+            raise serializers.ValidationError(errors)
+
+        return war
 
 
 class WarSubmitSerializer(BaseSerializerMixin, serializers.Serializer):

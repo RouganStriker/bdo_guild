@@ -7,27 +7,32 @@ import Dialog from 'material-ui/Dialog';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import StatIcon from 'material-ui/svg-icons/social/poll';
+import EditIcon from 'material-ui/svg-icons/image/edit';
+import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import GroupIcon from 'material-ui/svg-icons/social/group';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
+import Picker from 'react-month-picker';
+require('react-month-picker/css/month-picker.css')
 
 import EmptyState from '../../components/EmptyState';
 import Time from '../../components/Time';
 import LoadingWidget from '../../components/LoadingWidget';
 import Tooltip from '../../components/Tooltip';
 import {
+  WarNodesService,
   WarService,
   WarStatsService,
   MemberService,
 } from '../../services';
 import WarStatTable from './WarStatTable';
+import WarStatEditDialog from './WarStatEditDialog';
 import ConquestIcons from './images/conquest_icons.png';
 import FortIcon from './images/castle.png';
 import KillIcon from './images/sword-cross.png';
 import DeathIcon from './images/skull.png';
 import HelpIcon from './images/human-greeting.png';
-import Picker from 'react-month-picker';
-require('react-month-picker/css/month-picker.css')
+
 
 
 class GuildHistory extends React.Component {
@@ -76,6 +81,7 @@ class GuildHistory extends React.Component {
         month: today.getMonth() + 1
       },
       showStats: false,
+      editStat: false,
       selectedWar: null,
     }
   }
@@ -107,25 +113,33 @@ class GuildHistory extends React.Component {
     this.fetchWarsForDate(date);
   }
 
-  handleViewWarStats(war) {
+  fetchWarStats(war) {
     const { dispatch, guild_id } = this.props;
 
+    dispatch(WarStatsService.list({
+      context: { guild_id, war_id: war.id },
+      params: {
+        page_size: 100,
+        expand: "attendance",
+        ordering: "attendance__user_profile__family_name",
+      },
+    }));
+  }
+
+  handleViewWarStats(war) {
     this.setState({
       selectedWar: war,
       showStats: true
     })
 
-    dispatch(WarStatsService.list({
-      context: { guild_id, war_id: war.id },
-      params: { page_size: 100 },
-    }))
+    this.fetchWarStats(war);
   }
 
   renderStatsDialog() {
-    const { warStats } = this.props;
+    const { war_stats } = this.props;
     const { selectedWar } = this.state;
 
-    if (warStats.isLoading || !warStats.isLoaded) {
+    if (war_stats.isLoading || !war_stats.isLoaded) {
       return;
     }
 
@@ -135,20 +149,79 @@ class GuildHistory extends React.Component {
               autoScrollBodyContent={true}
               contentStyle={{width: '100%', maxWidth: 1450, maxHeight: "100%"}}
               onRequestClose={() => this.setState({showStats: false, selectedWar: null})}>
-        <WarStatTable items={warStats.items} />
+        <WarStatTable items={war_stats.items} />
       </Dialog>
     )
   }
 
+  memberHasPermission(permission) {
+    const { profile, guild_id, role_permissions } = this.props;
+
+    if (!profile) {
+      return false;
+    }
+
+    const guild_role = profile.membership.find((membership) => membership.guild.id == parseInt(guild_id)).role.id;
+    const guild_permissions = role_permissions[guild_role]
+
+    return guild_permissions.includes(permission);
+  }
+
+  onWarEdit(war) {
+    const { dispatch, guild_id } = this.props;
+
+    this.setState({
+      selectedWar: war,
+      editStat: true
+    })
+
+    this.fetchWarStats(war);
+
+    dispatch(WarNodesService.list({ params: { page_size: 50, war_day: war.node.war_day }}));
+    dispatch(MemberService.list({
+      context: { guild_id },
+      params: {
+        page_size: 125,
+      }
+    }))
+  }
+
   renderTimeline() {
     const { war } = this.props;
-    const generateButton = (onClick) => (
+    const buttonStyle = {
+      top: -18,
+      left: 9,
+      width: 36,
+      padding: 0
+    }
+    const generateStatsButton = (onClick) => (
       <IconButton tooltip="Stats"
-                  style={{top: -18, left: 9}}
+                  style={buttonStyle}
                   onClick={onClick}>
         <StatIcon color="#ffffff" />
       </IconButton>
     );
+    const editPermission = this.memberHasPermission('change_member_attendance') && this.memberHasPermission('change_war')
+    const deletePermission = this.memberHasPermission('delete_war')
+    const generateEditButton = (onClick) => {
+      return editPermission && (
+        <IconButton tooltip="Edit"
+                    style={buttonStyle}
+                    onClick={onClick}>
+          <EditIcon color="#ffffff" />
+        </IconButton>
+      );
+    };
+    const generateDeleteButton = (onClick) => {
+      return deletePermission && (
+        <IconButton tooltip="Delete"
+                    style={buttonStyle}
+                    onClick={onClick}>
+          <DeleteIcon color="#ffffff" />
+        </IconButton>
+      );
+    };
+
     const iconStyle = {
       objectFit: 'none',
       transform: 'scale(0.7, 0.7)',
@@ -178,7 +251,11 @@ class GuildHistory extends React.Component {
 
             return <TimelineEvent title={title}
                                   createdAt={<Time>{date}</Time>}
-                                  buttons={generateButton(() => this.handleViewWarStats(data))}
+                                  buttons={[
+                                    generateStatsButton(() => this.handleViewWarStats(data)),
+                                    generateEditButton(() => this.onWarEdit(data)),
+                                    generateDeleteButton(() => this.handleViewWarStats(data)),
+                                  ]}
                                   container="card"
                                   style={{boxShadow: "0 0 6px 1px #999"}}
                                   cardHeaderStyle={{backgroundColor: "rgb(0, 188, 212)", color: "#FFF"}}
@@ -217,8 +294,52 @@ class GuildHistory extends React.Component {
     );
   }
 
+  handleWarStatUpdate() {
+    const { dispatch } = this.props;
+    const { date } = this.state;
+
+    this.setState({selectedWar: null, editStat: false})
+
+    this.fetchWarsForDate(date);
+    dispatch(WarStatsService.clearLoaded())
+  }
+
+  renderEditStatsDialog() {
+    const { selectedWar } = this.state;
+    const { guild_id, members, war_nodes, war_stats } = this.props;
+
+    const stats = war_stats.items.map((stat) => {
+      return {
+        ...stat,
+        name: stat.attendance.name,
+    }})
+    const memberChoices = members.items.map((member, index) => {
+      return {
+        id: member.user,
+        value: member.family_name,
+        title: member.family_name,
+        text: member.family_name,
+      }
+    })
+
+    return <WarStatEditDialog isLoading={members.isLoading || war_stats.isLoading || war_nodes.isLoading}
+                              title="Edit War"
+                              guild_id={guild_id}
+                              outcome={selectedWar.outcome}
+                              membersAutocomplete={memberChoices}
+                              node={selectedWar.node && selectedWar.node.id || null}
+                              nodes={war_nodes.items}
+                              note={selectedWar.note}
+                              onClose={() => this.setState({selectedWar: null, editStat: false})}
+                              onConfirm={this.handleWarStatUpdate.bind(this)}
+                              showAttendanceToggle={false}
+                              showAddRow={true}
+                              stats={stats}
+                              war_id={selectedWar.id} />
+  }
+
   render() {
-    const { date, maxDate, showStats } = this.state;
+    const { date, editStat, maxDate, showStats } = this.state;
     const { war } = this.props;
     const pickerLang = {
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -249,6 +370,8 @@ class GuildHistory extends React.Component {
         { this.renderTimeline() }
 
         { showStats && this.renderStatsDialog() }
+
+        { editStat && this.renderEditStatsDialog() }
       </Grid>
     )
   }
@@ -256,8 +379,12 @@ class GuildHistory extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+      members: state.members,
+      profile: state.profile.selected,
+      role_permissions: state.auth.user.role_permissions,
       war: state.war,
-      warStats: state.war_stats,
+      war_stats: state.war_stats,
+      war_nodes: state.warNodes,
   };
 };
 

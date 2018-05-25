@@ -1,7 +1,7 @@
 import django_filters
 import re
 from django.db.models import Case, ExpressionWrapper, F, IntegerField, OuterRef, Subquery, Value, When
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Lower
 from rest_framework.filters import OrderingFilter
 
 from bdo.models.character import Character
@@ -14,6 +14,24 @@ class WarFilter(django_filters.FilterSet):
     class Meta:
         model = War
         fields = ['date']
+
+
+class CaseInsensitiveOrderingFilter(OrderingFilter):
+
+    def filter_queryset(self, request, queryset, view):
+        ordering = self.get_ordering(request, queryset, view)
+
+        if ordering:
+            new_ordering = []
+            for field in ordering:
+                print(field)
+                if field.startswith('-'):
+                    new_ordering.append(Lower(field[1:]).desc())
+                else:
+                    new_ordering.append(Lower(field).asc())
+            return queryset.order_by(*new_ordering)
+
+        return queryset
 
 
 class MemberOrderingFilter(OrderingFilter):
