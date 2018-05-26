@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 
@@ -177,3 +178,14 @@ def handle_war_stat_deleted(instance, *args, **kwargs):
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.attendance.war.guild,
                             target_description=str(instance))
+
+
+@receiver(pre_delete)
+def update_activities_pre_delete(instance, *args, **kwargs):
+    # Update existing activity references.
+    # Newer activities should populate target_description by default
+    if instance.__class__ not in [Guild, War, WarStat]:
+        return
+
+    content_type = ContentType.objects.get_for_model(instance)
+    Activity.objects.filter(content_type=content_type, object_id=instance.id).update(target_description=str(instance))

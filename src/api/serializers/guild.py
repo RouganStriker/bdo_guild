@@ -96,8 +96,6 @@ class ExtendedGuildSerializer(SimpleGuildSerializer):
             membership = self.instance.get_membership(self.context['request'].user.profile)
             view_integrations = membership is not None and membership.has_permission('change_guild_info')
         if 'stats' not in self.context['include']:
-            self.fields.pop('average_level')
-            self.fields.pop('average_gearscore')
             self.fields.pop('class_distribution')
             self.fields.pop('stat_totals')
         if (method == 'GET' and 'integrations' not in self.context['include']) or not view_integrations:

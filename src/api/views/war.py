@@ -75,7 +75,6 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
         return Response(status=HTTP_201_CREATED)
 
 
-
 class NestedWarViewSet(ModelViewSet):
     def get_queryset(self):
         return super(NestedWarViewSet, self).get_queryset().filter(war=self.kwargs['war_pk'])

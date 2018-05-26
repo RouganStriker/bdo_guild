@@ -168,6 +168,8 @@ function submitForm(values, dispatch, props) {
       form: 'attendance',
       onSuccess: handleSubmitSuccess,
     }))
+  } else {
+    handleSubmitSuccess && handleSubmitSuccess();
   }
 }
 

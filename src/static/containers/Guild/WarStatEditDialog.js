@@ -250,10 +250,12 @@ class WarStatDialog extends React.Component {
   }
 
   handleGridRowsAdd() {
+    console.log(this.state.rows)
+    const newIndex = this.state.rows.length > 0 && (_.last(this.state.rows).index + 1) || 0;
     const newRow = {
       'id': null,
       'name': '',
-      'index': _.last(this.state.rows).index + 1,
+      'index': newIndex,
       'attendance': null,
       'user_profile': null,
       'command_post': 0,

@@ -14,11 +14,13 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import Picker from 'react-month-picker';
 require('react-month-picker/css/month-picker.css')
+import { toast } from 'react-toastify';
 
 import EmptyState from '../../components/EmptyState';
 import Time from '../../components/Time';
 import LoadingWidget from '../../components/LoadingWidget';
 import Tooltip from '../../components/Tooltip';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import {
   WarNodesService,
   WarService,
@@ -83,6 +85,7 @@ class GuildHistory extends React.Component {
       showStats: false,
       editStat: false,
       selectedWar: null,
+      showDelete: false,
     }
   }
 
@@ -177,7 +180,10 @@ class GuildHistory extends React.Component {
 
     this.fetchWarStats(war);
 
-    dispatch(WarNodesService.list({ params: { page_size: 50, war_day: war.node.war_day }}));
+    const convertDay = [5, 6, 0, 1, 2, 3, 4];
+    const war_day = war.node && war.node.war_day || convertDay[new Date(war.date).getUTCDay()]
+
+    dispatch(WarNodesService.list({ params: { page_size: 50, war_day }}));
     dispatch(MemberService.list({
       context: { guild_id },
       params: {
@@ -254,7 +260,7 @@ class GuildHistory extends React.Component {
                                   buttons={[
                                     generateStatsButton(() => this.handleViewWarStats(data)),
                                     generateEditButton(() => this.onWarEdit(data)),
-                                    generateDeleteButton(() => this.handleViewWarStats(data)),
+                                    generateDeleteButton(() => this.setState({selectedWar: data, showDelete: true})),
                                   ]}
                                   container="card"
                                   style={{boxShadow: "0 0 6px 1px #999"}}
@@ -302,6 +308,49 @@ class GuildHistory extends React.Component {
 
     this.fetchWarsForDate(date);
     dispatch(WarStatsService.clearLoaded())
+
+    toast.success("War has been updated")
+  }
+
+  onWarDeleteSuccess() {
+    const { date } = this.state;
+
+    this.fetchWarsForDate(date);
+
+    this.setState({
+      showDelete: false,
+      selectedWar: null,
+    })
+
+    toast.success("War has been deleted")
+  }
+
+  handleDelete() {
+    const { dispatch, guild_id } = this.props;
+    const { selectedWar } = this.state;
+
+    dispatch(WarService.destroy({
+      id: selectedWar.id,
+      context: { guild_id, },
+      onSuccess: this.onWarDeleteSuccess.bind(this)
+    }))
+  }
+
+  renderDeleteDialog() {
+    const { war } = this.props;
+    const { selectedWar } = this.state;
+    const confirmationMessage = (
+      <div>
+        <div>Are you sure you want to delete the war on <Time>{selectedWar.date}</Time>?</div>
+        <div style={{marginTop: 16}}><strong>This will remove the war and all associated attendance and stats.</strong></div>
+      </div>
+    )
+
+    return <ConfirmDialog buttonsDisabled={war.isLoading}
+                          onCancel={() => this.setState({showDelete: false, selectedWar: null})}
+                          onConfirm={this.handleDelete.bind(this)}
+                          title="Delete War"
+                          content={confirmationMessage}/>
   }
 
   renderEditStatsDialog() {
@@ -339,7 +388,7 @@ class GuildHistory extends React.Component {
   }
 
   render() {
-    const { date, editStat, maxDate, showStats } = this.state;
+    const { date, editStat, maxDate, showDelete, showStats } = this.state;
     const { war } = this.props;
     const pickerLang = {
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -372,6 +421,8 @@ class GuildHistory extends React.Component {
         { showStats && this.renderStatsDialog() }
 
         { editStat && this.renderEditStatsDialog() }
+
+        { showDelete && this.renderDeleteDialog() }
       </Grid>
     )
   }

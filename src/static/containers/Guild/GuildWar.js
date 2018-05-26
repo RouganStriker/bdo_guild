@@ -23,6 +23,7 @@ import FloatingActionButton from 'material-ui/FloatingActionButton';
 import MenuItem from 'material-ui/MenuItem';
 import EditIcon from 'material-ui/svg-icons/image/edit';
 import Dialog from 'material-ui/Dialog';
+import { toast } from 'react-toastify';
 
 import LoadingWidget from '../../components/LoadingWidget';
 import Time from '../../components/Time';
@@ -144,9 +145,16 @@ class GuildWar extends React.Component {
     dispatch(WarAttendanceService.list({ context: { guild_id, war_id }, params: { expand: 'user_profile', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this) }));
   }
 
+  onAttendanceUpdateSuccess() {
+    this.refreshAttendance();
+
+    toast.success("Your attendance has been updated");
+  }
+
   handleAttendanceSubmitSuccess() {
     this.handleCloseDialog();
-    this.refreshAttendance();
+
+    this.onAttendanceUpdateSuccess();
   }
 
   handleWarFormSuccess() {
@@ -161,8 +169,12 @@ class GuildWar extends React.Component {
         dispatch(WarAttendanceService.getMyAttendance({ context: { guild_id, war_id: updated_guild.pending_war } }));
         dispatch(WarAttendanceService.list({ context: { guild_id, war_id: updated_guild.pending_war }, params: { expand: 'user_profile', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this) }));
       }}));
+
+      toast.success("War planning has started")
     } else {
       this.refreshWarDetails();
+
+      toast.success("War details have been updated")
     }
   }
 
@@ -178,6 +190,8 @@ class GuildWar extends React.Component {
 
   handleWarStatSuccess() {
     this.handleDeleteWarSuccess()
+
+    toast.success("War has been finished")
   }
 
   handleCloseDialog() {
@@ -231,7 +245,7 @@ class GuildWar extends React.Component {
       dispatch(WarAttendanceService.updateMyAttendance({
         payload,
         context: this.getContext(),
-        onSuccess: () => this.refreshAttendance(),
+        onSuccess: this.onAttendanceUpdateSuccess.bind(this),
       }))
     }
   }
@@ -488,7 +502,7 @@ class GuildWar extends React.Component {
           openWarDetailsDialog &&
           <WarFormDialog open={true}
                          guild_id={guild_id}
-                         handleDeleteSuccess={this.handleDeleteWarSuccess.bind(this)}
+                         handleDeleteSuccess={() => toast.success("War has been cancelled") && this.handleDeleteWarSuccess()}
                          handleSubmitSuccess={this.handleWarFormSuccess.bind(this)}
                          onClose={this.handleCloseDialog.bind(this)} />
         }

@@ -18,6 +18,7 @@ import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 const _ = require('lodash');
+import { toast } from 'react-toastify';
 
 import Time from '../../components/Time';
 import LoadingWidget from '../../components/LoadingWidget';
@@ -71,6 +72,20 @@ class GuildMemberAttendance extends React.Component {
     return guild_permissions.includes(permission);
   }
 
+  onAttendanceChangeSuccess() {
+    const { dispatch, guild_id } = this.props;
+
+    dispatch(MemberService.list({
+      context: { guild_id },
+      params: {
+        include: "attendance",
+        page_size: 100,
+      }
+    }))
+
+    toast.success("Attendance has been updated")
+  }
+
   handleAttendanceChange(attendance, war_id, new_status) {
     const { dispatch, guild_id } = this.props;
 
@@ -78,13 +93,7 @@ class GuildMemberAttendance extends React.Component {
       id: attendance.id,
       context: { guild_id, war_id },
       payload: { is_attending: new_status },
-      onSuccess: () => dispatch(MemberService.list({
-        context: { guild_id },
-        params: {
-          include: "attendance",
-          page_size: 100,
-        }
-      }))
+      onSuccess: this.onAttendanceChangeSuccess.bind(this),
     }));
   }
 

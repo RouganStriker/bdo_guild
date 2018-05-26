@@ -150,7 +150,10 @@ class War(DirtyFieldsMixin, models.Model):
         })
 
     def notify_war_cancelled(self):
-        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_cancel']:
+        hook_enabled = self.guild.discord_webhook and self.guild.discord_notifications['war_cancel']
+
+        if not hook_enabled or self.outcome is not None:
+            # Don't notify if hook is disabled or war was already submitted
             return
 
         logger.info("Sending war cancel notification for {0}".format(self))

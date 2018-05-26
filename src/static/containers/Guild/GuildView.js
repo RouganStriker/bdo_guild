@@ -9,7 +9,7 @@ import IconButton from 'material-ui/IconButton';
 import SettingsIcon from 'material-ui/svg-icons/action/settings';
 import NotificationIcon from 'material-ui/svg-icons/social/notifications';
 import Badge from 'material-ui/Badge';
-
+import { toast } from 'react-toastify';
 
 import GuildOverview from './GuildOverview'
 import GuildMembers from './GuildMembers'
@@ -47,6 +47,8 @@ class GuildView extends React.Component {
     this.setState({showEditDialog: false});
 
     dispatch(GuildService.get({ id: match.params.guild_id, params: { include: 'stats,integrations' } }));
+
+    toast.success("Guild has been updated")
   }
 
   memberHasPermission(permission) {

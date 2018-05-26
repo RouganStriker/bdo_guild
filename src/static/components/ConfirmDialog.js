@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 class ConfirmDialog extends React.Component {
   render() {
     const {
+      buttonsDisabled,
       open,
       onCancel,
       onConfirm,
@@ -17,11 +18,13 @@ class ConfirmDialog extends React.Component {
     const actions = [
       <FlatButton
         label="Cancel"
+        disabled={buttonsDisabled}
         onClick={onCancel}
       />,
       <FlatButton
         label="Confirm"
         primary={true}
+        disabled={buttonsDisabled}
         onClick={onConfirm}
       />,
     ];
@@ -45,10 +48,11 @@ ConfirmDialog.propTypes = {
   title: PropTypes.string,
   onConfirm: PropTypes.func,
   onCancel: PropTypes.func,
+  buttonsDisabled: PropTypes.bool,
 };
 
 ConfirmDialog.defaultProps = {
-  title: null
+  open: true,
 };
 
 export default ConfirmDialog;
