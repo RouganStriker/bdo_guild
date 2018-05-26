@@ -292,7 +292,7 @@ class WarUpdateSerializer(BaseSerializerMixin, serializers.ModelSerializer):
         war.node = validated_data.pop('node')
         war.note = validated_data.pop('note')
 
-        if war.is_dirty():
+        if war.is_dirty(check_relationship=True):
             war.save()
 
         # Build stat lookup
