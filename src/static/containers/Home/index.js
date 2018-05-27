@@ -197,7 +197,7 @@ class HomeView extends React.Component {
       <ul>
         { wars.items.map(war => {
             return (
-              <li>
+              <li style={{marginBottom: 16}}>
                   <div>
                     <Link to={`/guilds/${war.guild_id}/war`}>
                       [{war.guild}]: <Time children={war.date} />

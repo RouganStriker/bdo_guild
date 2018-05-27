@@ -134,7 +134,7 @@ class War(DirtyFieldsMixin, models.Model):
         return self.date.astimezone(pytz.timezone('US/Eastern')).strftime('%a, %d %b %Y %H:%M:%S %Z')
 
     def notify_war_start(self):
-        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_create']:
+        if not self.guild.discord_webhook or not self.guild.discord_notifications['war_create']:
             return
 
         site = Site.objects.get(id=settings.SITE_ID)

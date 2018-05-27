@@ -60,7 +60,7 @@ export const renderDateField = ({ input, label, meta: { touched, error }, ...cus
 export const renderCheckbox = ({ input, label, ...custom }) => (
   <Checkbox label={label}
             checked={input.value ? true : false}
-            onCheck={input.onChange}
+            onCheck={(e, isChecked) => input.onChange(isChecked)}
             {...custom} />
 )
 
