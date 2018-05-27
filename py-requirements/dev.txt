@@ -13,3 +13,6 @@ pytest-pythonpath==0.7.1
 pytest-xdist==1.20.0
 
 ptpython==0.41
+
+django-debug-toolbar==1.9.1
+django-debug-panel==0.8.3

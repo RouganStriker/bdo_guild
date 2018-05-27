@@ -13,6 +13,10 @@ def update_username(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
+    dependencies = [
+        ('socialaccount', '0001_initial'),
+    ]
+
     operations = [
         migrations.RunPython(update_username),
     ]
