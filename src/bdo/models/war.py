@@ -94,6 +94,10 @@ class War(DirtyFieldsMixin, models.Model):
                                .exclude(id=self.id)
                                .prefetch_related('warteam_set', 'warcallsign_set')
                                .first())
+
+        if not last_war:
+            return
+
         war_teams = [
             WarTeam(
                 war=self,

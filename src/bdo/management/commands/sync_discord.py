@@ -104,16 +104,18 @@ class Command(BaseCommand):
             # Update existing member's roles
             outdated_members_q = (Q(user__discord_id__in=discord_ids) & ~Q(role_id=role_id)
                                   for role_id, discord_ids in members_by_roles.items())
-            members_qs = existing_users.filter(id=OuterRef('user_id'))
-            updated = (GuildMember.objects.filter(guild=bdo_guild)
-                                          .exclude(role=1)  # Exclude GMs
-                                          .filter(reduce(lambda a,b: a | b, outdated_members_q))
-                                          .annotate(discord_id=Subquery(members_qs.values('discord_id')[:1]))
-                                          .update(role=Case(
-                                              *[When(discord_id__in=discord_ids, then=bdo_guild_role_mapping[role_id].id)
-                                                for role_id, discord_ids in members_by_roles.items()]
-                                          ))
-            )
+
+            if existing_users.exists():
+                members_qs = existing_users.filter(id=OuterRef('user_id'))
+                updated = (GuildMember.objects.filter(guild=bdo_guild)
+                                              .exclude(role=1)  # Exclude GMs
+                                              .filter(reduce(lambda a,b: a | b, outdated_members_q))
+                                              .annotate(discord_id=Subquery(members_qs.values('discord_id')[:1]))
+                                              .update(role=Case(
+                                                  *[When(discord_id__in=discord_ids, then=bdo_guild_role_mapping[role_id].id)
+                                                    for role_id, discord_ids in members_by_roles.items()]
+                                              ))
+                )
 
             # Add new members
             new_member_profiles = existing_users.exclude(membership__guild=bdo_guild)
