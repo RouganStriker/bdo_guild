@@ -19,13 +19,13 @@ logger = getLogger('bdo')
 # Guild Signals
 @receiver(post_save, sender=Guild)
 def handle_guild_save(created, instance, update_fields, *args, **kwargs):
-    if not UserContext.has_current:
-        return
     if created:
         type = Activity.TYPES.GUILD_CREATE.value
         AggregatedGuildWarStats.objects.create(guild=instance)
     else:
         type = Activity.TYPES.GUILD_UPDATE.value
+    if not UserContext.has_current:
+        return
 
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
@@ -71,10 +71,11 @@ def handle_war_save(created, instance, *args, **kwargs):
 
 @receiver(pre_delete, sender=War)
 def handle_war_delete(instance, *args, **kwargs):
+    instance.notify_war_cancelled()
+
     if not UserContext.has_current:
         return
 
-    instance.notify_war_cancelled()
     type = Activity.TYPES.WAR_DELETE.value
 
     Activity.objects.create(type=type,
@@ -85,11 +86,11 @@ def handle_war_delete(instance, *args, **kwargs):
 
 @receiver(war_finish)
 def handle_war_finish(instance, *args, **kwargs):
+    instance.notify_war_finished()
+
     if not UserContext.has_current:
         return
     type = Activity.TYPES.WAR_END.value
-
-    instance.notify_war_finished()
     Activity.objects.create(type=type,
                             actor_profile=UserContext.current.user.profile,
                             guild=instance.guild,
