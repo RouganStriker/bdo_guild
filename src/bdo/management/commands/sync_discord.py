@@ -79,6 +79,11 @@ class Command(BaseCommand):
 
             bdo_guild = bdo_guild_mapping[guild['id']]
             bdo_guild.discord_members = cached_members
+
+            # Update logo URLs
+            bdo_guild.logo_url = "https://cdn.discordapp.com/icons/{guild_id}/{icon}.png".format(guild_id=guild['id'],
+                                                                                                 icon=guild['icon'])
+
             bdo_guild.save()
 
             # Prune old members
