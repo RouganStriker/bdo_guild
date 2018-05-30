@@ -14,6 +14,7 @@ const moment = require('moment-timezone')
 
 import { required } from '../../utils/validations';
 import { renderTextField, renderCheckbox, renderSelectField, renderRadioGroup, renderDateField } from '../../components/Fields';
+import Admonition from '../../components/Admonition';
 import Form from '../../components/Form';
 import WarNodes from '../../services/content/nodes/service';
 import WarService from '../../services/guilds/wars/service';
@@ -49,14 +50,19 @@ class WarFormDialog extends React.Component {
     }
   }
 
-  fetchNodes(date) {
-    const { dispatch } = this.props;
-
+  getWarDayFromDate(date) {
     // The UTC day is 1 day ahead of the day in the API endpoint because
     // the days are stored in terms of EST time.
     // 0 means Sunday in Javascript and 0 means Monday in Python.
     const convertDay = [5, 6, 0, 1, 2, 3, 4]
-    dispatch(WarNodes.list({ params: { page_size: 50, war_day: convertDay[date.getUTCDay()] }}));
+
+    return convertDay[date.getUTCDay()];
+  }
+
+  fetchNodes(date) {
+    const { dispatch } = this.props;
+
+    dispatch(WarNodes.list({ params: { page_size: 50, war_day: this.getWarDayFromDate(date) }}));
   }
 
   handleDateChange(evt, date) {
@@ -73,10 +79,21 @@ class WarFormDialog extends React.Component {
   }
 
   renderForm() {
-    const { currentDate, handleSubmit, submitting, nodes, war } = this.props;
+    const { attendanceEstimate, currentDate, handleSubmit, submitting, nodes, war } = this.props;
+    const war_day = currentDate && this.getWarDayFromDate(currentDate);
+    let estimate = null;
+
+    if (war_day != null && attendanceEstimate != null) {
+      estimate = attendanceEstimate[war_day.toString()];
+    }
+
+    const admonitionContent = !war.selected && estimate != null && `There are ${estimate} members auto signed up for this day.`
 
     return (
       <Form onSubmit={handleSubmit}>
+        <Admonition type="info"
+                    content={admonitionContent} />
+
         <Field name="date"
                component={renderDateField}
                className="form-field"
@@ -236,6 +253,7 @@ const formOptions = {
 };
 
 WarFormDialog.propTypes = {
+  attendanceEstimate: PropTypes.object,
   open: PropTypes.bool,
   title: PropTypes.string,
   onConfirm: PropTypes.func,

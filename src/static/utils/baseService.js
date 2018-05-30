@@ -125,6 +125,11 @@ class BaseService {
     })
   }
 
+  getExtendedInitialState() {
+    // To be overridden by child class
+    return {};
+  }
+
   getInitialState() {
     return {
       isLoading: false,
@@ -136,7 +141,8 @@ class BaseService {
       query: {
         pageSize: 0,
         page: 1
-      }
+      },
+      ...this.getExtendedInitialState(),
     };
   }
 

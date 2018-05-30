@@ -1,11 +1,14 @@
-from django.db.models import Case, F, FloatField, Prefetch, Q, When
+from django.db.models import Case, F, FloatField, Prefetch, Q, Sum, Value, When
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Coalesce
 from rest_framework import filters
+from rest_framework.decorators import detail_route
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters import MemberOrderingFilter
-from api.permissions import GuildPermission
+from api.permissions import GuildPermission, GuildOfficerPermission
 from api.serializers.activity import ActivitySerializer
 from api.serializers.guild import (ExtendedGuildSerializer,
                                    SimpleGuildSerializer,
@@ -15,6 +18,7 @@ from api.serializers.guild_content import WarRoleSerializer
 from api.views.mixin import ModelViewSet, ReadOnlyModelViewSet
 from bdo.models.activity import Activity
 from bdo.models.character import Character
+from bdo.models.content import WarNode
 from bdo.models.guild import Guild, GuildMember, GuildRole
 from bdo.models.war import WarAttendance, WarRole
 from bdo.models.stats import AggregatedGuildMemberWarStats
@@ -46,6 +50,37 @@ class GuildViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @detail_route(methods=['get'], permission_classes=[GuildOfficerPermission])
+    def attendance_estimate(self, request, *args, **kwargs):
+        """
+        Return a count of pre-signed up members for each war day.
+        """
+        guild = self.get_object()
+        days = WarNode.DAY_CHOICES
+        annotations = {
+            day: Case(
+                    When(**{
+                        "user__availability__{}".format(day): 0,
+                        "then": Value(1)
+                    }),
+                    default=Value(0),
+                    output_field=IntegerField()
+                 )
+            for _, day in days
+        }
+        aggregates = {
+            str(day_id): Coalesce(Sum(day_name), Value(0))
+            for day_id, day_name in days
+        }
+
+        qs = (
+            GuildMember.objects.filter(guild=guild, user__auto_sign_up=True)
+                       .annotate(**annotations)
+                       .aggregate(**aggregates)
+        )
+
+        return Response(qs)
 
 
 class GuildRoleViewSet(ReadOnlyModelViewSet):

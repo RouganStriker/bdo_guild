@@ -116,6 +116,20 @@ class GuildPermission(BaseGuildObjectPermission):
         return None
 
 
+class GuildOfficerPermission(GuildPermission):
+    """
+    Members with change guild info permissions are considered officers.
+    """
+
+    perms_map = {
+        'GET': ['change_guild_info'],
+        'OPTIONS': ['change_guild_info'],
+        'HEAD': ['change_guild_info'],
+        'PUT': ['change_guild_info'],
+        'PATCH': ['change_guild_info'],
+    }
+
+
 class WarAttendancePermission(BaseGuildObjectPermission):
     perms_map = {
         'GET': ['view_war'],
