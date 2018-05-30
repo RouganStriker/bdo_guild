@@ -481,6 +481,8 @@ class SimpleWarSerializer(BaseSerializerMixin, serializers.ModelSerializer):
 
 class PlayerStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     war = SimpleWarSerializer(source='attendance.war')
+    total_kills = serializers.IntegerField(read_only=True)
+    kdr = serializers.FloatField(read_only=True)
 
     class Meta:
         model = WarStat
@@ -497,6 +499,8 @@ class PlayerStatSerializer(BaseSerializerMixin, serializers.ModelSerializer):
             'death',
             'siege_weapons',
             'war',
+            'total_kills',
+            'kdr',
         )
 
 
