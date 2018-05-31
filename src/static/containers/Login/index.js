@@ -11,6 +11,7 @@ import TextField from 'material-ui/TextField';
 import DiscordIcon from './images/Discord-Logo-White.png';
 import Divider from 'material-ui/Divider';
 import { ToastContainer, toast } from 'react-toastify';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
 import * as actionCreators from '../../actions/auth';
 
@@ -112,12 +113,17 @@ class LoginView extends React.Component {
           </div>
         );
       }
+      const betaStyle = {
+        fontSize: "30%",
+        verticalAlign: "text-top",
+        color: this.props.muiTheme.palette.primary1Color,
+      }
 
       return (
         <div style={{height: "100%", position: "absolute", width: "100%"}}>
           <div style={{height: "100%", position: "relative", display: "flex", justifyContent: "center", alignItems: "center"}}>
             <Paper style={{width: 400, height: 250, padding: "20px 30px"}}>
-              <h1 className="text-center" style={{paddingTop: 40}}>BDO Guilds</h1>
+              <h1 className="text-center" style={{paddingTop: 40, paddingLeft: 36.5}}>BDO Guilds<sup style={betaStyle}>BETA</sup></h1>
               <Divider />
               <div className="login-container margin-top-medium">
                  <RaisedButton label="SIGN IN WITH DISCORD"
@@ -150,5 +156,5 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginView);
+export default muiThemeable()(connect(mapStateToProps, mapDispatchToProps)(LoginView));
 export { LoginView as LoginViewNotConnected };
