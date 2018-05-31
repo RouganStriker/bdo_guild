@@ -89,7 +89,7 @@ class Command(BaseCommand):
             # Prune old members
             existing_users = Profile.objects.filter(discord_id__in=cached_members.keys())
             prune_members = (GuildMember.objects.filter(guild=bdo_guild)
-                                                .exclude(role=1)  # Exclude GMs
+                                                .exclude(role_id=1)  # Exclude GMs
                                                 .exclude(user__in=existing_users))
             pending_war = bdo_guild.pending_war()
 
@@ -108,7 +108,7 @@ class Command(BaseCommand):
             if existing_users.exists():
                 members_qs = existing_users.filter(id=OuterRef('user_id'))
                 updated = (GuildMember.objects.filter(guild=bdo_guild)
-                                              .exclude(role=1)  # Exclude GMs
+                                              .exclude(role_id=1)  # Exclude GMs
                                               .filter(reduce(lambda a,b: a | b, outdated_members_q))
                                               .annotate(discord_id=Subquery(members_qs.values('discord_id')[:1]))
                                               .update(role=Case(
