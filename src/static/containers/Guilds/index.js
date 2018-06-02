@@ -37,7 +37,7 @@ class GuildListView extends React.Component {
         key: 'guild_master',
         label: 'Guild Master',
         render: (guild_master, all) => {
-          return guild_master.family_name;
+          return guild_master && guild_master.family_name;
         },
       },
       {

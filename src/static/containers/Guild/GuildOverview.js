@@ -206,7 +206,7 @@ class GuildOverview extends React.Component {
               <Col xs={6} md={4}>
                 <div>
                   <label style={{width: 130}} className="bdo-field-label">Guild Master:</label>
-                  <span>{ guild_master.family_name }</span>
+                  <span>{ guild_master && guild_master.family_name }</span>
                 </div>
                 <div>
                   <label style={{width: 130}} className="bdo-field-label">Member Count:</label>
