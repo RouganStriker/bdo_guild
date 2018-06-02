@@ -22,7 +22,7 @@ class NestedGuildSerializer(BaseSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Guild
-        fields = ('id', 'name', 'pending_war')
+        fields = ('id', 'logo_url', 'name', 'pending_war')
 
     def get_pending_war(self, instance):
         membership = instance.get_membership(self.context['request'].user.profile)

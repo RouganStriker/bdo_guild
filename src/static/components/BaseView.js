@@ -66,11 +66,18 @@ class BaseView extends React.Component {
       const { title, iconElementRight, user } = this.props;
       const { navOpen } = this.state;
       const guild_links = user.guilds.map((membership, index) => {
+        const { guild } = membership;
+        const iconStyle = {
+          width: 24,
+          height: 24,
+        }
+        const icon = guild.logo_url && <img src={guild.logo_url} style={iconStyle} /> || <GroupIcon />;
+
         return (
           <ListItem key={index}
-                    leftIcon={<GroupIcon />}
-                    onClick={() => this.handleNavToGuild(membership.guild.id)}
-                    primaryText={membership.guild.name} />
+                    leftIcon={icon}
+                    onClick={() => this.handleNavToGuild(guild.id)}
+                    primaryText={guild.name} />
         );
       })
 

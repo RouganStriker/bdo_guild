@@ -37,7 +37,8 @@ def serialize_guild_membership(memberships):
     return [{
         "guild": {
             "id": membership.guild.id,
-            "name": membership.guild.name
+            "name": membership.guild.name,
+            "logo_url": membership.guild.logo_url
         },
         "role": {
             "id": membership.role.id,
