@@ -176,7 +176,7 @@ class AggregatedUserWarStats(BaseUserAggregatedWarStats):
         return (WarAttendance.objects.values('user_profile')
                                      .order_by('user_profile')
                                      .filter(user_profile=self.user_profile,
-                                             attendance__war__outcome__isnull=False))
+                                             war__outcome__isnull=False))
 
     def attendance_filters(self):
         return {"user_profile": self.user_profile}
