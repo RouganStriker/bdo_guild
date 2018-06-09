@@ -131,6 +131,11 @@ class ProfileForm extends React.Component {
                disabled={disabled}
                className="form-field" />
 
+        <Field name="npc_renown"
+               component={renderTextField}
+               label="NPC Renown"
+               className="form-field" />
+
         { this.renderConfirmDialog() }
       </Form>
     );

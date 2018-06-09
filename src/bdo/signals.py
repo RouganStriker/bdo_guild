@@ -114,8 +114,9 @@ def handle_war_attendance_change(instance, update_fields, *args, **kwargs):
                             target_description=str(instance))
 
     # Update aggregates
-    AggregatedGuildMemberWarStats.objects.get(guild=instance.war.guild,
-                                              user_profile=instance.user_profile).recalculate()
+    stat, created = AggregatedGuildMemberWarStats.objects.get_or_create(guild=instance.war.guild,
+                                                                        user_profile=instance.user_profile)
+    stat.recalculate()
     AggregatedUserWarStats.objects.get(user_profile=instance.user_profile).recalculate()
 
 
