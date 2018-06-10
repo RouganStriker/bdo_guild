@@ -123,7 +123,7 @@ class AttendanceTable extends React.Component {
       })
       columns.push({
         key: 'gearscore',
-        label: 'Gearscore',
+        label: 'Renown',
         sortable: true,
         style: {
           width: 120,

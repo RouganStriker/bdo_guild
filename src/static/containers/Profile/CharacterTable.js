@@ -63,13 +63,13 @@ class CharacterTable extends React.Component {
           },
         },
         {
-          key: 'gearscore',
-          label: 'Gearscore',
+          key: 'renown',
+          label: 'Renown',
           style: {
             width: 100,
           },
-          render: (gearscore, all) => {
-            return Math.max(all.aap, all.ap) + all.dp;
+          render: (renown, all) => {
+            return (all.aap + all.ap)/2 + all.dp + props.profile.selected.npc_renown;
           },
         },
         {
@@ -147,6 +147,7 @@ const mapStateToProps = (state) => {
     return {
         character: state.character,
         characterClasses: state.characterClasses,
+        profile: state.profile,
     };
 };
 

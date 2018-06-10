@@ -13,15 +13,14 @@ import Time from './Time';
 export const renderTextField = ({ input, label, meta: { touched, error }, ...custom }) => {
   return (
     <TextField hintText={label}
-      floatingLabelText={label}
-      errorText={touched && error}
-      {...input}
-      {...custom}
-      onChange={(event, value) => {
-        input.onChange && input.onChange(event, value);
-        custom.onChange && custom.onChange(event, value);
-      }}
-    />
+               floatingLabelText={label}
+               errorText={touched && error}
+               {...input}
+               {...custom}
+               onChange={(event, value) => {
+                 input.onChange && input.onChange(event, value);
+                 custom.onChange && custom.onChange(event, value);
+               }} />
   )
 }
 

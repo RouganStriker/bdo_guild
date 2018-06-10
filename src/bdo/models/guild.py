@@ -165,7 +165,7 @@ class GuildMember(models.Model):
 
         return {
             "level": main.level,
-            "gearscore": max(main.ap, main.aap) + main.dp,
+            "gearscore": (main.ap + main.aap)/2 + main.dp + self.user.npc_renown,
             "class": main.character_class.name,
             "name": main.name
         }

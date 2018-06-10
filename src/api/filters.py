@@ -82,10 +82,7 @@ class MemberOrderingFilter(OrderingFilter):
         if params:
             fields = [param.strip() for param in params.split(',')]
             char_qs = Character.objects.filter(is_main=True, profile=OuterRef('user_id'))
-            gearscore_expression = Case(
-                When(ap__lt=F('aap'), then=ExpressionWrapper(F('aap') + F('dp'), output_field=IntegerField())),
-                default=ExpressionWrapper(F('ap') + F('dp'), output_field=IntegerField()),
-            )
+            gearscore_expression = (F('ap') + F('aap'))/2 + F('dp') + F('profile__npc_renown')
             ordering = []
 
             # Special Ordering

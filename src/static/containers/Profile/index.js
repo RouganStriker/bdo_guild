@@ -17,6 +17,7 @@ import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
+import { toast } from 'react-toastify';
 
 import CharacterForm from './CharacterForm';
 import ProfileForm from './ProfileForm';
@@ -133,7 +134,11 @@ class ProfileView extends React.Component {
     handleToggleAutoSignUp(e, toggled) {
       const { dispatch, profile } = this.props;
 
-      dispatch(ProfileService.update({ id: profile.selected.id, payload: { auto_sign_up: toggled } }));
+      dispatch(ProfileService.update({
+        id: profile.selected.id,
+        payload: { auto_sign_up: toggled },
+        onSuccess: () => toast.success("Profile has been updated"),
+      }));
     }
 
     renderProfile() {

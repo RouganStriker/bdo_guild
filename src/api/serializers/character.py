@@ -63,7 +63,18 @@ class ProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'availability', 'auto_sign_up', 'discord_id', 'family_name', 'character_set', 'preferred_roles', 'stats', 'membership')
+        fields = (
+            'id',
+            'availability',
+            'auto_sign_up',
+            'discord_id',
+            'family_name',
+            'character_set',
+            'npc_renown',
+            'preferred_roles',
+            'stats',
+            'membership',
+        )
         read_only_fields = ('id', 'character_set', 'stats', 'membership')
 
     def __init__(self, *args, **kwargs):

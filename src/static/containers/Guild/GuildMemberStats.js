@@ -57,7 +57,7 @@ class GuildMemberStats extends React.Component {
     this.columnKeyMapping = {
       "class": "Class",
       "level": "Level",
-      "gearscore": "Gearscore",
+      "gearscore": "Renown",
       "attendance": "Attendance",
       "attendanceRate": "Attendance Rate",
       "command_post": "Command Post",
