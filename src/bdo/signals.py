@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from bdo.context import UserContext
 from bdo.models.activity import Activity
 from bdo.models.character import Profile
-from bdo.models.guild import Guild, GuildMember
+from bdo.models.guild import Guild, GuildMember, WarRole
 from bdo.models.stats import (AggregatedGuildMemberWarStats,
                               AggregatedGuildWarStats,
                               AggregatedUserWarStats)
@@ -136,6 +136,9 @@ def handle_profile_created(created, instance, *args, **kwargs):
 
     # Create the aggregated stat row
     AggregatedUserWarStats.objects.get_or_create(user_profile=instance)
+
+    # By default select all war roles as preferred roles
+    instance.preferred_roles = WarRole.objects.filter(custom_for__isnull=True)
 
 
 @receiver(post_save, sender=WarStat)
