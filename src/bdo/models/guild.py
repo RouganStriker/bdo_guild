@@ -81,12 +81,9 @@ class Guild(DirtyFieldsMixin, models.Model):
         return guild_characters.aggregate(Avg('level'))['level__avg']
 
     @property
-    def average_gearscore(self):
+    def average_renown(self):
         guild_characters = Character.objects.filter(is_main=True, profile__membership__guild=self)
-        gearscore_expression = Case(
-            When(ap__lt=F('aap'), then=F('aap') + F('dp')),
-            default=F('ap') + F('dp')
-        )
+        gearscore_expression = (F('aap') + F('ap'))/2 + F('dp') + F('profile__npc_renown')
 
         return (guild_characters.annotate(gearscore=gearscore_expression)
                                 .aggregate(Avg('gearscore'))['gearscore__avg'])

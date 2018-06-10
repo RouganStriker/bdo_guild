@@ -185,7 +185,7 @@ class GuildOverview extends React.Component {
     }
 
     const {
-      average_gearscore,
+      average_renown,
       average_level,
       description,
       guild_master,
@@ -217,8 +217,8 @@ class GuildOverview extends React.Component {
                   <span>{ average_level }</span>
                 </div>
                 <div>
-                  <label style={{width: 130}} className="bdo-field-label">Average GS:</label>
-                  <span>{ average_gearscore }</span>
+                  <label style={{width: 130}} className="bdo-field-label">Average Renown:</label>
+                  <span>{ average_renown }</span>
                 </div>
               </Col>
             </Row>

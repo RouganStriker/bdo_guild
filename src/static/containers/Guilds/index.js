@@ -49,8 +49,8 @@ class GuildListView extends React.Component {
         label: 'Avg. Level',
       },
       {
-        key: 'average_gearscore',
-        label: 'Avg. GS',
+        key: 'average_renown',
+        label: 'Avg. Renown',
       },
     ];
   }

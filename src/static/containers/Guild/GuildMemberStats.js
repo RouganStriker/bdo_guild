@@ -160,7 +160,7 @@ class GuildMemberStats extends React.Component {
     }
     const gearscoreColumn = {
       key: 'gearscore',
-      label: 'Gearscore',
+      label: 'Renown',
       sortable: true,
       style: {width: 130},
       render: (_, all) => {

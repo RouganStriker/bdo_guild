@@ -47,7 +47,7 @@ class SimpleGuildSerializer(NestedGuildSerializer):
     guild_master = SimpleProfileSerializer(read_only=True)
     member_count = serializers.IntegerField(read_only=True)
     average_level = serializers.IntegerField(read_only=True)
-    average_gearscore = serializers.IntegerField(read_only=True)
+    average_renown = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Guild
@@ -60,7 +60,7 @@ class SimpleGuildSerializer(NestedGuildSerializer):
             'description',
             'member_count',
             'average_level',
-            'average_gearscore',
+            'average_renown',
         )
 
     def __init__(self, *args, **kwargs):
@@ -68,7 +68,7 @@ class SimpleGuildSerializer(NestedGuildSerializer):
 
         if 'stats' not in self.context['include']:
             self.fields.pop('average_level')
-            self.fields.pop('average_gearscore')
+            self.fields.pop('average_renown')
 
 
 class ExtendedGuildSerializer(SimpleGuildSerializer):
