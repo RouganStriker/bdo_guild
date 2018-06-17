@@ -24,7 +24,7 @@ class WarStatTable extends React.Component {
       query: {
         pageSize: 8,
         page: 1,
-        sortColumn: 'name',
+        sortColumn: 'attendance__name',
         ordering: 'asc'
       }
     };
@@ -61,6 +61,13 @@ class WarStatTable extends React.Component {
     this.setState(newState);
   }
 
+  getColumnValue(column, query) {
+    // Support nested lookup
+    const lookups = query.split("__")
+
+    return lookups.reduce((acc, cur) => acc[cur], column)
+  }
+
   applySorting(query, items = []) {
     const { sortColumn, ordering } = query;
 
@@ -69,7 +76,8 @@ class WarStatTable extends React.Component {
     }
 
     items.sort((a, b) => {
-      return naturalSort(a[sortColumn], b[sortColumn]) || naturalSort(a['name'], b['name']);
+      return naturalSort(this.getColumnValue(a, sortColumn), this.getColumnValue(b, sortColumn)) ||
+             naturalSort(this.getColumnValue(a, 'attendance__name'), this.getColumnValue(b, 'attendance__name'));
     });
 
     if (ordering === 'desc') {
@@ -198,7 +206,7 @@ class WarStatTable extends React.Component {
 
     if (showName) {
       columns = [{
-        key: 'name',
+        key: 'attendance__name',
         label: 'Name',
         sortable: sortable,
         style: {
@@ -265,7 +273,7 @@ class WarStatTable extends React.Component {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <DataTables initialSort={{
-                      column: 'name',
+                      column: 'attendance__name',
                       order: 'asc',
                     }}
                     columns={this.getColumns()}
