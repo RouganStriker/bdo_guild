@@ -70,8 +70,9 @@ class WarStatTable extends React.Component {
 
   applySorting(query, items = []) {
     const { sortColumn, ordering } = query;
+    const { sortable } = this.props;
 
-    if (!sortColumn) {
+    if (!sortColumn || !sortable) {
       return items;
     }
 
@@ -269,13 +270,14 @@ class WarStatTable extends React.Component {
         spacing: 12,
       }
     });
+    const initialSort = {
+      column: 'attendance__name',
+      order: 'asc',
+    };
 
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-        <DataTables initialSort={{
-                      column: 'attendance__name',
-                      order: 'asc',
-                    }}
+        <DataTables initialSort={sortable && initialSort}
                     columns={this.getColumns()}
                     count={totalItemCount}
                     data={items}
