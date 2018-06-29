@@ -1,3 +1,4 @@
+from logging import getLogger
 from datetime import datetime, timedelta
 
 from django.contrib.postgres.fields import JSONField
@@ -8,6 +9,9 @@ from django.db import models
 from bdo.models.content import CharacterClass
 from bdo.models.mixins import UserPermissionMixin
 from bdo.models.stats import AggregatedGuildMemberWarStats
+
+
+logger = getLogger("bdo")
 
 
 class Profile(models.Model, UserPermissionMixin):
@@ -85,7 +89,9 @@ class Profile(models.Model, UserPermissionMixin):
 
         # Delete old guilds
         # Don't ever delete GMs
-        GuildMember.objects.exclude(role=GuildRole.guild_master()).filter(user=self).exclude(guild__in=guilds).delete()
+        count, _ = GuildMember.objects.exclude(role=GuildRole.guild_master()).filter(user=self).exclude(guild__in=guilds).delete()
+
+        logger.info("Removed {} from {} guilds".format(self, count))
 
         # Update and create new membership
         membership_role_mapping = {membership.guild: membership for membership in self.membership.all()}
@@ -97,11 +103,18 @@ class Profile(models.Model, UserPermissionMixin):
 
             if guild not in membership_role_mapping:
                 new_membership.append(GuildMember(guild=guild, user=self, role=guild_role))
+            elif membership_role_mapping[guild].role.id == GuildRole.guild_master():
+                # Don't update role if user is the Guild Master
+                pass
             elif guild_role != membership_role_mapping[guild].role.id:
                 membership_role_mapping[guild].role = guild_role
                 membership_role_mapping[guild].save()
 
+                logger.info("Changed {}'s role in {} to {}".format(self, guild, guild_role))
+
         GuildMember.objects.bulk_create(new_membership)
+
+        logger.info("Added {} to {} guilds".format(self, len(new_membership)))
 
     def get_main(self):
         for character in self.character_set.all():
