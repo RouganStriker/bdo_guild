@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from django.core.management import BaseCommand
+from django.db.models import OuterRef, Subquery
 
 from bdo.models.character import Profile
 from bdo.models.guild import GuildMember
@@ -16,8 +17,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         missing_stats = []
 
-        profiles = Profile.objects.filter(aggregatedmemberstats__isnull=True)
-        qs = GuildMember.objects.filter(user__in=profiles)
+        existing_aggregates = (AggregatedGuildMemberWarStats.objects.filter(guild_id=OuterRef('guild_id'),
+                                                                            user_profile_id=OuterRef('user_id'))
+                                                                    .values('id'))
+        qs = GuildMember.objects.annotate(aggregate_id=Subquery(existing_aggregates)).filter(aggregate_id__isnull=True)
 
         for member in qs:
             missing_stats.append(AggregatedGuildMemberWarStats(user_profile=member.user, guild=member.guild))
