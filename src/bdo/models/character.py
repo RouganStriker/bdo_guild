@@ -113,9 +113,11 @@ class Profile(models.Model, UserPermissionMixin):
 
                 logger.info("Changed {}'s role in {} to {}".format(self, guild, guild_role))
 
-        if new_membership:
-            GuildMember.objects.bulk_create(new_membership)
+        for membership in new_membership:
+            # Manually save new membership to trigger signal handlers
+            membership.save()
 
+        if new_membership:
             logger.info("Added {} to {} guilds".format(self, len(new_membership)))
 
     def get_main(self):
