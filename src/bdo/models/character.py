@@ -91,7 +91,8 @@ class Profile(models.Model, UserPermissionMixin):
         # Don't ever delete GMs
         count, _ = GuildMember.objects.exclude(role=GuildRole.guild_master()).filter(user=self).exclude(guild__in=guilds).delete()
 
-        logger.info("Removed {} from {} guilds".format(self, count))
+        if count:
+            logger.info("Removed {} from {} guilds".format(self, count))
 
         # Update and create new membership
         membership_role_mapping = {membership.guild: membership for membership in self.membership.all()}
