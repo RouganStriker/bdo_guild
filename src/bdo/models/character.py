@@ -34,10 +34,11 @@ class Profile(models.Model, UserPermissionMixin):
     availability = JSONField(default=DEFAULT_AVAILABILITY)
     auto_sign_up = models.BooleanField(default=False)
     npc_renown = models.IntegerField(default=0, validators=(MinValueValidator(0), MaxValueValidator(5)))
+    region = models.ForeignKey("Region")
 
     class Meta:
         ordering = ('id',)
-        unique_together = ('id', 'user')
+        unique_together = ('user', 'region')
 
     def __str__(self):
         main = self.get_main()
@@ -56,7 +57,7 @@ class Profile(models.Model, UserPermissionMixin):
 
         self.family_name = self.family_name.strip()
 
-        if Profile.objects.filter(family_name__iexact=self.family_name).exclude(id=self.id).exists():
+        if Profile.objects.filter(family_name__iexact=self.family_name, region=self.region).exclude(id=self.id).exists():
             raise ValidationError({"family_name": "Family name '{0}' already exists.".format(self.family_name)})
 
         if self.discord_id and not self.user:

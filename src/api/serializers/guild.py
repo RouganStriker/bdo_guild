@@ -22,7 +22,17 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
 
     class Meta:
         model = GuildMember
-        fields = ('id', 'user', 'role', 'attendance', 'attendance_rate', 'family_name', 'name', 'main_character', 'stats')
+        fields = (
+            'id',
+            'user',
+            'role',
+            'attendance',
+            'attendance_rate',
+            'family_name',
+            'name',
+            'main_character',
+            'stats'
+        )
         expandable_fields = {
             'user': ExtendedProfileSerializer,
             'role': SimpleGuildRoleSerializer,
@@ -59,6 +69,7 @@ class SimpleGuildSerializer(NestedGuildSerializer):
             'logo_url',
             'description',
             'member_count',
+            'region',
             'average_level',
             'average_renown',
         )

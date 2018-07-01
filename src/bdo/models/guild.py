@@ -13,6 +13,7 @@ class Guild(DirtyFieldsMixin, models.Model):
     logo_url = models.URLField()
     members = models.ManyToManyField("Profile", through='GuildMember', related_name='guilds')
     description = models.TextField(default='')
+    region = models.ForeignKey("Region")
 
     # Discord fields
     discord_id = models.CharField(max_length=75)
@@ -54,6 +55,7 @@ class Guild(DirtyFieldsMixin, models.Model):
             ("manage_team", "Can create, edit or delete teams"),
             ("manage_call_sign", "Can create, edit or delete call signs"),
         )
+        unique_together = ('name', 'region')
 
     def __str__(self):
         return self.name
