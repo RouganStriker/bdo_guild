@@ -174,7 +174,7 @@ class ProfileView extends React.Component {
 
           <h4 style={{ paddingTop: 30 }}>Availability</h4>
           <Divider />
-          <div style={{ paddingTop: 20 }}>{"Specify your availability for node wars. Days are in NA time."}</div>
+          <div style={{ paddingTop: 20 }}>{"Specify your availability for node wars in your region."}</div>
 
           <AvailabilityTable initialValues={profile.selected.availability}
                              onChange={this.handleAvailabilityChange.bind(this)} />

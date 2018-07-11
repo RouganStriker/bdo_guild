@@ -54,9 +54,12 @@ class WarFormDialog extends React.Component {
     // The UTC day is 1 day ahead of the day in the API endpoint because
     // the days are stored in terms of EST time.
     // 0 means Sunday in Javascript and 0 means Monday in Python.
-    const convertDay = [5, 6, 0, 1, 2, 3, 4]
+    const { guild_region, regions } = this.props;
+    const region = regions[guild_region];
+    const convertDay = [6, 0, 1, 2, 3, 4, 5]
+    const warDay = moment(date).tz(region.timezone).day();
 
-    return convertDay[date.getUTCDay()];
+    return convertDay[warDay];
   }
 
   fetchNodes(date) {
@@ -79,8 +82,18 @@ class WarFormDialog extends React.Component {
   }
 
   renderForm() {
-    const { attendanceEstimate, currentDate, handleSubmit, submitting, nodes, war } = this.props;
+    const {
+      attendanceEstimate,
+      currentDate,
+      guild_region,
+      handleSubmit,
+      regions,
+      submitting,
+      nodes,
+      war
+    } = this.props;
     const war_day = currentDate && this.getWarDayFromDate(currentDate);
+    const region = regions[guild_region];
     let estimate = null;
 
     if (war_day != null && attendanceEstimate != null) {
@@ -88,6 +101,11 @@ class WarFormDialog extends React.Component {
     }
 
     const admonitionContent = !war.selected && estimate != null && `There are ${estimate} members auto signed up for this day.`
+    const warStartTime = moment.utc(region.node_war_start_time, 'HH:mm:ss').tz(region.timezone)
+    const initialDate = warStartTime < new Date() && warStartTime.add(1, 'days') || warStartTime;
+    const minStartDate = new Date(initialDate.toISOString())
+    const tzHasAbbreviation = !warStartTime.zoneAbbr().includes("+") && !warStartTime.zoneAbbr().includes("-");
+    const dateFormat = tzHasAbbreviation && 'DD MMM YYYY HH:mm z' || 'DD MMM YYYY HH:mm ZZ';
 
     return (
       <Form onSubmit={handleSubmit}>
@@ -97,16 +115,31 @@ class WarFormDialog extends React.Component {
         <Field name="date"
                component={renderDateField}
                className="form-field"
+               defaultDate={minStartDate}
                textFieldStyle={{width: "100%"}}
                floatingLabelFixed={true}
                floatingLabelText="Date"
-               minDate={new Date()}
+               minDate={minStartDate}
                formatDate={(date) => {
-                return moment(date).tz(moment.tz.guess()).format('DD MMM YYYY HH:mm z')
+                 // Fix the time
+                 const fixDate = moment(date).tz(region.timezone);
+                 fixDate.hours(warStartTime.hours());
+                 fixDate.minutes(warStartTime.minutes())
+                 fixDate.seconds(warStartTime.seconds())
+
+                 return fixDate.format(dateFormat);
                }}
                validate={[required]}
                onChange={this.handleDateChange.bind(this)}
-               modifyDate={fixDate}
+               modifyDate={(date) => {
+                 // Fix the time
+                 const fixDate = moment(date).tz(region.timezone);
+                 fixDate.hours(warStartTime.hours());
+                 fixDate.minutes(warStartTime.minutes())
+                 fixDate.seconds(warStartTime.seconds())
+
+                 return new Date(fixDate.toISOString());
+               }}
                disabled={submitting || war.selected} />
         <Field name="node"
                component={renderSelectField}
@@ -245,6 +278,7 @@ const mapStateToProps = state => ({
   initialValues: getInitialValues(state),
   currentDate: selector(state, 'date') || null,
   war: state.war,
+  regions: state.auth.user.regions,
 });
 
 const formOptions = {
@@ -259,6 +293,7 @@ WarFormDialog.propTypes = {
   onConfirm: PropTypes.func,
   onClose: PropTypes.func,
   guild_id: PropTypes.number,
+  guild_region: PropTypes.number,
 };
 
 WarFormDialog.defaultProps = {

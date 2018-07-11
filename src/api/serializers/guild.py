@@ -58,6 +58,7 @@ class SimpleGuildSerializer(NestedGuildSerializer):
     member_count = serializers.IntegerField(read_only=True)
     average_level = serializers.IntegerField(read_only=True)
     average_renown = serializers.IntegerField(read_only=True)
+    region = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Guild

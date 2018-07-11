@@ -9,6 +9,8 @@ import MenuItem from 'material-ui/MenuItem';
 
 import ChipField from './ChipField';
 import Time from './Time';
+import utils from './customDateUtils';
+
 
 export const renderTextField = ({ input, label, meta: { touched, error }, ...custom }) => {
   return (
@@ -32,11 +34,12 @@ export const renderChipField = ({ input, meta: { touched, error }, ...custom }) 
   />
 )
 
+
 export const renderDateField = ({ input, label, meta: { touched, error }, ...custom }) => {
   const { modifyDate, onChange, ...others } = custom;
   const customDate = (date) => {
-    if (custom && custom.modifyDate) {
-      return custom.modifyDate(date)
+    if (modifyDate && modifyDate) {
+      return modifyDate(date)
     }
     return date;
   }
@@ -52,6 +55,7 @@ export const renderDateField = ({ input, label, meta: { touched, error }, ...cus
                        return value && input.onChange(customDate(value))
                      }}
                      onBlur = {(event, value) => (value && input.onBlur(customDate(value)))}
+                     utils={utils}
                      {...others}
   />
 }

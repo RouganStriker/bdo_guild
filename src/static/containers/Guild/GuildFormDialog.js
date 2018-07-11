@@ -141,9 +141,24 @@ class GuildFormDialog extends React.Component {
   }
   renderForm() {
     const { handleSubmit, submitting } = this.props;
+    const { regions } = this.props.user;
 
     return (
       <Form onSubmit={handleSubmit}>
+        <Field name="region"
+               component={renderSelectField}
+               className="form-field"
+               fullWidth={true}
+               floatingLabelText="Region"
+               hintText="Select a region"
+               disabled={true}>
+          {
+            Object.keys(regions).map((key) => {
+              return <MenuItem key={parseInt(key)} value={parseInt(key)} primaryText={regions[key].name} />;
+            })
+          }
+        </Field>
+
         <Field name="description"
                component={renderTextField}
                className="form-field"
@@ -222,6 +237,7 @@ const getInitialValues = (state) => {
       discord_roles,
       discord_webhook,
       discord_notifications,
+      region,
     } = guild.selected;
 
     return {
@@ -231,6 +247,7 @@ const getInitialValues = (state) => {
       discord_roles,
       discord_webhook,
       discord_notifications,
+      region,
     }
   }
 }

@@ -22,6 +22,7 @@ class ProfileForm extends React.Component {
   render() {
     const {
       handleSubmit,
+      regions,
       submitting,
     } = this.props;
 
@@ -39,6 +40,21 @@ class ProfileForm extends React.Component {
             <HelpIcon />
           </Tooltip>
         </div>
+
+        <div>
+          <Field name="region"
+                 component={renderSelectField}
+                 label="Region"
+                 disabled={true}
+                 className="form-field">
+            {
+              Object.keys(regions).map((key) => {
+                return <MenuItem key={parseInt(key)} value={parseInt(key)} primaryText={regions[key].name} />;
+              })
+            }
+          </Field>
+        </div>
+
         <div>
           <Field name="npc_renown"
                  component={renderSelectField}
@@ -61,16 +77,17 @@ class ProfileForm extends React.Component {
 const mapStateToProps = state => ({
   profile_id: state.profile.selected.id,
   initialValues: state.profile.selected,
+  regions: state.auth.user.regions,
 });
 
 const formOptions = {
   form: 'profile',
   onSubmit: (values, dispatch, props, previousValues) => {
-    const { npc_renown } = values;
+    const { npc_renown, region } = values;
     const { profile_id } = props;
 
     dispatch(ProfileService.updateSelected({
-      payload: { npc_renown },
+      payload: { npc_renown, region },
       onSuccess: () => toast.success("Profile has been updated"),
     }));
   },

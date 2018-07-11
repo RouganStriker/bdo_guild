@@ -6,6 +6,7 @@ from api.serializers.mixin import BaseSerializerMixin
 from api.serializers.stat import AggregatedUserWarStatsSerializer
 from bdo.models.character import Character, Profile
 from bdo.models.content import CharacterClass
+from bdo.models.region import Region
 
 
 class ProfileDefault(object):
@@ -60,6 +61,7 @@ class ProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
     stats = AggregatedUserWarStatsSerializer(source='user_stats', read_only=True)
     family_name = serializers.CharField(max_length=255)
     membership = GuildMembershipSerializer(many=True, read_only=True)
+    region = serializers.PrimaryKeyRelatedField(queryset=Region.objects.all())
 
     class Meta:
         model = Profile
@@ -72,6 +74,7 @@ class ProfileSerializer(BaseSerializerMixin, serializers.ModelSerializer):
             'character_set',
             'npc_renown',
             'preferred_roles',
+            'region',
             'stats',
             'membership',
         )

@@ -1,4 +1,5 @@
 from bdo.models.guild import GuildRole
+from bdo.models.region import Region
 
 
 def get_user_data(request):
@@ -12,7 +13,8 @@ def get_user_data(request):
         "profile_id": None,
         "email": request.user.email,
         "discord_id": request.user.first_name,
-        "role_permissions": serialize_roles()
+        "role_permissions": serialize_roles(),
+        "regions": serialize_regions(),
     }
 
     try:
@@ -26,6 +28,20 @@ def get_user_data(request):
 
     return {
         "USER_DATA": data
+    }
+
+
+def serialize_regions():
+    return {
+        region.id: {
+            "name": region.name,
+            "node_war_start_time": str(region.node_war_start_time),
+            "node_war_end_time": str(region.node_war_end_time),
+            "conquest_war_start_time": str(region.conquest_war_start_time),
+            "conquest_war_end_time": str(region.conquest_war_end_time),
+            "timezone": str(region.timezone),
+        }
+        for region in Region.objects.all()
     }
 
 

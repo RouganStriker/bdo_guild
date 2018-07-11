@@ -1,6 +1,7 @@
 from logging import getLogger
-from datetime import datetime, timedelta
+from datetime import datetime
 
+import pytz
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -185,7 +186,8 @@ class Profile(models.Model, UserPermissionMixin):
         return attendance_score / total_wars
 
     def get_availability(self, date):
-        day = datetime.strftime(date - timedelta(1), '%A')
+        timezone = pytz.timezone(self.region.timezone)
+        day = datetime.strftime(timezone.localize(date), '%A')
 
         if not self.has_main or not self.auto_sign_up:
             return self.DEFAULT_AVAILABILITY_STATUS

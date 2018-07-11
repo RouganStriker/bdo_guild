@@ -114,7 +114,7 @@ class Guild(DirtyFieldsMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.id:
-            kwargs['update_fields'] = self.get_dirty_fields()
+            kwargs['update_fields'] = self.get_dirty_fields(check_relationship=True)
 
         return super(Guild, self).save(*args, **kwargs)
 

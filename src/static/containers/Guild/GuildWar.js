@@ -504,6 +504,7 @@ class GuildWar extends React.Component {
           <WarFormDialog attendanceEstimate={guild.attendanceEstimate}
                          open={true}
                          guild_id={guild_id}
+                         guild_region={guild.selected.region}
                          handleDeleteSuccess={() => toast.success("War has been cancelled") && this.handleDeleteWarSuccess()}
                          handleSubmitSuccess={this.handleWarFormSuccess.bind(this)}
                          onClose={this.handleCloseDialog.bind(this)} />

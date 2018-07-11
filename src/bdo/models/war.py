@@ -39,15 +39,15 @@ class War(DirtyFieldsMixin, models.Model):
     def __str__(self):
         return u"[{0}] - {1}".format(self.guild.name, self.date.strftime("%b %d, %Y"))
 
-    @staticmethod
-    def next_war():
+    def next_war(self, date=None):
         # Return the closed war date
-        dst_adjusted = getattr(settings, 'DST_ADJUSTED', False)
-        now = datetime.now()
-        war_hour = 1 if dst_adjusted else 2
-        war_date = datetime(year=now.year, month=now.month, day=now.day, hour=war_hour)
+        if date is None:
+            date = datetime.now()
 
-        if now.hour > war_hour:
+        war_hour = self.guild.region.node_war_start_time.hour
+        war_date = datetime(year=date.year, month=date.month, day=date.day, hour=war_hour)
+
+        if date.hour > war_hour:
             war_date += timedelta(days=1)
 
         return war_date
@@ -70,7 +70,7 @@ class War(DirtyFieldsMixin, models.Model):
 
     def generate_attendance(self):
         # Auto-generate attendance for existing members
-        members = self.guild.members.all().prefetch_related('character_set')
+        members = self.guild.members.all().prefetch_related('character_set', 'region')
         attendances = []
 
         for member in members:
@@ -118,20 +118,17 @@ class War(DirtyFieldsMixin, models.Model):
         WarTeam.objects.bulk_create(war_teams)
         WarCallSign.objects.bulk_create(war_callsigns)
 
-    def save(self, *args, **kwargs):
-        dst_adjusted = getattr(settings, 'DST_ADJUSTED', False)
+    def clean_date(self):
+        # Ensure the date has the correct start times
+        self.date = self.next_war(self.date)
 
-        if not self.id:
-            # Apply time adjustments
-            if dst_adjusted:
-                self.date = self.date.replace(hour=1)
-            else:
-                self.date = self.date.replace(hour=2)
+    def save(self, *args, **kwargs):
+        self.clean_date()
 
         super(War, self).save(*args, **kwargs)
 
     def get_display_date(self):
-        return self.date.astimezone(pytz.timezone('US/Eastern')).strftime('%a, %d %b %Y %H:%M:%S %Z')
+        return self.date.astimezone(self.guild.region.get_timezone()).strftime('%a, %d %b %Y %H:%M:%S %Z')
 
     def notify_war_start(self):
         if not self.guild.discord_webhook or not self.guild.discord_notifications['war_create']:

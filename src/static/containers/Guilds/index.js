@@ -52,8 +52,16 @@ class GuildListView extends React.Component {
         key: 'average_renown',
         label: 'Avg. Renown',
       },
+      {
+        key: 'region',
+        label: 'Region',
+        render: (region, all) => {
+          return props.regions[region].name;
+        },
+      },
     ];
   }
+
   componentWillMount() {
     const { dispatch } = this.props;
 
@@ -103,6 +111,7 @@ class GuildListView extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    regions: state.auth.user.regions,
     guild: state.guild,
   };
 };
