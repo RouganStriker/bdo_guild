@@ -1,17 +1,18 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-import { Grid, Row, Col } from 'react-bootstrap';
-import { push } from 'react-router-redux';
+import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 import Paper from 'material-ui/Paper';
-import { Field, reduxForm, submit } from 'redux-form';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
+import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
+import { connect } from 'react-redux';
+import { Grid, Row, Col } from 'react-bootstrap';
+import { push } from 'react-router-redux';
+import { Field, reduxForm, submit } from 'redux-form';
 import { ToastContainer, toast } from 'react-toastify';
 
 import { required } from '../../utils/validations';
-import { renderTextField } from '../../components/Fields'
+import { renderSelectField, renderTextField } from '../../components/Fields'
 import BaseView from '../../components/BaseView'
 import Form from '../../components/Form'
 import {
@@ -40,7 +41,7 @@ class RequireFamilyNameView extends React.Component {
   }
 
   renderForm() {
-    const { handleSubmit } = this.props;
+    const { handleSubmit, regions, submitting } = this.props;
     const { showHelp } = this.state;
 
     return (
@@ -64,7 +65,20 @@ class RequireFamilyNameView extends React.Component {
                  className="form-field"
                  validate={[required]}
                  fullWidth={true}
+                 disabled={submitting}
                  onKeyPress={this.handleKeyPress.bind(this)} />
+          <Field name="region"
+                 component={renderSelectField}
+                 label="Region"
+                 fullWidth={true}
+                 disabled={submitting}
+                 className="form-field">
+            {
+              Object.keys(regions).map((key) => {
+                return <MenuItem key={parseInt(key)} value={parseInt(key)} primaryText={regions[key].name} />;
+              })
+            }
+          </Field>
         { showHelp &&
           <Field name="email"
                  component={renderTextField}
@@ -106,7 +120,7 @@ class RequireFamilyNameView extends React.Component {
 }
 
 function submitForm(values, dispatch, props) {
-  const { id, family_name, email } = values
+  const { id, family_name, email, region } = values
   const { registeredFields } = props;
 
   if (registeredFields.email) {
@@ -125,7 +139,7 @@ function submitForm(values, dispatch, props) {
     }));
   } else {
     dispatch(ProfileService.create({
-      payload: { family_name },
+      payload: { family_name, region },
       form: 'profile',
       onSuccess: (result) => {
         window.location.assign('/settings');
@@ -136,10 +150,12 @@ function submitForm(values, dispatch, props) {
 
 const mapStateToProps = (state) => {
   return {
-    user: state.auth.user,
     initialValues: {
       email: state.auth.user.email,
-    }
+      region: 1,
+    },
+    regions: state.auth.user.regions,
+    user: state.auth.user,
   };
 };
 
