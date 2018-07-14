@@ -15,8 +15,10 @@ Certain scripts require a crontab set up in ordering to run them periodically.
 ```
 // Sync Discord membership info every 5 minutes
 */5 * * * * python manage.py sync_discord
-// Post war teams to Discord via webhook 30 minutes before war (NA time)
-30 0 * * * python manage.py post-war-teams
+// Post war teams to Discord via webhook. Supported intervals are 60, 30, and 15 mins before war.
+0 * * * * python manage.py post-war-teams 60  // 60 minutes before
+30 * * * * python manage.py post-war-teams 30 // 30 minutes before
+45 * * * * python manage.py post-war-teams 30 // 15 minutes before
 // Optionally add the following to periodically recalculate the aggregated stats in case they get out of sync
 0 6 * * * python manage.py recalculate-aggregates
 ```
