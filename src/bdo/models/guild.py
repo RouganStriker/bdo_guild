@@ -28,8 +28,13 @@ class Guild(DirtyFieldsMixin, models.Model):
         "war_create": True,
         "war_cancel": True,
         "war_end": True,
-        "war_start_warning": True
     })
+    discord_war_reminder = models.IntegerField(default=-1, choices=(
+        (60, '60min before'),
+        (30, '30min before'),
+        (15, '15min before'),
+        (-1, 'Disabled'),
+    ))
 
     # Cached discord membership info
     discord_members = JSONField(default={})

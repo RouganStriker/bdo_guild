@@ -96,6 +96,7 @@ class ExtendedGuildSerializer(SimpleGuildSerializer):
             'discord_roles',
             'discord_webhook',
             'discord_notifications',
+            'discord_war_reminder',
         )
 
     def __init__(self, *args, **kwargs):
@@ -115,3 +116,4 @@ class ExtendedGuildSerializer(SimpleGuildSerializer):
             self.fields.pop('discord_roles')
             self.fields.pop('discord_webhook')
             self.fields.pop('discord_notifications')
+            self.fields.pop('discord_war_reminder')

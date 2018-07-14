@@ -75,20 +75,30 @@ export const renderToggle = ({ input, label, ...custom }) => (
 )
 
 export const renderRadioGroup = ({ input, ...custom }) => {
-  const { onChange } = custom;
+  const {
+    onChange,
+    label,
+    labelStyle,
+    style
+  } = custom;
 
   return (
-    <RadioButtonGroup {...input} {...custom}
-      valueSelected={input.value}
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        height: 'auto',
-      }}
-      onChange={(event, value) => {
-        onChange && onChange(value)
-        return input.onChange(value)
-      }} />
+    <div>
+      { label && <label style={labelStyle}>{label}</label> }
+
+      <RadioButtonGroup {...input} {...custom}
+        valueSelected={input.value}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          height: 'auto',
+          ...style,
+        }}
+        onChange={(event, value) => {
+          onChange && onChange(value)
+          return input.onChange(value)
+        }} />
+    </div>
   )
 }
 

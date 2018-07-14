@@ -15,6 +15,15 @@ label {
   font-weight: 400;
 }
 
+.link {
+  color: rgb(51, 122, 183);
+  font-size: inherit;
+}
+
+.link:hover {
+  color: rgba(51, 122, 183, 0.66);
+}
+
 .form-label {
   line-height: 22px;
   color: rgba(0, 0, 0, 0.3);
