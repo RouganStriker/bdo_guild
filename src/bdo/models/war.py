@@ -40,14 +40,14 @@ class War(DirtyFieldsMixin, models.Model):
         return u"[{0}] - {1}".format(self.guild.name, self.date.strftime("%b %d, %Y"))
 
     def next_war(self, date=None):
-        # Return the closed war date
+        # Apply any time corrections
         if date is None:
             date = datetime.utcnow()
 
         war_hour = self.guild.region.node_war_start_time.hour
         war_date = datetime(year=date.year, month=date.month, day=date.day, hour=war_hour)
 
-        if date.hour > war_hour:
+        if war_date < datetime.utcnow():
             war_date += timedelta(days=1)
 
         return war_date
@@ -168,7 +168,7 @@ class War(DirtyFieldsMixin, models.Model):
         })
 
     def notify_war_finished(self):
-        if self.guild.discord_webhook is None or not self.guild.discord_notifications['war_end']:
+        if not self.guild.discord_webhook or not self.guild.discord_notifications['war_end']:
             return
 
         logger.info("Sending war end notification for {0}".format(self))

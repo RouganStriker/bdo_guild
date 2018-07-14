@@ -34,7 +34,7 @@ import FortIcon from './images/castle.png';
 import KillIcon from './images/sword-cross.png';
 import DeathIcon from './images/skull.png';
 import HelpIcon from './images/human-greeting.png';
-
+const moment = require('moment-timezone')
 
 
 class GuildHistory extends React.Component {
@@ -87,6 +87,32 @@ class GuildHistory extends React.Component {
       selectedWar: null,
       showDelete: false,
     }
+  }
+
+  fixDate(date) {
+    const { guild_region_id, regions } = this.props;
+    const region = regions[guild_region_id];
+    const warStartTime = moment.utc(region.node_war_start_time, 'HH:mm:ss').tz(region.timezone);
+
+    // Fix the time
+    const fixDate = moment(date).tz(region.timezone);
+    fixDate.hours(warStartTime.hours());
+    fixDate.minutes(warStartTime.minutes())
+    fixDate.seconds(warStartTime.seconds())
+
+    return new Date(fixDate.toISOString());
+  }
+
+  getWarDayFromDate(date) {
+    // The UTC day is 1 day ahead of the day in the API endpoint because
+    // the days are stored in terms of EST time.
+    // 0 means Sunday in Javascript and 0 means Monday in Python.
+    const { guild_region_id, regions } = this.props;
+    const region = regions[guild_region_id];
+    const convertDay = [6, 0, 1, 2, 3, 4, 5]
+    const warDay = moment(date).tz(region.timezone).day();
+
+    return convertDay[warDay];
   }
 
   componentWillMount() {
@@ -180,8 +206,7 @@ class GuildHistory extends React.Component {
 
     this.fetchWarStats(war);
 
-    const convertDay = [5, 6, 0, 1, 2, 3, 4];
-    const war_day = war.node && war.node.war_day || convertDay[new Date(war.date).getUTCDay()]
+    const war_day = this.getWarDayFromDate(war.date)
 
     dispatch(WarNodesService.list({ params: { page_size: 50, war_day }}));
     dispatch(MemberService.list({
@@ -193,7 +218,12 @@ class GuildHistory extends React.Component {
   }
 
   renderTimeline() {
-    const { war } = this.props;
+    const {
+      guild_region_id,
+      regions,
+      war,
+    } = this.props;
+    const region = regions[guild_region_id];
     const buttonStyle = {
       top: -18,
       left: 9,
@@ -256,7 +286,7 @@ class GuildHistory extends React.Component {
             const styling = data['outcome'] != null && this.outcomeMappings[data['outcome']] || this.unknownStyle;
 
             return <TimelineEvent title={title}
-                                  createdAt={<Time>{date}</Time>}
+                                  createdAt={<Time timezone={region.timezone}>{date}</Time>}
                                   buttons={[
                                     generateStatsButton(() => this.handleViewWarStats(data)),
                                     generateEditButton(() => this.onWarEdit(data)),
@@ -430,8 +460,10 @@ class GuildHistory extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+      guild_region_id: state.guild.selected.region,
       members: state.members,
       profile: state.profile.selected,
+      regions: state.auth.user.regions,
       role_permissions: state.auth.user.role_permissions,
       war: state.war,
       war_stats: state.war_stats,

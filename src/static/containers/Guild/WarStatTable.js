@@ -240,7 +240,7 @@ class WarStatTable extends React.Component {
           width: 250,
         },
         render: (war) => {
-          return <Time>{war.date}</Time>;
+          return <Time timezone='guild'>{war.date}</Time>;
         }
       }, ...columns];
     }

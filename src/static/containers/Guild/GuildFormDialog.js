@@ -60,8 +60,8 @@ class GuildFormDialog extends React.Component {
             Automatically synchronize user roles based on their role in Discord.
             {
               canEditIntegration &&
-              <div style={{paddingTop: 6}}>To complete the integration,
-                <a className="link" {...link_params}>add the BDOGuild bot to your server.</a>
+              <div style={{paddingTop: 6}}>
+                To complete the integration, <a className="link" {...link_params}>add the BDOGuild bot to your server.</a>
               </div>
             }
           </div>
