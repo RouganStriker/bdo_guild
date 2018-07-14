@@ -264,7 +264,7 @@ class GuildWar extends React.Component {
                       labelColor="#fff"
                       style={{marginRight: 20}}
                       onClick={this.handleAttendanceToggle.bind(this)} />
-        <a onClick={() => this.setState({openAttendanceDialog: true})}>Edit attendance details</a>
+        <a className="link" onClick={() => this.setState({openAttendanceDialog: true})}>Edit attendance details</a>
         {
           this.memberHasPermission('add_war') &&
           <FloatingActionButton style={{position: "relative", float: "right", bottom: -23}}
@@ -449,7 +449,7 @@ class GuildWar extends React.Component {
 
   renderNoWar() {
       const create_war_link = (
-        <a onClick={() => {this.setState({openWarDetailsDialog: true})}}>
+        <a className="link" onClick={() => {this.setState({openWarDetailsDialog: true})}}>
           Click here to set one up.
         </a>
       );

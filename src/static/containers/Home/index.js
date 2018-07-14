@@ -199,7 +199,7 @@ class HomeView extends React.Component {
             return (
               <li style={{marginBottom: 16}}>
                   <div>
-                    <Link to={`/guilds/${war.guild_id}/war`}>
+                    <Link className="link" to={`/guilds/${war.guild_id}/war`}>
                       [{war.guild}]: <Time children={war.date} />
                     </Link>
                   </div>
