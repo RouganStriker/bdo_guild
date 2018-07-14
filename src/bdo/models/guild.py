@@ -8,6 +8,14 @@ from bdo.models.character import Character
 from bdo.models.war import War, WarRole
 
 
+WAR_REMINDER_CHOICES = (
+    (60, '60min before'),
+    (30, '30min before'),
+    (15, '15min before'),
+    (-1, 'Disabled'),
+)
+
+
 class Guild(DirtyFieldsMixin, models.Model):
     name = models.CharField(max_length=255)
     logo_url = models.URLField()
@@ -29,12 +37,7 @@ class Guild(DirtyFieldsMixin, models.Model):
         "war_cancel": True,
         "war_end": True,
     })
-    discord_war_reminder = models.IntegerField(default=-1, choices=(
-        (60, '60min before'),
-        (30, '30min before'),
-        (15, '15min before'),
-        (-1, 'Disabled'),
-    ))
+    discord_war_reminder = models.IntegerField(default=-1, choices=WAR_REMINDER_CHOICES)
 
     # Cached discord membership info
     discord_members = JSONField(default={})
