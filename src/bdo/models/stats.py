@@ -42,7 +42,7 @@ class BaseAggregatedWarStats(models.Model):
         self.total_kills = self.guild_master + self.officer + self.member + self.siege_weapons
 
     def recalculate_kdr(self):
-        if self.death == 0:
+        if not self.death:
             self.kdr = 0.0
         else:
             self.kdr = self.total_kills * 1.0 / self.death
@@ -145,7 +145,11 @@ class AggregatedGuildWarStats(BaseAggregatedWarStats):
         try:
             aggregated_stat = AggregatedGuildWarStats.objects.get(guild=guild)
         except AggregatedGuildWarStats.DoesNotExist():
-            stats["kdr"] = stats["total_kills"] * 1.0 / stats["death"]
+            if not stats["death"]:
+                stats["kdr"] = 0.0
+            else:
+                stats["kdr"] = stats["total_kills"] * 1.0 / stats["death"]
+
             AggregatedGuildWarStats.objects.create(guild=guild, *stats)
             return
 
@@ -153,7 +157,10 @@ class AggregatedGuildWarStats(BaseAggregatedWarStats):
             current = getattr(aggregated_stat, stat_field)
             setattr(aggregated_stat, stat_field, current + stat_value)
 
-        aggregated_stat.kdr = aggregated_stat.total_kills * 1.0 / aggregated_stat.death
+        if not aggregated_stat.death:
+            aggregated_stat.kdr = 0.0
+        else:
+            aggregated_stat.kdr = aggregated_stat.total_kills * 1.0 / aggregated_stat.death
 
         aggregated_stat.save()
 
