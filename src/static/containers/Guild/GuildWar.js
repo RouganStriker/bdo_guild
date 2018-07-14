@@ -103,7 +103,10 @@ class GuildWar extends React.Component {
   componentDidMount() {
     const { auth, guild, members, war, war_roles, attendance, dispatch, guild_id, profile } = this.props;
 
-    dispatch(GuildService.attendanceEstimate({ id: guild_id }))
+    if (this.memberHasPermission('add_war')) {
+      dispatch(GuildService.attendanceEstimate({ id: guild_id }))
+    }
+
     dispatch(MemberService.list({ context: { guild_id }, params: { expand: 'user,role', page_size: 100 }, onSuccess: this.calculateAttendance.bind(this)}))
 
     if (!guild.selected || !guild.selected.pending_war) {
