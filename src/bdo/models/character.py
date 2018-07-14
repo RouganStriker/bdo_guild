@@ -35,7 +35,7 @@ class Profile(models.Model, UserPermissionMixin):
     availability = JSONField(default=DEFAULT_AVAILABILITY)
     auto_sign_up = models.BooleanField(default=False)
     npc_renown = models.IntegerField(default=0, validators=(MinValueValidator(0), MaxValueValidator(5)))
-    region = models.ForeignKey("Region")
+    region = models.ForeignKey("Region", blank=True)
 
     class Meta:
         ordering = ('id',)

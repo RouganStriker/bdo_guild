@@ -21,7 +21,7 @@ class Guild(DirtyFieldsMixin, models.Model):
     logo_url = models.URLField()
     members = models.ManyToManyField("Profile", through='GuildMember', related_name='guilds')
     description = models.TextField(default='')
-    region = models.ForeignKey("Region")
+    region = models.ForeignKey("Region", blank=True)
 
     # Discord fields
     discord_id = models.CharField(max_length=75)
