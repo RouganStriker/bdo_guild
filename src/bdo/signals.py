@@ -138,7 +138,7 @@ def handle_profile_created(created, instance, *args, **kwargs):
     AggregatedUserWarStats.objects.get_or_create(user_profile=instance)
 
     # By default select all war roles as preferred roles
-    instance.preferred_roles = WarRole.objects.filter(custom_for__isnull=True)
+    instance.preferred_roles = WarRole.objects.filter(custom_for__isnull=True).exclude(id=-1)
 
 
 @receiver(post_save, sender=WarStat)

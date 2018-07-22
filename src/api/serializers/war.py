@@ -36,6 +36,17 @@ class CurrentGuildDefault(object):
         return unicode_to_repr('%s()' % self.__class__.__name__)
 
 
+class CurrentGuildTimezoneDefault(object):
+    def set_context(self, serializer_field):
+        self.timezone = Guild.objects.get(pk=serializer_field.context['guild_pk']).region.get_timezone()
+
+    def __call__(self):
+        return self.timezone
+
+    def __repr__(self):
+        return unicode_to_repr('%s()' % self.__class__.__name__)
+
+
 class CurrentWarDefault(object):
     def set_context(self, serializer_field):
         self.war = War.objects.get(pk=serializer_field.context['war_pk'])
@@ -178,6 +189,7 @@ class WarSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serializers.Mo
     guild = serializers.HiddenField(default=CurrentGuildDefault())
     stats = serializers.DictField(read_only=True)
     use_last_setup = serializers.BooleanField(default=True, required=False)
+    date = serializers.DateTimeField(default_timezone=CurrentGuildTimezoneDefault())
 
     class Meta:
         model = War
