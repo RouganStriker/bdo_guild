@@ -186,8 +186,15 @@ class Profile(models.Model, UserPermissionMixin):
         return attendance_score / total_wars
 
     def get_availability(self, date):
+        # Convert the date to the correct timezone
         timezone = pytz.timezone(self.region.timezone)
-        day = datetime.strftime(timezone.localize(date), '%A')
+
+        if date.tzinfo is None:
+            localized_date = timezone.localize(date)
+        else:
+            localized_date = date.astimezone(timezone)
+
+        day = datetime.strftime(localized_date, '%A')
 
         if not self.has_main or not self.auto_sign_up:
             return self.DEFAULT_AVAILABILITY_STATUS

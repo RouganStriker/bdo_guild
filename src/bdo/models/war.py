@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from logging import getLogger
 
 from dirtyfields import DirtyFieldsMixin
@@ -45,9 +45,9 @@ class War(DirtyFieldsMixin, models.Model):
             date = datetime.utcnow()
 
         war_hour = self.guild.region.node_war_start_time.hour
-        war_date = datetime(year=date.year, month=date.month, day=date.day, hour=war_hour)
+        war_date = datetime(year=date.year, month=date.month, day=date.day, hour=war_hour, tzinfo=timezone.utc)
 
-        if war_date < datetime.utcnow():
+        if war_date < datetime.now(tz=timezone.utc):
             war_date += timedelta(days=1)
 
         return war_date
