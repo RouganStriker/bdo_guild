@@ -66,7 +66,7 @@ class Command(BaseCommand):
         # Between the time the script is executed till it gets here,
         # it is possible that a significant amount of time has passed
         # so we will for wars within a small time frame.
-        next_war_time_range = [next_war_time - timedelta(minutes=5), next_war_time - timedelta(minutes=5)]
+        next_war_time_range = [next_war_time - timedelta(minutes=5), next_war_time + timedelta(minutes=5)]
 
         wars = (War.objects.filter(date__range=next_war_time_range,
                                    guild__discord_war_reminder=reminder_interval,
