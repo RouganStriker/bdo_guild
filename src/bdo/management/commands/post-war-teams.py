@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from logging import getLogger
 
 import requests
@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         count = 0
-        now = datetime.utcnow()
+        now = datetime.now(tz=timezone.utc)
         reminder_interval = int(options.get('reminder_interval'))
 
         if not any(reminder_interval == interval for interval, _ in WAR_REMINDER_CHOICES):
@@ -68,7 +68,8 @@ class Command(BaseCommand):
         # so we will for wars within a small time frame.
         next_war_time_range = [next_war_time - timedelta(minutes=5), next_war_time + timedelta(minutes=5)]
 
-        wars = (War.objects.filter(date__range=next_war_time_range,
+        wars = (War.objects.filter(outcome__isnull=True,
+                                   date__range=next_war_time_range,
                                    guild__discord_war_reminder=reminder_interval,
                                    guild__discord_webhook__isnull=False)
                            .prefetch_related('warteam_set__members',

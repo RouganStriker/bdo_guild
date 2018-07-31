@@ -42,7 +42,7 @@ class War(DirtyFieldsMixin, models.Model):
     def next_war(self, date=None):
         # Apply any time corrections
         if date is None:
-            date = datetime.utcnow()
+            date = datetime.now(tz=timezone.utc)
 
         war_hour = self.guild.region.node_war_start_time.hour
         war_date = datetime(year=date.year, month=date.month, day=date.day, hour=war_hour, tzinfo=timezone.utc)
