@@ -47,7 +47,7 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
     include_params = ['stats']
 
     def get_queryset(self):
-        return self.queryset.select_related('node')
+        return super(WarViewSet, self).select_related('node')
 
     def get_serializer_context(self):
         context = super(WarViewSet, self).get_serializer_context()
