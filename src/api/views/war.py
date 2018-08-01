@@ -46,6 +46,9 @@ class WarViewSet(ModelViewSet, GuildViewMixin):
     ordering = ('-date',)
     include_params = ['stats']
 
+    def get_queryset(self):
+        return self.queryset.select_related('node')
+
     def get_serializer_context(self):
         context = super(WarViewSet, self).get_serializer_context()
         context['guild_pk'] = self.kwargs['guild_pk']
@@ -160,6 +163,13 @@ class WarTeamViewSet(NestedWarViewSet):
         INVALID_SLOT = u"Invalid slot."
         INVALID_ATTENDEE = u"Invalid attendee_id"
 
+    def get_queryset(self):
+        prefetch_members = Prefetch('members', WarAttendance.objects.select_related('slot'))
+
+        return (super(WarTeamViewSet, self).get_queryset()
+                                           .select_related('default_role')
+                                           .prefetch_related(prefetch_members))
+
     def get_serializer_context(self):
         context = super(WarTeamViewSet, self).get_serializer_context()
         context['war_pk'] = self.kwargs['war_pk']
@@ -203,6 +213,9 @@ class WarCallSignViewSet(NestedWarViewSet):
         MISSING_FIELD = u"This field is required."
         INVALID_SLOT = u"Invalid slot."
         INVALID_ATTENDEE = u"Invalid attendee_id"
+
+    def get_queryset(self):
+        return super(WarCallSignViewSet, self).get_queryset().prefetch_related('members')
 
     def get_serializer_context(self):
         context = super(WarCallSignViewSet, self).get_serializer_context()

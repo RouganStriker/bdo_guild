@@ -162,12 +162,12 @@ class WarTeamSerializer(BaseSerializerMixin, serializers.ModelSerializer):
         fields = '__all__'
 
     def get_slots(self, instance):
-        members = instance.members.values('id', 'slot__slot')
+        members = instance.members.all()
 
         def find_member(slot_id):
             for member in members:
-                if member['slot__slot'] == slot_id:
-                    return member['id']
+                if member.slot.slot == slot_id:
+                    return member.id
             return None
 
         return [

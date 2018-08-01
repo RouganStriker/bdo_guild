@@ -153,6 +153,11 @@ class GuildActivityViewSet(ReadOnlyModelViewSet, GuildViewMixin):
     permission_classes = (IsAuthenticated,)
     ordering_fields = ('-date', 'id')
 
+    def get_queryset(self):
+        qs = super(GuildActivityViewSet, self).get_queryset()
+
+        return qs.select_related('actor_profile', 'guild')
+
 
 class WarRoleViewSet(ReadOnlyModelViewSet):
     queryset = WarRole.objects.all()
