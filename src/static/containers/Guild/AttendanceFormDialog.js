@@ -140,8 +140,8 @@ function submitForm(values, dispatch, props) {
   if (dirty) {
     const {
       preferred_roles,
-      ...changes,
-    } = diff(initialValues, values);
+      ...other_changes,
+    } = values;
 
     const payload = {
       is_attending: values.is_attending,
@@ -149,7 +149,7 @@ function submitForm(values, dispatch, props) {
       character: values.character,
     }
 
-    if (preferred_roles !== null) {
+    if (preferred_roles !== null && initialValues.preferred_roles !== values.preferred_roles) {
       // Update preferred roles
       dispatch(ProfileService.updateSelected({
         payload: {
@@ -164,7 +164,7 @@ function submitForm(values, dispatch, props) {
         guild_id,
         war_id
       },
-      payload: changes,
+      payload: other_changes,
       form: 'attendance',
       onSuccess: handleSubmitSuccess,
     }))
@@ -192,7 +192,7 @@ const getInitialValues = (state, props) => {
       note: myAttendance.note,
     };
   }
-  if (initialValues.character == null && characters) {
+  if (initialValues.character == null && characters.length > 0) {
     // Select a default character
     initialValues["character"] = (characters.find((char) => char.is_main) || characters[0]).id;
   }
