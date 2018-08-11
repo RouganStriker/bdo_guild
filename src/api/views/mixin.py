@@ -1,6 +1,12 @@
-from bdo.context import UserContext
+import csv
+
+from django.http import StreamingHttpResponse
+from rest_framework.decorators import list_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import (ModelViewSet as DRFModelViewSet,
                                      ReadOnlyModelViewSet as DRFReadOnlyModelViewSet)
+
+from bdo.context import UserContext
 
 
 class FilterMixin(object):
@@ -58,3 +64,64 @@ class ModelViewSet(FilterMixin, UserContextMixin, DRFModelViewSet):
 
 class ReadOnlyModelViewSet(FilterMixin, UserContextMixin, DRFReadOnlyModelViewSet):
     pass
+
+
+class CSVExportMixin(object):
+    """
+    Add an export endpoint that returns the data in a CSV format.
+    """
+    CSV_FILE_NAME = 'export.csv'
+
+    class Echo:
+        """An object that implements just the write method of the file-like
+        interface.
+        """
+
+        def write(self, value):
+            """Write the value by returning it, instead of storing in a buffer."""
+            return value
+
+    def generate_csv(self, objects):
+        """
+        Return an iterator for csv file.
+        """
+        buffer = self.Echo()
+        writer = csv.writer(buffer)
+        found_header = False
+        rows = []
+
+        if not objects:
+            return ''
+
+        for obj in objects:
+            serializer = self.get_serializer(obj)
+
+            if hasattr(serializer, 'for_csv'):
+                data = serializer.for_csv()
+            else:
+                # Try to serializer the data automatically
+                data = serializer.data
+
+            if not found_header:
+                rows.append(list(data.keys()))
+                found_header = True
+
+            rows.append([str(value) for value in data.values()])
+
+        return (writer.writerow(row) for row in rows)
+
+    @list_route(methods=['get'], permission_classes=[IsAuthenticated])
+    def export(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            objects = page
+        else:
+            objects = queryset
+
+        response = StreamingHttpResponse(self.generate_csv(objects), content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(self.CSV_FILE_NAME)
+
+        return response

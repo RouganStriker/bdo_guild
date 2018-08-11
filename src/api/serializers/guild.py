@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from expander import ExpanderSerializerMixin
 from rest_framework import serializers
 
@@ -50,6 +51,33 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
             self.fields.pop('attendance_rate')
         if 'main_character' not in self.context['include']:
             self.fields.pop('main_character')
+
+    def for_csv(self):
+        """
+        Convert data to CSV.
+
+        Flatten dictionaries when possible.
+        """
+        flattened_data = OrderedDict()
+        fields = ['role', 'family_name', 'name', 'discord_username', 'main_character', 'attendance_rate', 'stats']
+        data = self.data
+
+        for field in fields:
+            value = data.get(field, None)
+
+            if field == "main_character":
+                flattened_data["level"] = value.get("level", "")
+                flattened_data["class"] = value.get("class", "")
+                flattened_data["gearscore"] = value.get("gearscore", "")
+            elif field == "role" and isinstance(value, dict):
+                flattened_data["role"] = value.get("name", "")
+            elif field == "stats" and isinstance(value, dict):
+                for stat_field, stat_value in value.items():
+                    flattened_data[stat_field] = stat_value
+            elif value is not None:
+                flattened_data[field] = value
+
+        return flattened_data
 
 
 class SimpleGuildSerializer(NestedGuildSerializer):

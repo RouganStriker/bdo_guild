@@ -7,7 +7,9 @@ import Popover, {PopoverAnimationVertical} from 'material-ui/Popover';
 import Checkbox from 'material-ui/Checkbox';
 import Menu from 'material-ui/Menu';
 import HideIcon from 'material-ui/svg-icons/action/visibility';
+import DownloadIcon from 'material-ui/svg-icons/file/cloud-download';
 import DataTables from 'material-ui-datatables';
+import { toast } from 'react-toastify';
 
 import LoadingWidget from '../../components/LoadingWidget';
 import Tooltip from '../../components/Tooltip';
@@ -403,6 +405,27 @@ class GuildMemberStats extends React.Component {
     );
   }
 
+  memberHasPermission(permission) {
+    const { profile, guild_id, role_permissions } = this.props;
+
+    if (!profile.selected) {
+      return false;
+    }
+
+    const guild_role = profile.selected.membership.find((membership) => membership.guild.id == parseInt(guild_id)).role.id;
+    const guild_permissions = role_permissions[guild_role]
+
+    return guild_permissions.includes(permission);
+  }
+
+  handleExportCSV() {
+    // Open download in new link
+    const { guild_id } = this.props;
+    const url = `/api/guilds/${guild_id}/members/export/?expand=role&include=stats,main_character&ordering=name&page_size=100`;
+
+    window.open(url, "_blank")
+  }
+
   render() {
     const { members } = this.props;
     const {
@@ -417,10 +440,21 @@ class GuildMemberStats extends React.Component {
     }
 
     const tableActions = [
-      <IconButton onClick={(e) => this.setState({showColumnDialog: true, anchorEl: e.currentTarget})}>
+      <IconButton onClick={(e) => this.setState({showColumnDialog: true, anchorEl: e.currentTarget})}
+                  tooltip="Toggle Columns">
         <HideIcon />
-      </IconButton>
+      </IconButton>,
     ];
+
+    if (this.memberHasPermission('change_guild_info')) {
+      // Officer or higher can download CSV of member data
+      tableActions.push(
+        <IconButton onClick={this.handleExportCSV.bind(this)}
+                    tooltip="Download CSV">
+          <DownloadIcon />
+        </IconButton>
+      );
+    }
 
     return (
       <Grid componentClass={Paper} style={{padding: 0}}>
@@ -460,6 +494,8 @@ class GuildMemberStats extends React.Component {
 const mapStateToProps = (state) => {
   return {
       members: state.members,
+      profile: state.profile,
+      role_permissions: state.auth.user.role_permissions,
   };
 };
 

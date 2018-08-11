@@ -130,6 +130,26 @@ class GuildOfficerPermission(GuildPermission):
     }
 
 
+class GuildMemberExportPermission(BaseGuildObjectPermission):
+    """
+    Permission for downloading member data.
+    """
+
+    perms_map = {
+        'GET': ['change_guild_info'],
+        'OPTIONS': ['change_guild_info'],
+        'HEAD': ['change_guild_info'],
+        'PUT': ['change_guild_info'],
+        'PATCH': ['change_guild_info'],
+    }
+
+    def get_guild(self, request, instance=None):
+        if instance is not None:
+            return instance.guild
+
+        return Guild.objects.get(id=request.parser_context['kwargs']['guild_pk'])
+
+
 class WarAttendancePermission(BaseGuildObjectPermission):
     perms_map = {
         'GET': ['view_war'],

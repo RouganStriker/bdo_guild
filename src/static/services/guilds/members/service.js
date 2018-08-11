@@ -3,7 +3,7 @@ import { select } from 'redux-saga/effects';
 import BaseService from '../../../utils/baseService';
 import BaseSaga from '../../../utils/baseSaga';
 
-class WarSaga extends BaseSaga {
+class GuildMemberSaga extends BaseSaga {
   * getContext() {
     // Overridden by child classes to auto generate the context
     const baseContext = {};
@@ -17,7 +17,7 @@ class WarSaga extends BaseSaga {
   }
 }
 
-const saga = new WarSaga('/api/guilds/{guild_id}/members/', 'members', true);
+const saga = new GuildMemberSaga('/api/guilds/{guild_id}/members/', 'members', true);
 const service = new BaseService('GUILD_MEMBERS', 'members', saga, { list: true, get: true });
 
 export default service;
