@@ -33,6 +33,7 @@ class GuildMemberStats extends React.Component {
       filterColumns: {
         "class": true,
         "level": true,
+        "discord_username": false,
         "gearscore": true,
         "attendance": true,
         "attendanceRate": true,
@@ -55,6 +56,7 @@ class GuildMemberStats extends React.Component {
     };
 
     this.columnKeyMapping = {
+      "discord_username": "Discord Username",
       "class": "Class",
       "level": "Level",
       "gearscore": "Renown",
@@ -140,6 +142,12 @@ class GuildMemberStats extends React.Component {
       },
     ];
 
+    const discordUsernameColumn = {
+      key: 'discord_username',
+      label: 'Discord Username',
+      sortable: false,
+      style: {width: 250},
+    }
     const classColumn = {
       key: 'className',
       label: 'Class',
@@ -313,6 +321,7 @@ class GuildMemberStats extends React.Component {
     }
 
     // Add columns
+    filterColumns.discord_username && columns.push(discordUsernameColumn);
     filterColumns.class && columns.push(classColumn);
     filterColumns.level && columns.push(levelColumn);
     filterColumns.gearscore && columns.push(gearscoreColumn);

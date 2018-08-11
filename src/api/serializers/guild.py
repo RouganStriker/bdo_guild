@@ -15,6 +15,7 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
                                                decimal_places=2,
                                                coerce_to_string=False,
                                                read_only=True)
+    discord_username = serializers.CharField(source='user.user.first_name', read_only=True)
     family_name = serializers.CharField(source='user.family_name', read_only=True)
     name = serializers.StringRelatedField(source='user', read_only=True)
     main_character = serializers.DictField(read_only=True)
@@ -24,6 +25,7 @@ class GuildMemberSerializer(BaseSerializerMixin, ExpanderSerializerMixin, serial
         model = GuildMember
         fields = (
             'id',
+            'discord_username',
             'user',
             'role',
             'attendance',
