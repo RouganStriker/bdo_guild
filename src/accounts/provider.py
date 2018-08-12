@@ -9,12 +9,12 @@ class DiscordRPCScopeProvider(DiscordProvider):
         if not data.get('verified', False):
             raise ProviderException("Login failed. Discord account is unverified.")
 
-        username = '{0}{1}'.format(data.get('username'), data.get('discriminator'))
         name = '{0}#{1}'.format(data.get('username'), data.get('discriminator'))
 
         return dict(
             email=data.get('email'),
-            username=username,
+            username=data.get('id'),
+            first_name=name,
             name=name
         )
 
